@@ -13,9 +13,11 @@ import android.widget.Toast;
 import tic.tack.toe.arduino.service.BleManager;
 import timber.log.Timber;
 
-public class MainActivity extends AppCompatActivity implements View.OnClickListener{
-    private final static String macAddress = "D7:90:F4:FE:A4:55";
-    private final static String TAG = "Bluetooth";
+import static tic.tack.toe.arduino.Constants.TAG;
+
+public class MainActivity extends AppCompatActivity implements View.OnClickListener {
+    public final static String MAC_ADDRESS = "D7:90:F4:FE:A4:55";
+
     private final static String EMPTY = "";
 
     private final String[] fieldValueArray = new String[9];
@@ -29,8 +31,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         this.setContentView(R.layout.activity_main);
-        Timber.plant(new Timber.DebugTree());
-        Timber.tag(TAG).e("onCreate");
+        Timber.tag(Constants.TAG).e("onCreate");
 
         this.gridLayout = findViewById(R.id.gridLayout);
         int childCount = this.gridLayout.getChildCount();
@@ -79,7 +80,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
         });
 
-        this.bleManager.connect(MainActivity.this, macAddress);
+        this.bleManager.connect(MainActivity.this, MAC_ADDRESS);
     }
 
     @Override
@@ -240,5 +241,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     protected void onDestroy() {
         super.onDestroy();
         this.bleManager.disconnect();
+        this.bleManager.close();
     }
 }

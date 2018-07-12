@@ -12,8 +12,9 @@ import java.util.UUID;
 
 import timber.log.Timber;
 
+import static tic.tack.toe.arduino.Constants.TAG;
+
 class BleGattExecutor extends BluetoothGattCallback {
-    private final static String TAG = "Bluetooth";
 
     interface ServiceAction {
         ServiceAction NULL = new ServiceAction() {

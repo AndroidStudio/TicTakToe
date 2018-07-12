@@ -8,19 +8,14 @@ import android.bluetooth.BluetoothGattDescriptor;
 import android.bluetooth.BluetoothGattService;
 import android.bluetooth.BluetoothProfile;
 import android.content.Context;
-import android.content.SharedPreferences;
-import android.preference.PreferenceManager;
 
 import java.util.UUID;
 
 import timber.log.Timber;
 
-public class BleManager implements BleGattExecutor.BleExecutorListener {
-    private final static String TAG = "Bluetooth";
+import static tic.tack.toe.arduino.Constants.TAG;
 
-    private static final int STATE_DISCONNECTED = 0;
-    private static final int STATE_CONNECTING = 1;
-    private static final int STATE_CONNECTED = 2;
+public class BleManager implements BleGattExecutor.BleExecutorListener {
 
     private static BleManager mInstance = null;
 
@@ -29,8 +24,6 @@ public class BleManager implements BleGattExecutor.BleExecutorListener {
     private BluetoothGatt mGatt;
 
     private BluetoothDevice mDevice;
-    private String mDeviceAddress;
-    private int mConnectionState = STATE_DISCONNECTED;
 
     private BleManagerListener mBleListener;
 
@@ -55,59 +48,25 @@ public class BleManager implements BleGattExecutor.BleExecutorListener {
         }
     }
 
-    public BluetoothAdapter getAdapter() {
-        return this.mAdapter;
-    }
-
-    public int getConnectionState() {
-        return mConnectionState;
-    }
-
-    public boolean connect(Context context, String address) {
+    public void connect(Context context, String address) {
         Timber.tag(TAG).e("start connect");
 
         if (mAdapter == null || address == null) {
             Timber.tag(TAG).e("connect: BluetoothAdapter not initialized or unspecified address.");
-            return false;
-        }
-
-        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
-        final boolean reuseExistingConnection = sharedPreferences.getBoolean("pref_recycleconnection", false);
-
-        if (reuseExistingConnection) {
-            if (mDeviceAddress != null && address.equalsIgnoreCase(mDeviceAddress) && mGatt != null) {
-                Timber.tag(TAG).e("Trying to use an existing BluetoothGatt for connection.");
-                if (mGatt.connect()) {
-                    mConnectionState = STATE_CONNECTING;
-                    if (mBleListener != null)
-                        mBleListener.onConnecting();
-                    return true;
-                } else {
-                    return false;
-                }
-            }
-        } else {
-            final boolean forceCloseBeforeNewConnection = sharedPreferences.getBoolean("pref_forcecloseconnection", true);
-            if (forceCloseBeforeNewConnection) {
-                close();
-            }
+            return;
         }
 
         mDevice = mAdapter.getRemoteDevice(address);
         if (mDevice == null) {
             Timber.tag(TAG).e("Device not found.  Unable to connect.");
-            return false;
+            return;
         }
 
-        mDeviceAddress = address;
-        mConnectionState = STATE_CONNECTING;
         if (mBleListener != null) {
             mBleListener.onConnecting();
         }
 
-        final boolean gattAutoconnect = sharedPreferences.getBoolean("pref_gattautoconnect", false);
-        mGatt = mDevice.connectGatt(context, gattAutoconnect, mExecutor);
-        return true;
+        mGatt = mDevice.connectGatt(context, false, mExecutor);
     }
 
     public void disconnect() {
@@ -119,15 +78,13 @@ public class BleManager implements BleGattExecutor.BleExecutorListener {
         mGatt.disconnect();
     }
 
-    private void close() {
+    public void close() {
         if (mGatt != null) {
             mGatt.close();
             mGatt = null;
-            mDeviceAddress = null;
             mDevice = null;
         }
     }
-
 
     public void writeService(BluetoothGattService service, String uuid, byte[] value) {
         if (service != null) {
@@ -153,19 +110,15 @@ public class BleManager implements BleGattExecutor.BleExecutorListener {
     @Override
     public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
         if (newState == BluetoothProfile.STATE_CONNECTED) {
-            mConnectionState = STATE_CONNECTED;
-
             if (mBleListener != null) {
                 mBleListener.onConnected();
             }
             gatt.discoverServices();
         } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
-            mConnectionState = STATE_DISCONNECTED;
             if (mBleListener != null) {
                 mBleListener.onDisconnected();
             }
         } else if (newState == BluetoothProfile.STATE_CONNECTING) {
-            mConnectionState = STATE_CONNECTING;
             if (mBleListener != null) {
                 mBleListener.onConnecting();
             }
