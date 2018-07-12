@@ -33,7 +33,6 @@ class BleGattExecutor extends BluetoothGattCallback {
         mQueue.add(action);
     }
 
-
     private BleGattExecutor.ServiceAction serviceWriteAction(final BluetoothGattService gattService, final String uuid, final byte[] value) {
         return new BleGattExecutor.ServiceAction() {
             @Override

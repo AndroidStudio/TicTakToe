@@ -1,5 +1,7 @@
 package tic.tack.toe.arduino;
 
+import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothGattDescriptor;
 import android.os.Bundle;
@@ -13,7 +15,7 @@ import android.widget.Toast;
 import tic.tack.toe.arduino.service.BleManager;
 import timber.log.Timber;
 
-public class MainActivity extends AppCompatActivity implements View.OnClickListener {
+public class MainActivity extends AppCompatActivity implements View.OnClickListener, BluetoothAdapter.LeScanCallback {
     private final static String macAddress = "D7:90:F4:FE:A4:55";
     private final static String TAG = "Bluetooth";
     private final static String EMPTY = "";
@@ -24,7 +26,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private GridLayout gridLayout;
     private BleManager bleManager;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -80,7 +81,23 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
         });
 
-        this.bleManager.connect(this, macAddress);
+        startScanning();
+    }
+
+    private void startScanning() {
+        this.bleManager.getAdapter().startLeScan(this);
+    }
+
+    @Override
+    public void onLeScan(BluetoothDevice device, int rssi, byte[] scanRecord) {
+        if (device.getAddress().equals(macAddress)) {
+            this.bleManager.connect(this, macAddress);
+            this.stopScanning();
+        }
+    }
+
+    public void stopScanning() {
+        this.bleManager.getAdapter().stopLeScan(this);
     }
 
     @Override
@@ -240,6 +257,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        this.stopScanning();
         this.bleManager.disconnect();
     }
 }

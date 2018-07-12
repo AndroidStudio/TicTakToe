@@ -55,6 +55,10 @@ public class BleManager implements BleGattExecutor.BleExecutorListener {
         }
     }
 
+    public BluetoothAdapter getAdapter() {
+        return this.mAdapter;
+    }
+
     public int getConnectionState() {
         return mConnectionState;
     }
