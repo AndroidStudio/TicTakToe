@@ -64,6 +64,8 @@ public class BleManager implements BleGattExecutor.BleExecutorListener {
     }
 
     public boolean connect(Context context, String address) {
+        Timber.tag(TAG).e("start connect");
+
         if (mAdapter == null || address == null) {
             Timber.tag(TAG).e("connect: BluetoothAdapter not initialized or unspecified address.");
             return false;
