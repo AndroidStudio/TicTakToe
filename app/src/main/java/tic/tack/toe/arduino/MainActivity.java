@@ -1,5 +1,7 @@
 package tic.tack.toe.arduino;
 
+import android.bluetooth.BluetoothGattCharacteristic;
+import android.bluetooth.BluetoothGattDescriptor;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayout;
@@ -8,8 +10,12 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
-public class MainActivity extends AppCompatActivity implements View.OnClickListener {
+import tic.tack.toe.arduino.service.BleManager;
+import timber.log.Timber;
 
+public class MainActivity extends AppCompatActivity implements View.OnClickListener {
+    private final static String macAddress = "D7:90:F4:FE:A4:55";
+    private final static String TAG = "Bluetooth";
     private final static String EMPTY = "";
 
     private final String[] fieldValueArray = new String[9];
@@ -17,11 +23,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private String currentCharacter = "X";
 
     private GridLayout gridLayout;
+    private BleManager bleManager;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         this.setContentView(R.layout.activity_main);
+        Timber.plant(new Timber.DebugTree());
+        Timber.tag(TAG).e("onCreate");
 
         this.gridLayout = findViewById(R.id.gridLayout);
         int childCount = this.gridLayout.getChildCount();
@@ -31,17 +41,63 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             view.setTag(i);
             view.setOnClickListener(this);
         }
+
+        this.bleManager = BleManager.getInstance(this);
+        this.bleManager.setBleListener(new BleManager.BleManagerListener() {
+            @Override
+            public void onConnected() {
+                Timber.tag(TAG).e("onConnected");
+            }
+
+            @Override
+            public void onConnecting() {
+                Timber.tag(TAG).e("onConnecting");
+            }
+
+            @Override
+            public void onDisconnected() {
+                Timber.tag(TAG).e("onDisconnected");
+            }
+
+            @Override
+            public void onServicesDiscovered() {
+                Timber.tag(TAG).e("onServicesDiscovered");
+            }
+
+            @Override
+            public void onDataAvailable(BluetoothGattCharacteristic characteristic) {
+                Timber.tag(TAG).e("onDataAvailable");
+            }
+
+            @Override
+            public void onDataAvailable(BluetoothGattDescriptor descriptor) {
+                Timber.tag(TAG).e("onDataAvailable");
+            }
+
+            @Override
+            public void onReadRemoteRssi(int rssi) {
+                Timber.tag(TAG).e("onReadRemoteRssi");
+            }
+        });
+
+        this.bleManager.connect(this, macAddress);
     }
 
     @Override
     public void onClick(View view) {
-        int position = (int) view.getTag();
-        String value = this.fieldValueArray[position];
+        int index = (int) view.getTag();
+        String value = this.fieldValueArray[index];
         if (!TextUtils.isEmpty(value)) {
             return;
         }
 
-        this.fieldValueArray[position] = getCharacter();
+        String character = getCharacter();
+        String message = "value: " + character + " index: " + index + "\r\n";
+
+        this.fieldValueArray[index] = character;
+        this.bleManager.writeService(this.bleManager.getGattService(
+                "6E400001-B5A3-F393-E0A9-E50E24DCCA9E"),
+                "6E400002-B5A3-F393-E0A9-E50E24DCCA9E", message.getBytes());
         this.updateUI();
         this.checkWin();
     }
@@ -179,5 +235,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             this.win(v1);
             this.reset();
         }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        this.bleManager.disconnect();
     }
 }
