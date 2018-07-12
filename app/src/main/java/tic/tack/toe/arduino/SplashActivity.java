@@ -150,10 +150,10 @@ public class SplashActivity extends AppCompatActivity implements Runnable {
     private boolean checkPermissions() {
         int accessFineLocation = ContextCompat.checkSelfPermission(this,
                 Manifest.permission.ACCESS_FINE_LOCATION);
-        int accessCorseLocation = ContextCompat.checkSelfPermission(this,
-                Manifest.permission.ACCESS_FINE_LOCATION);
+        int accessCoarseLocation = ContextCompat.checkSelfPermission(this,
+                Manifest.permission.ACCESS_COARSE_LOCATION);
         return accessFineLocation == PackageManager.PERMISSION_GRANTED
-                && accessCorseLocation == PackageManager.PERMISSION_GRANTED;
+                && accessCoarseLocation == PackageManager.PERMISSION_GRANTED;
     }
 
     @Override
