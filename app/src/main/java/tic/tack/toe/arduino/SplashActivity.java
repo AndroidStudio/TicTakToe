@@ -85,7 +85,7 @@ public class SplashActivity extends AppCompatActivity implements Runnable {
         this.mDeviceFound = false;
         List<ScanFilter> filters = new ArrayList<>();
         ScanSettings settings = new ScanSettings.Builder()
-                .setScanMode(ScanSettings.SCAN_MODE_LOW_POWER)
+                .setScanMode(ScanSettings.SCAN_MODE_LOW_LATENCY)
                 .setReportDelay(1000)
                 .build();
 
