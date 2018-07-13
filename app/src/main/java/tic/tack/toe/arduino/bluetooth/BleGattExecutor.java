@@ -1,4 +1,4 @@
-package tic.tack.toe.arduino.service;
+package tic.tack.toe.arduino.bluetooth;
 
 import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCallback;

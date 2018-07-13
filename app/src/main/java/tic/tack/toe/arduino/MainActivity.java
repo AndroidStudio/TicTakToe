@@ -1,31 +1,49 @@
 package tic.tack.toe.arduino;
 
+import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothGattDescriptor;
+import android.bluetooth.BluetoothManager;
+import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
+import android.os.Handler;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.view.GravityCompat;
+import android.support.v4.widget.DrawerLayout;
 import android.support.v7.widget.GridLayout;
 import android.text.TextUtils;
 import android.view.View;
-import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
-import tic.tack.toe.arduino.service.BleManager;
+import tic.tack.toe.arduino.bluetooth.BleManager;
 import timber.log.Timber;
 
+import static tic.tack.toe.arduino.Constants.MAC_ADDRESS;
 import static tic.tack.toe.arduino.Constants.TAG;
 
-public class MainActivity extends AppCompatActivity implements View.OnClickListener {
-    public final static String MAC_ADDRESS = "D7:90:F4:FE:A4:55";
+public class MainActivity extends BaseActivity implements View.OnClickListener {
 
-    private final static String EMPTY = "";
+    private static final String START_CHARACTER = "O";
+
+    private static final String EMPTY = "";
 
     private final String[] fieldValueArray = new String[9];
 
-    private String currentCharacter = "X";
+    private String currentCharacter = START_CHARACTER;
 
-    private GridLayout gridLayout;
     private BleManager bleManager;
+
+    private ImageView bluetoothStatusImageView;
+    private ProgressBar progressBar;
+    private GridLayout gridLayout;
+
+    private ImageView xImageView;
+    private ImageView oImageView;
+
+    private String ledColor = "#ff0000";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,45 +60,159 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             view.setOnClickListener(this);
         }
 
-        this.bleManager = BleManager.getInstance(this);
-        this.bleManager.setBleListener(new BleManager.BleManagerListener() {
-            @Override
-            public void onConnected() {
-                Timber.tag(TAG).e("onConnected");
-            }
+        this.xImageView = findViewById(R.id.xImageView);
+        this.oImageView = findViewById(R.id.oImageView);
 
+        this.progressBar = findViewById(R.id.progressBar);
+        this.bluetoothStatusImageView = findViewById(R.id.bluetoothStatusImageView);
+        this.bluetoothStatusImageView.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onConnecting() {
-                Timber.tag(TAG).e("onConnecting");
-            }
-
-            @Override
-            public void onDisconnected() {
-                Timber.tag(TAG).e("onDisconnected");
-            }
-
-            @Override
-            public void onServicesDiscovered() {
-                Timber.tag(TAG).e("onServicesDiscovered");
-            }
-
-            @Override
-            public void onDataAvailable(BluetoothGattCharacteristic characteristic) {
-                Timber.tag(TAG).e("onDataAvailable");
-            }
-
-            @Override
-            public void onDataAvailable(BluetoothGattDescriptor descriptor) {
-                Timber.tag(TAG).e("onDataAvailable");
-            }
-
-            @Override
-            public void onReadRemoteRssi(int rssi) {
-                Timber.tag(TAG).e("onReadRemoteRssi");
+            public void onClick(View v) {
+                reconnectClick();
             }
         });
 
+        this.bleManager = BleManager.getInstance(this);
+        this.bleManager.setBleListener(this.bleCallbacks);
         this.bleManager.connect(MainActivity.this, MAC_ADDRESS);
+
+        if (savedInstanceState == null) {
+            setupMenuFragment();
+        }
+    }
+
+    public void setLedColor(String color) {
+        this.ledColor = color;
+    }
+
+    private void reconnectClick() {
+        BluetoothManager bluetoothManager = (BluetoothManager)
+                getSystemService(Context.BLUETOOTH_SERVICE);
+        if (bluetoothManager != null) {
+            BluetoothAdapter bluetoothAdapter = bluetoothManager.getAdapter();
+            if (bluetoothAdapter == null) {
+                return;
+            }
+
+            if (!bluetoothAdapter.isEnabled()) {
+                Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+                startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
+                return;
+            }
+
+            if (!checkPermissions()) {
+                requestPermissions();
+                return;
+            }
+
+            this.bleManager.connect(MainActivity.this, MAC_ADDRESS);
+        }
+    }
+
+    private final BleManager.BleManagerListener bleCallbacks = new BleManager.BleManagerListener() {
+
+        @Override
+        public void onConnected() {
+            Timber.tag(TAG).e("onConnected");
+            updateBluetoothStatusUI(true);
+        }
+
+        @Override
+        public void onConnecting() {
+            Timber.tag(TAG).e("onConnecting");
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    progressBar.setVisibility(View.VISIBLE);
+                }
+            });
+        }
+
+        @Override
+        public void onDisconnected() {
+            Timber.tag(TAG).e("onDisconnected");
+            updateBluetoothStatusUI(false);
+        }
+
+        @Override
+        public void onServicesDiscovered() {
+            Timber.tag(TAG).e("onServicesDiscovered");
+        }
+
+        @Override
+        public void onDataAvailable(BluetoothGattCharacteristic characteristic) {
+            Timber.tag(TAG).e("onDataAvailable");
+        }
+
+        @Override
+        public void onDataAvailable(BluetoothGattDescriptor descriptor) {
+            Timber.tag(TAG).e("onDataAvailable");
+        }
+
+        @Override
+        public void onReadRemoteRssi(int rssi) {
+            Timber.tag(TAG).e("onReadRemoteRssi");
+        }
+    };
+
+    public void openMenuClick(View view) {
+        DrawerLayout drawerLayout = findViewById(R.id.drawerLayout);
+        if (drawerLayout != null) {
+            drawerLayout.openDrawer(GravityCompat.START);
+        }
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                closeDrawerLayout();
+            }
+        }, 300);
+    }
+
+    public void setupMenuFragment() {
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        fragmentManager.beginTransaction()
+                .replace(R.id.menuContainer, new MenuFragment())
+                .commitNow();
+    }
+
+    public void closeDrawerLayout() {
+        DrawerLayout drawerLayout = findViewById(R.id.drawerLayout);
+        if (drawerLayout != null && drawerLayout.isDrawerOpen(GravityCompat.START)) {
+            drawerLayout.closeDrawer(GravityCompat.START);
+        }
+    }
+
+    @Override
+    public void onBackPressed() {
+        DrawerLayout drawerLayout = findViewById(R.id.drawerLayout);
+        if (drawerLayout != null && drawerLayout.isDrawerOpen(GravityCompat.START)) {
+            drawerLayout.closeDrawer(GravityCompat.START);
+            return;
+        }
+        super.onBackPressed();
+    }
+
+    private void updateBluetoothStatusUI(final boolean isConnected) {
+        this.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    if (isConnected) {
+                        bluetoothStatusImageView.setImageResource(R.drawable.ic_bluetooth_connected);
+                    } else {
+                        bluetoothStatusImageView.setImageResource(R.drawable.ic_bluetooth_disconnected);
+                    }
+                    progressBar.setVisibility(View.GONE);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        });
     }
 
     @Override
@@ -92,47 +224,70 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
 
         String character = getCharacter();
-        String message = "value: " + character + " index: " + index + "\r\n";
+        String message = "v:" + character + " i:" + index + " c:" + ledColor + " \r\n";
+        writeMessage(message);
 
         this.fieldValueArray[index] = character;
+        this.updateUI(index);
+        this.checkWin();
+    }
+
+
+    private void writeMessage(String message) {
         this.bleManager.writeService(this.bleManager.getGattService(
                 "6E400001-B5A3-F393-E0A9-E50E24DCCA9E"),
                 "6E400002-B5A3-F393-E0A9-E50E24DCCA9E", message.getBytes());
-        this.updateUI();
-        this.checkWin();
     }
 
     private void win(String value) {
         Toast.makeText(this, "Wygrywa: " + value, Toast.LENGTH_LONG).show();
+        String message = "w:" + value + "\r\n";
+        writeMessage(message);
     }
 
     private void reset() {
-        this.currentCharacter = "X";
+        this.currentCharacter = START_CHARACTER;
 
         int childCount = this.gridLayout.getChildCount();
         for (int i = 0; i < childCount; i++) {
             this.fieldValueArray[i] = EMPTY;
-            Button view = (Button) gridLayout.getChildAt(i);
-            view.setText(EMPTY);
+            ImageView view = (ImageView) gridLayout.getChildAt(i);
+            view.setImageDrawable(null);
         }
+
+        if (this.currentCharacter.equals("O")) {
+            this.xImageView.setImageResource(R.drawable.ic_x_active);
+            this.oImageView.setImageResource(R.drawable.ic_o_inactive);
+        } else {
+            this.xImageView.setImageResource(R.drawable.ic_x_inactive);
+            this.oImageView.setImageResource(R.drawable.ic_o_active);
+        }
+
+        String message = "r:" + true + "\r\n";
+        writeMessage(message);
     }
 
-    private void updateUI() {
-        int childCount = this.gridLayout.getChildCount();
-        for (int i = 0; i < childCount; i++) {
-            Button view = (Button) gridLayout.getChildAt(i);
-            String character = String.valueOf(this.fieldValueArray[i]);
-            view.setText(character);
+    private void updateUI(int index) {
+        ImageView view = (ImageView) gridLayout.getChildAt(index);
+        if (this.currentCharacter.equals("X")) {
+            view.setImageResource(R.drawable.ic_big_x);
+        } else {
+            view.setImageResource(R.drawable.ic_big_o);
         }
     }
 
     private String getCharacter() {
         final String character;
         if (this.currentCharacter.equals("X")) {
+            this.xImageView.setImageResource(R.drawable.ic_x_active);
+            this.oImageView.setImageResource(R.drawable.ic_o_inactive);
             character = "O";
         } else {
+            this.xImageView.setImageResource(R.drawable.ic_x_inactive);
+            this.oImageView.setImageResource(R.drawable.ic_o_active);
             character = "X";
         }
+
         this.currentCharacter = character;
         return character;
     }
@@ -242,5 +397,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         super.onDestroy();
         this.bleManager.disconnect();
         this.bleManager.close();
+    }
+
+    public void onNewGameClick(View view) {
+        reset();
     }
 }

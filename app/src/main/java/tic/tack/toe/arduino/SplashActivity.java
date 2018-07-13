@@ -1,42 +1,33 @@
 package tic.tack.toe.arduino;
 
-import android.Manifest;
-import android.app.Activity;
+import android.app.ProgressDialog;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothManager;
 import android.bluetooth.le.BluetoothLeScanner;
 import android.bluetooth.le.ScanCallback;
-import android.bluetooth.le.ScanFilter;
 import android.bluetooth.le.ScanResult;
-import android.bluetooth.le.ScanSettings;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
-import android.support.v7.app.AppCompatActivity;
+import android.view.KeyEvent;
 import android.widget.Toast;
-
-import java.util.ArrayList;
-import java.util.List;
 
 import timber.log.Timber;
 
+import static tic.tack.toe.arduino.Constants.MAC_ADDRESS;
 import static tic.tack.toe.arduino.Constants.TAG;
 
-public class SplashActivity extends AppCompatActivity implements Runnable {
-
-    private static final int REQUEST_LOCATION_ACCESS = 1000;
-    private static final int REQUEST_ENABLE_BT = 1001;
+public class SplashActivity extends BaseActivity implements Runnable {
 
     private final Handler mHandler = new Handler();
 
     private BluetoothAdapter mBluetoothAdapter;
+    private ProgressDialog scanDialog;
 
     private boolean mDeviceFound = false;
 
@@ -44,7 +35,12 @@ public class SplashActivity extends AppCompatActivity implements Runnable {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.splash_activity);
-        Timber.plant(new Timber.DebugTree());
+
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
+            Toast.makeText(this, "Wymagana minimalna wersja systemu ANDROID 6.0", Toast.LENGTH_LONG).show();
+            finish();
+            return;
+        }
 
         if (!getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
             finish();
@@ -71,7 +67,7 @@ public class SplashActivity extends AppCompatActivity implements Runnable {
             return;
         }
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && !checkPermissions()) {
+        if (!checkPermissions()) {
             requestPermissions();
             return;
         }
@@ -81,16 +77,11 @@ public class SplashActivity extends AppCompatActivity implements Runnable {
 
     private void startScanning() {
         Timber.tag(TAG).e("startScanning");
-
         this.mDeviceFound = false;
-        List<ScanFilter> filters = new ArrayList<>();
-        ScanSettings settings = new ScanSettings.Builder()
-                .setScanMode(ScanSettings.SCAN_MODE_LOW_LATENCY)
-                .setReportDelay(1000)
-                .build();
 
         BluetoothLeScanner bluetoothLeScanner = this.mBluetoothAdapter.getBluetoothLeScanner();
-        bluetoothLeScanner.startScan(filters, settings, mScanCallback);
+        bluetoothLeScanner.startScan(mScanCallback);
+        displayScanDialog();
     }
 
     private void stopScanning() {
@@ -98,8 +89,43 @@ public class SplashActivity extends AppCompatActivity implements Runnable {
 
         if (this.mBluetoothAdapter != null) {
             BluetoothLeScanner bluetoothLeScanner = this.mBluetoothAdapter.getBluetoothLeScanner();
-            bluetoothLeScanner.stopScan(this.mScanCallback);
+            if (bluetoothLeScanner != null) {
+                bluetoothLeScanner.stopScan(this.mScanCallback);
+            }
         }
+        hideScanDialog();
+    }
+
+    public void displayScanDialog() {
+        if (this.scanDialog != null && this.scanDialog.isShowing()) {
+            return;
+        }
+
+        this.scanDialog = new ProgressDialog(this);
+        this.scanDialog.setOnKeyListener(new DialogInterface.OnKeyListener() {
+            @Override
+            public boolean onKey(DialogInterface dialog, int keyCode, KeyEvent event) {
+                if (keyCode == KeyEvent.KEYCODE_BACK) {
+                    finish();
+                }
+                return true;
+            }
+        });
+        this.scanDialog.setCanceledOnTouchOutside(false);
+        this.scanDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+        this.scanDialog.setMessage("Wyszukiwanie urządzenia MAC: " + Constants.MAC_ADDRESS);
+        this.scanDialog.show();
+    }
+
+    public void hideScanDialog() {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                if (scanDialog != null && scanDialog.isShowing()) {
+                    scanDialog.dismiss();
+                }
+            }
+        });
     }
 
     private final ScanCallback mScanCallback = new ScanCallback() {
@@ -115,11 +141,12 @@ public class SplashActivity extends AppCompatActivity implements Runnable {
             super.onScanResult(callbackType, result);
             String address = result.getDevice().getAddress();
             Timber.tag(TAG).e("Device found address: %s", address);
-            Toast.makeText(SplashActivity.this, address, Toast.LENGTH_LONG).show();
-            if (address.equals(MainActivity.MAC_ADDRESS) && !mDeviceFound) {
+            if (address.equals(MAC_ADDRESS) && !mDeviceFound) {
                 mHandler.postDelayed(SplashActivity.this, 3000);
                 mDeviceFound = true;
                 stopScanning();
+                Toast.makeText(SplashActivity.this, "Urządzenie zostało odnalezione",
+                        Toast.LENGTH_LONG).show();
             }
         }
     };
@@ -129,45 +156,6 @@ public class SplashActivity extends AppCompatActivity implements Runnable {
         super.onPause();
         this.mHandler.removeCallbacksAndMessages(null);
         stopScanning();
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == REQUEST_ENABLE_BT && resultCode == Activity.RESULT_CANCELED) {
-            finish();
-            return;
-        }
-        super.onActivityResult(requestCode, resultCode, data);
-    }
-
-    private void requestPermissions() {
-        ActivityCompat.requestPermissions(this, new String[]{
-                        Manifest.permission.ACCESS_FINE_LOCATION,
-                        Manifest.permission.ACCESS_COARSE_LOCATION},
-                REQUEST_LOCATION_ACCESS);
-    }
-
-    private boolean checkPermissions() {
-        int accessFineLocation = ContextCompat.checkSelfPermission(this,
-                Manifest.permission.ACCESS_FINE_LOCATION);
-        int accessCoarseLocation = ContextCompat.checkSelfPermission(this,
-                Manifest.permission.ACCESS_COARSE_LOCATION);
-        return accessFineLocation == PackageManager.PERMISSION_GRANTED
-                && accessCoarseLocation == PackageManager.PERMISSION_GRANTED;
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
-                                           @NonNull int[] grantResults) {
-        switch (requestCode) {
-            case REQUEST_LOCATION_ACCESS:
-                if (grantResults[0] != PackageManager.PERMISSION_GRANTED) {
-                    finish();
-                }
-                break;
-            default:
-                super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        }
     }
 
     @Override
