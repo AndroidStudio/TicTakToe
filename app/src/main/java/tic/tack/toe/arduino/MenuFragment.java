@@ -18,7 +18,8 @@ import android.widget.Spinner;
 import java.util.Objects;
 
 public class MenuFragment extends Fragment {
-    private EditText ledColorEditText;
+
+    private EditText mLedColorEditText;
 
     @Nullable
     @Override
@@ -37,8 +38,8 @@ public class MenuFragment extends Fragment {
             }
         });
 
-        this.ledColorEditText = view.findViewById(R.id.ledColorEditText);
-        this.ledColorEditText.addTextChangedListener(new TextWatcher() {
+        this.mLedColorEditText = view.findViewById(R.id.ledColorEditText);
+        this.mLedColorEditText.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
 
@@ -46,7 +47,7 @@ public class MenuFragment extends Fragment {
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                setLedColor(ledColorEditText.getText().toString());
+                setLedColor(mLedColorEditText.getText().toString());
             }
 
             @Override
@@ -87,7 +88,7 @@ public class MenuFragment extends Fragment {
         try {
             Color.parseColor(String.valueOf("#".concat(color)));
         } catch (Exception e) {
-            this.ledColorEditText.setError("Nieprawidłowy kolor");
+            this.mLedColorEditText.setError("Nieprawidłowy kolor");
             e.printStackTrace();
             return;
         }

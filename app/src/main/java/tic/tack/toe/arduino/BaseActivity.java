@@ -40,9 +40,6 @@ public class BaseActivity extends AppCompatActivity {
     }
 
     protected boolean checkPermissions() {
-
-
-
         int accessFineLocation = ContextCompat.checkSelfPermission(this,
                 Manifest.permission.ACCESS_FINE_LOCATION);
         int accessCoarseLocation = ContextCompat.checkSelfPermission(this,

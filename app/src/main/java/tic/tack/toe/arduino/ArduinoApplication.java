@@ -4,7 +4,7 @@ import android.app.Application;
 
 import timber.log.Timber;
 
-public class ArduinoAplication extends Application {
+public class ArduinoApplication extends Application {
 
     @Override
     public void onCreate() {

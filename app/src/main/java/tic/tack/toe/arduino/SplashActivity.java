@@ -27,7 +27,7 @@ public class SplashActivity extends BaseActivity implements Runnable {
     private final Handler mHandler = new Handler();
 
     private BluetoothAdapter mBluetoothAdapter;
-    private ProgressDialog scanDialog;
+    private ProgressDialog mScanDialog;
 
     private boolean mDeviceFound = false;
 
@@ -97,12 +97,12 @@ public class SplashActivity extends BaseActivity implements Runnable {
     }
 
     public void displayScanDialog() {
-        if (this.scanDialog != null && this.scanDialog.isShowing()) {
+        if (this.mScanDialog != null && this.mScanDialog.isShowing()) {
             return;
         }
 
-        this.scanDialog = new ProgressDialog(this);
-        this.scanDialog.setOnKeyListener(new DialogInterface.OnKeyListener() {
+        this.mScanDialog = new ProgressDialog(this);
+        this.mScanDialog.setOnKeyListener(new DialogInterface.OnKeyListener() {
             @Override
             public boolean onKey(DialogInterface dialog, int keyCode, KeyEvent event) {
                 if (keyCode == KeyEvent.KEYCODE_BACK) {
@@ -111,18 +111,18 @@ public class SplashActivity extends BaseActivity implements Runnable {
                 return true;
             }
         });
-        this.scanDialog.setCanceledOnTouchOutside(false);
-        this.scanDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-        this.scanDialog.setMessage("Wyszukiwanie urządzenia MAC: " + Constants.MAC_ADDRESS);
-        this.scanDialog.show();
+        this.mScanDialog.setCanceledOnTouchOutside(false);
+        this.mScanDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+        this.mScanDialog.setMessage("Wyszukiwanie urządzenia MAC: " + Constants.MAC_ADDRESS);
+        this.mScanDialog.show();
     }
 
     public void hideScanDialog() {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                if (scanDialog != null && scanDialog.isShowing()) {
-                    scanDialog.dismiss();
+                if (mScanDialog != null && mScanDialog.isShowing()) {
+                    mScanDialog.dismiss();
                 }
             }
         });

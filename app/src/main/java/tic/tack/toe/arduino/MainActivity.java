@@ -29,21 +29,20 @@ import static tic.tack.toe.arduino.Constants.TAG;
 public class MainActivity extends BaseActivity implements View.OnClickListener {
 
     private static final String START_CHARACTER = "O";
-
     private static final String EMPTY = "";
 
-    private final String[] fieldValueArray = new String[9];
+    private final String[] mFieldValueArray = new String[9];
 
-    private String currentCharacter = START_CHARACTER;
+    private String mCurrentCharacter = START_CHARACTER;
 
-    private BleManager bleManager;
+    private BleManager mBleManager;
 
-    private ImageView bluetoothStatusImageView;
-    private ProgressBar progressBar;
-    private GridLayout gridLayout;
+    private ImageView mBluetoothStatusImageView;
+    private ProgressBar mProgressBar;
+    private GridLayout mGridLayout;
 
-    private ImageView xImageView;
-    private ImageView oImageView;
+    private ImageView mXImageView;
+    private ImageView mOImageView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,30 +50,30 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
         this.setContentView(R.layout.activity_main);
         Timber.tag(Constants.TAG).e("onCreate");
 
-        this.gridLayout = findViewById(R.id.gridLayout);
-        int childCount = this.gridLayout.getChildCount();
+        this.mGridLayout = findViewById(R.id.gridLayout);
+        int childCount = this.mGridLayout.getChildCount();
         for (int i = 0; i < childCount; i++) {
-            this.fieldValueArray[i] = EMPTY;
-            View view = this.gridLayout.getChildAt(i);
+            this.mFieldValueArray[i] = EMPTY;
+            View view = this.mGridLayout.getChildAt(i);
             view.setTag(i);
             view.setOnClickListener(this);
         }
 
-        this.xImageView = findViewById(R.id.xImageView);
-        this.oImageView = findViewById(R.id.oImageView);
+        this.mXImageView = findViewById(R.id.xImageView);
+        this.mOImageView = findViewById(R.id.oImageView);
 
-        this.progressBar = findViewById(R.id.progressBar);
-        this.bluetoothStatusImageView = findViewById(R.id.bluetoothStatusImageView);
-        this.bluetoothStatusImageView.setOnClickListener(new View.OnClickListener() {
+        this.mProgressBar = findViewById(R.id.progressBar);
+        this.mBluetoothStatusImageView = findViewById(R.id.bluetoothStatusImageView);
+        this.mBluetoothStatusImageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 reconnectClick();
             }
         });
 
-        this.bleManager = BleManager.getInstance(this);
-        this.bleManager.setBleListener(this.bleCallbacks);
-        this.bleManager.connect(MainActivity.this, MAC_ADDRESS);
+        this.mBleManager = BleManager.getInstance(this);
+        this.mBleManager.setBleListener(this.bleCallbacks);
+        this.mBleManager.connect(MainActivity.this, MAC_ADDRESS);
 
         if (savedInstanceState == null) {
             setupMenuFragment();
@@ -93,13 +92,13 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
         }
 
         if (!TextUtils.isEmpty(ledType)) {
-            String message = "l_type:" + ledType + "\r\n";
+            String message = "l_type:" + ledType;
             writeMessage(message);
         }
     }
 
     public void setLedColor(String color) {
-        String message = "l_color:" + color + "\r\n";
+        String message = "l_color:" + color;
         writeMessage(message);
     }
 
@@ -123,7 +122,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
                 return;
             }
 
-            this.bleManager.connect(MainActivity.this, MAC_ADDRESS);
+            this.mBleManager.connect(MainActivity.this, MAC_ADDRESS);
         }
     }
 
@@ -141,7 +140,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    progressBar.setVisibility(View.VISIBLE);
+                    mProgressBar.setVisibility(View.VISIBLE);
                 }
             });
         }
@@ -221,11 +220,11 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
             public void run() {
                 try {
                     if (isConnected) {
-                        bluetoothStatusImageView.setImageResource(R.drawable.ic_bluetooth_connected);
+                        mBluetoothStatusImageView.setImageResource(R.drawable.ic_bluetooth_connected);
                     } else {
-                        bluetoothStatusImageView.setImageResource(R.drawable.ic_bluetooth_disconnected);
+                        mBluetoothStatusImageView.setImageResource(R.drawable.ic_bluetooth_disconnected);
                     }
-                    progressBar.setVisibility(View.GONE);
+                    mProgressBar.setVisibility(View.GONE);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -255,22 +254,22 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
     @Override
     public void onClick(View view) {
         int index = (int) view.getTag();
-        String value = this.fieldValueArray[index];
+        String value = this.mFieldValueArray[index];
         if (!TextUtils.isEmpty(value)) {
             return;
         }
 
         String character = getCharacter();
-        String message = "value:" + character + " index:" + index + "\r\n";
+        String message = "value:" + character + " index:" + index;
         writeMessage(message);
 
-        this.fieldValueArray[index] = character;
+        this.mFieldValueArray[index] = character;
         this.updateUI(index);
         this.checkWin();
     }
 
     private void checkCurrentState() {
-        int currentState = this.bleManager.getCurrentState();
+        int currentState = this.mBleManager.getCurrentState();
         if (currentState != BleManager.STATE_CONNECTED) {
             Toast.makeText(this, "Brak połącznenia z bluetooth", Toast.LENGTH_SHORT).show();
         }
@@ -279,13 +278,13 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
     private void writeMessage(String message) {
         checkCurrentState();
 
-        this.bleManager.writeService(this.bleManager.getGattService(
+        this.mBleManager.writeService(this.mBleManager.getGattService(
                 "6E400001-B5A3-F393-E0A9-E50E24DCCA9E"),
                 "6E400002-B5A3-F393-E0A9-E50E24DCCA9E", message.getBytes());
     }
 
     private void win(String value) {
-        String message = "win:" + value + "\r\n";
+        String message = "win:" + value;
         writeMessage(message);
 
         if (value.equals("O")) {
@@ -299,30 +298,30 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
     }
 
     private void reset() {
-        this.currentCharacter = START_CHARACTER;
+        this.mCurrentCharacter = START_CHARACTER;
 
-        int childCount = this.gridLayout.getChildCount();
+        int childCount = this.mGridLayout.getChildCount();
         for (int i = 0; i < childCount; i++) {
-            this.fieldValueArray[i] = EMPTY;
-            ImageView view = (ImageView) gridLayout.getChildAt(i);
+            this.mFieldValueArray[i] = EMPTY;
+            ImageView view = (ImageView) mGridLayout.getChildAt(i);
             view.setImageDrawable(null);
         }
 
-        if (this.currentCharacter.equals("O")) {
-            this.xImageView.setImageResource(R.drawable.ic_x_active);
-            this.oImageView.setImageResource(R.drawable.ic_o_inactive);
+        if (this.mCurrentCharacter.equals("O")) {
+            this.mXImageView.setImageResource(R.drawable.ic_x_active);
+            this.mOImageView.setImageResource(R.drawable.ic_o_inactive);
         } else {
-            this.xImageView.setImageResource(R.drawable.ic_x_inactive);
-            this.oImageView.setImageResource(R.drawable.ic_o_active);
+            this.mXImageView.setImageResource(R.drawable.ic_x_inactive);
+            this.mOImageView.setImageResource(R.drawable.ic_o_active);
         }
 
-        String message = "restart:" + true + "\r\n";
+        String message = "restart:" + true;
         writeMessage(message);
     }
 
     private void updateUI(int index) {
-        ImageView view = (ImageView) gridLayout.getChildAt(index);
-        if (this.currentCharacter.equals("X")) {
+        ImageView view = (ImageView) mGridLayout.getChildAt(index);
+        if (this.mCurrentCharacter.equals("X")) {
             view.setImageResource(R.drawable.ic_big_x);
         } else {
             view.setImageResource(R.drawable.ic_big_o);
@@ -331,17 +330,17 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
 
     private String getCharacter() {
         final String character;
-        if (this.currentCharacter.equals("X")) {
-            this.xImageView.setImageResource(R.drawable.ic_x_active);
-            this.oImageView.setImageResource(R.drawable.ic_o_inactive);
+        if (this.mCurrentCharacter.equals("X")) {
+            this.mXImageView.setImageResource(R.drawable.ic_x_active);
+            this.mOImageView.setImageResource(R.drawable.ic_o_inactive);
             character = "O";
         } else {
-            this.xImageView.setImageResource(R.drawable.ic_x_inactive);
-            this.oImageView.setImageResource(R.drawable.ic_o_active);
+            this.mXImageView.setImageResource(R.drawable.ic_x_inactive);
+            this.mOImageView.setImageResource(R.drawable.ic_o_active);
             character = "X";
         }
 
-        this.currentCharacter = character;
+        this.mCurrentCharacter = character;
         return character;
     }
 
@@ -356,7 +355,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
         checkLine8();
 
         for (int i = 0; i < 9; i++) {
-            String character = String.valueOf(this.fieldValueArray[i]);
+            String character = String.valueOf(this.mFieldValueArray[i]);
             if (TextUtils.isEmpty(character)) {
                 return;
             }
@@ -366,72 +365,72 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
     }
 
     private void checkLine1() {
-        String v1 = this.fieldValueArray[0];
-        String v2 = this.fieldValueArray[1];
-        String v3 = this.fieldValueArray[2];
+        String v1 = this.mFieldValueArray[0];
+        String v2 = this.mFieldValueArray[1];
+        String v3 = this.mFieldValueArray[2];
         if (v1.equals(v2) && v1.equals(v3) && !TextUtils.isEmpty(v1)) {
             this.win(v1);
         }
     }
 
     private void checkLine2() {
-        String v1 = this.fieldValueArray[3];
-        String v2 = this.fieldValueArray[4];
-        String v3 = this.fieldValueArray[5];
+        String v1 = this.mFieldValueArray[3];
+        String v2 = this.mFieldValueArray[4];
+        String v3 = this.mFieldValueArray[5];
         if (v1.equals(v2) && v1.equals(v3) && !TextUtils.isEmpty(v1)) {
             this.win(v1);
         }
     }
 
     private void checkLine3() {
-        String v1 = this.fieldValueArray[6];
-        String v2 = this.fieldValueArray[7];
-        String v3 = this.fieldValueArray[8];
+        String v1 = this.mFieldValueArray[6];
+        String v2 = this.mFieldValueArray[7];
+        String v3 = this.mFieldValueArray[8];
         if (v1.equals(v2) && v1.equals(v3) && !TextUtils.isEmpty(v1)) {
             this.win(v1);
         }
     }
 
     private void checkLine4() {
-        String v1 = this.fieldValueArray[0];
-        String v2 = this.fieldValueArray[3];
-        String v3 = this.fieldValueArray[6];
+        String v1 = this.mFieldValueArray[0];
+        String v2 = this.mFieldValueArray[3];
+        String v3 = this.mFieldValueArray[6];
         if (v1.equals(v2) && v1.equals(v3) && !TextUtils.isEmpty(v1)) {
             this.win(v1);
         }
     }
 
     private void checkLine5() {
-        String v1 = this.fieldValueArray[1];
-        String v2 = this.fieldValueArray[4];
-        String v3 = this.fieldValueArray[7];
+        String v1 = this.mFieldValueArray[1];
+        String v2 = this.mFieldValueArray[4];
+        String v3 = this.mFieldValueArray[7];
         if (v1.equals(v2) && v1.equals(v3) && !TextUtils.isEmpty(v1)) {
             this.win(v1);
         }
     }
 
     private void checkLine6() {
-        String v1 = this.fieldValueArray[2];
-        String v2 = this.fieldValueArray[5];
-        String v3 = this.fieldValueArray[8];
+        String v1 = this.mFieldValueArray[2];
+        String v2 = this.mFieldValueArray[5];
+        String v3 = this.mFieldValueArray[8];
         if (v1.equals(v2) && v1.equals(v3) && !TextUtils.isEmpty(v1)) {
             this.win(v1);
         }
     }
 
     private void checkLine7() {
-        String v1 = this.fieldValueArray[0];
-        String v2 = this.fieldValueArray[4];
-        String v3 = this.fieldValueArray[8];
+        String v1 = this.mFieldValueArray[0];
+        String v2 = this.mFieldValueArray[4];
+        String v3 = this.mFieldValueArray[8];
         if (v1.equals(v2) && v1.equals(v3) && !TextUtils.isEmpty(v1)) {
             this.win(v1);
         }
     }
 
     private void checkLine8() {
-        String v1 = this.fieldValueArray[2];
-        String v2 = this.fieldValueArray[4];
-        String v3 = this.fieldValueArray[6];
+        String v1 = this.mFieldValueArray[2];
+        String v2 = this.mFieldValueArray[4];
+        String v3 = this.mFieldValueArray[6];
         if (v1.equals(v2) && v1.equals(v3) && !TextUtils.isEmpty(v1)) {
             this.win(v1);
         }
@@ -440,8 +439,8 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        this.bleManager.disconnect();
-        this.bleManager.close();
+        this.mBleManager.disconnect();
+        this.mBleManager.close();
     }
 
     public void onNewGameClick(View view) {
