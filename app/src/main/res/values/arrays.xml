@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="let_types">
+        <item>Kółko krzyżyk</item>
+        <item>Serduszka</item>
+    </string-array>
+</resources>

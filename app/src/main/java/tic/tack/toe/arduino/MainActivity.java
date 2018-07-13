@@ -5,12 +5,14 @@ import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothGattDescriptor;
 import android.bluetooth.BluetoothManager;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.GridLayout;
 import android.text.TextUtils;
 import android.view.View;
@@ -42,8 +44,6 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
 
     private ImageView xImageView;
     private ImageView oImageView;
-
-    private String ledColor = "#ff0000";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -81,8 +81,26 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
         }
     }
 
+    public void setLedType(String type) {
+        String ledType = null;
+        switch (type) {
+            case "Kółko krzyżyk":
+                ledType = "k";
+                break;
+            case "Serduszka":
+                ledType = "s";
+                break;
+        }
+
+        if (!TextUtils.isEmpty(ledType)) {
+            String message = "l_type:" + ledType + "\r\n";
+            writeMessage(message);
+        }
+    }
+
     public void setLedColor(String color) {
-        this.ledColor = color;
+        String message = "l_color:" + color + "\r\n";
+        writeMessage(message);
     }
 
     private void reconnectClick() {
@@ -215,6 +233,25 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
         });
     }
 
+    public void displayMessageDialog(String message) {
+        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
+        alertDialogBuilder.setTitle("Komunikat");
+        alertDialogBuilder.setMessage(message)
+                .setOnDismissListener(new DialogInterface.OnDismissListener() {
+                    @Override
+                    public void onDismiss(DialogInterface dialog) {
+                    }
+                })
+                .setCancelable(false)
+                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        dialog.dismiss();
+                    }
+                });
+        AlertDialog alertDialog = alertDialogBuilder.create();
+        alertDialog.show();
+    }
+
     @Override
     public void onClick(View view) {
         int index = (int) view.getTag();
@@ -224,7 +261,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
         }
 
         String character = getCharacter();
-        String message = "v:" + character + " i:" + index + " c:" + ledColor + " \r\n";
+        String message = "value:" + character + " index:" + index + "\r\n";
         writeMessage(message);
 
         this.fieldValueArray[index] = character;
@@ -232,17 +269,33 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
         this.checkWin();
     }
 
+    private void checkCurrentState() {
+        int currentState = this.bleManager.getCurrentState();
+        if (currentState != BleManager.STATE_CONNECTED) {
+            Toast.makeText(this, "Brak połącznenia z bluetooth", Toast.LENGTH_SHORT).show();
+        }
+    }
 
     private void writeMessage(String message) {
+        checkCurrentState();
+
         this.bleManager.writeService(this.bleManager.getGattService(
                 "6E400001-B5A3-F393-E0A9-E50E24DCCA9E"),
                 "6E400002-B5A3-F393-E0A9-E50E24DCCA9E", message.getBytes());
     }
 
     private void win(String value) {
-        Toast.makeText(this, "Wygrywa: " + value, Toast.LENGTH_LONG).show();
-        String message = "w:" + value + "\r\n";
+        String message = "win:" + value + "\r\n";
         writeMessage(message);
+
+        if (value.equals("O")) {
+            value = "kółko";
+        } else {
+            value = "krzyżyk";
+        }
+
+        displayMessageDialog("Wygrywa: " + value);
+        reset();
     }
 
     private void reset() {
@@ -263,7 +316,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
             this.oImageView.setImageResource(R.drawable.ic_o_active);
         }
 
-        String message = "r:" + true + "\r\n";
+        String message = "restart:" + true + "\r\n";
         writeMessage(message);
     }
 
@@ -318,7 +371,6 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
         String v3 = this.fieldValueArray[2];
         if (v1.equals(v2) && v1.equals(v3) && !TextUtils.isEmpty(v1)) {
             this.win(v1);
-            this.reset();
         }
     }
 
@@ -328,7 +380,6 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
         String v3 = this.fieldValueArray[5];
         if (v1.equals(v2) && v1.equals(v3) && !TextUtils.isEmpty(v1)) {
             this.win(v1);
-            this.reset();
         }
     }
 
@@ -338,7 +389,6 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
         String v3 = this.fieldValueArray[8];
         if (v1.equals(v2) && v1.equals(v3) && !TextUtils.isEmpty(v1)) {
             this.win(v1);
-            this.reset();
         }
     }
 
@@ -348,7 +398,6 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
         String v3 = this.fieldValueArray[6];
         if (v1.equals(v2) && v1.equals(v3) && !TextUtils.isEmpty(v1)) {
             this.win(v1);
-            this.reset();
         }
     }
 
@@ -358,7 +407,6 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
         String v3 = this.fieldValueArray[7];
         if (v1.equals(v2) && v1.equals(v3) && !TextUtils.isEmpty(v1)) {
             this.win(v1);
-            this.reset();
         }
     }
 
@@ -368,7 +416,6 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
         String v3 = this.fieldValueArray[8];
         if (v1.equals(v2) && v1.equals(v3) && !TextUtils.isEmpty(v1)) {
             this.win(v1);
-            this.reset();
         }
     }
 
@@ -378,7 +425,6 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
         String v3 = this.fieldValueArray[8];
         if (v1.equals(v2) && v1.equals(v3) && !TextUtils.isEmpty(v1)) {
             this.win(v1);
-            this.reset();
         }
     }
 
@@ -388,7 +434,6 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
         String v3 = this.fieldValueArray[6];
         if (v1.equals(v2) && v1.equals(v3) && !TextUtils.isEmpty(v1)) {
             this.win(v1);
-            this.reset();
         }
     }
 

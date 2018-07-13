@@ -17,6 +17,10 @@ import static tic.tack.toe.arduino.Constants.TAG;
 
 public class BleManager implements BleGattExecutor.BleExecutorListener {
 
+    public static final int STATE_DISCONNECTED = 0;
+    public static final int STATE_CONNECTING = 1;
+    public static final int STATE_CONNECTED = 2;
+
     private static BleManager mInstance = null;
 
     private final BleGattExecutor mExecutor = BleGattExecutor.createExecutor(this);
@@ -26,6 +30,8 @@ public class BleManager implements BleGattExecutor.BleExecutorListener {
     private BluetoothDevice mDevice;
 
     private BleManagerListener mBleListener;
+
+    private int mConnectionState = STATE_DISCONNECTED;
 
     public static BleManager getInstance(Context context) {
         if (mInstance == null) {
@@ -62,6 +68,8 @@ public class BleManager implements BleGattExecutor.BleExecutorListener {
             return;
         }
 
+        mConnectionState = STATE_CONNECTING;
+
         if (mBleListener != null) {
             mBleListener.onConnecting();
         }
@@ -84,6 +92,10 @@ public class BleManager implements BleGattExecutor.BleExecutorListener {
             mGatt = null;
             mDevice = null;
         }
+    }
+
+    public int getCurrentState() {
+        return this.mConnectionState;
     }
 
     public void writeService(BluetoothGattService service, String uuid, byte[] value) {
@@ -110,15 +122,18 @@ public class BleManager implements BleGattExecutor.BleExecutorListener {
     @Override
     public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
         if (newState == BluetoothProfile.STATE_CONNECTED) {
+            mConnectionState = STATE_CONNECTED;
             if (mBleListener != null) {
                 mBleListener.onConnected();
             }
             gatt.discoverServices();
         } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
+            mConnectionState = STATE_DISCONNECTED;
             if (mBleListener != null) {
                 mBleListener.onDisconnected();
             }
         } else if (newState == BluetoothProfile.STATE_CONNECTING) {
+            mConnectionState = STATE_CONNECTING;
             if (mBleListener != null) {
                 mBleListener.onConnecting();
             }

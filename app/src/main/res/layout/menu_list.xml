@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:paddingLeft="20dp"
+    android:paddingRight="20dp"
+    android:paddingTop="10dp">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:drawableLeft="@drawable/ic_burger_o"
+        android:drawablePadding="20dp"
+        android:gravity="center_vertical"
+        android:text="@string/o_aplikacji"
+        android:textColor="#000"
+        android:textSize="14dp"/>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:drawableLeft="@drawable/ic_burger_lab"
+        android:drawablePadding="20dp"
+        android:gravity="center_vertical"
+        android:text="@string/o_witchcraft_lab"
+        android:textColor="#000"
+        android:textSize="14dp"/>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:drawableLeft="@drawable/ic_burger_info"
+        android:drawablePadding="20dp"
+        android:gravity="center_vertical"
+        android:text="@string/informacje"
+        android:textColor="#000"
+        android:textSize="14dp"/>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:drawablePadding="20dp"
+        android:gravity="center_vertical"
+        android:text="Led kolor (hex)"
+        android:textColor="#000"
+        android:textSize="14dp"/>
+
+    <EditText
+        android:id="@+id/ledColorEditText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:maxLength="6"
+        android:maxLines="1"
+        android:text="ff0000"/>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:drawablePadding="20dp"
+        android:gravity="center_vertical"
+        android:text="Led rodzaj"
+        android:textColor="#000"
+        android:textSize="14dp"/>
+
+    <Spinner
+        android:id="@+id/ledTypeSpinner"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"/>
+</LinearLayout>
