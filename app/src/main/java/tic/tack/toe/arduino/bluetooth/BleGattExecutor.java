@@ -23,6 +23,7 @@ class BleGattExecutor extends BluetoothGattCallback {
                 return true;
             }
         };
+
         boolean execute(BluetoothGatt bluetoothGatt);
     }
 
@@ -114,7 +115,6 @@ class BleGattExecutor extends BluetoothGattCallback {
                 super.onConnectionStateChange(gatt, status, newState);
                 listener.onConnectionStateChange(gatt, status, newState);
                 Timber.tag(TAG).e("onConnectionStateChange");
-
             }
 
             @Override

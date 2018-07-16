@@ -20,6 +20,8 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
+import java.nio.ByteBuffer;
+
 import tic.tack.toe.arduino.bluetooth.BleManager;
 import timber.log.Timber;
 
@@ -30,6 +32,9 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
 
     private static final String START_CHARACTER = "O";
     private static final String EMPTY = "";
+
+    private static final byte[] CMD_RESET = "R".getBytes();
+    private static final byte[] CMD_PIXEL = "P".getBytes();
 
     private final String[] mFieldValueArray = new String[9];
 
@@ -43,6 +48,8 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
 
     private ImageView mXImageView;
     private ImageView mOImageView;
+
+    private String mHexColor = "FF0000";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -97,9 +104,8 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
         }
     }
 
-    public void setLedColor(String color) {
-        String message = "l_color:" + color;
-        writeMessage(message);
+    public void setLedColor(String hexColor) {
+        this.mHexColor = hexColor;
     }
 
     private void reconnectClick() {
@@ -260,27 +266,60 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
         }
 
         String character = getCharacter();
-        String message = "value:" + character + " index:" + index;
-        writeMessage(message);
 
+        String commandHex = toHexString(CMD_PIXEL);
+        Timber.d("commandHex %s", commandHex);
+
+        ByteBuffer byteBuffer = ByteBuffer.allocate(4);
+        byteBuffer.putInt(index);
+        String indexHex = toHexString(byteBuffer.array())
+                .substring(2, 4);
+        Timber.d("indexHex %s", indexHex);
+
+        String message = commandHex + indexHex + this.mHexColor;
+        Timber.d("message %s", message);
+
+        this.writeMessage(hexStringToByteArray(message));
         this.mFieldValueArray[index] = character;
         this.updateUI(index);
         this.checkWin();
     }
 
+    public byte[] hexStringToByteArray(String value) {
+        int length = value.length();
+        byte[] data = new byte[length / 2];
+        for (int i = 0; i < length; i += 2) {
+            data[i / 2] = (byte) ((Character.digit(value.charAt(i), 16) << 4)
+                    + Character.digit(value.charAt(i + 1), 16));
+        }
+        return data;
+    }
+
+    public String toHexString(byte[] bytes) {
+        StringBuilder stringBuilder = new StringBuilder();
+        for (byte b : bytes) stringBuilder.append(String.format("%x", b));
+        return stringBuilder.toString();
+    }
+
     private void checkCurrentState() {
         int currentState = this.mBleManager.getCurrentState();
         if (currentState != BleManager.STATE_CONNECTED) {
-            Toast.makeText(this, "Brak połącznenia z bluetooth", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Brak połącznenia z bluetooth...", Toast.LENGTH_SHORT).show();
         }
     }
 
     private void writeMessage(String message) {
         checkCurrentState();
-
         this.mBleManager.writeService(this.mBleManager.getGattService(
                 "6E400001-B5A3-F393-E0A9-E50E24DCCA9E"),
                 "6E400002-B5A3-F393-E0A9-E50E24DCCA9E", message.getBytes());
+    }
+
+    private void writeMessage(byte[] message) {
+        checkCurrentState();
+        this.mBleManager.writeService(this.mBleManager.getGattService(
+                "6E400001-B5A3-F393-E0A9-E50E24DCCA9E"),
+                "6E400002-B5A3-F393-E0A9-E50E24DCCA9E", message);
     }
 
     private void win(String value) {
@@ -315,8 +354,9 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
             this.mOImageView.setImageResource(R.drawable.ic_o_active);
         }
 
-        String message = "restart:" + true;
-        writeMessage(message);
+        String commandHex = toHexString(CMD_RESET);
+        Timber.d("commandHex %s", commandHex);
+        this.writeMessage(hexStringToByteArray(commandHex));
     }
 
     private void updateUI(int index) {

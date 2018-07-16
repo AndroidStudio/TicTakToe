@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:custom="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
@@ -16,7 +17,8 @@
         android:gravity="center_vertical"
         android:text="@string/o_aplikacji"
         android:textColor="#000"
-        android:textSize="14dp"/>
+        android:textSize="14dp"
+        android:visibility="gone"/>
 
     <TextView
         android:layout_width="match_parent"
@@ -26,7 +28,8 @@
         android:gravity="center_vertical"
         android:text="@string/o_witchcraft_lab"
         android:textColor="#000"
-        android:textSize="14dp"/>
+        android:textSize="14dp"
+        android:visibility="gone"/>
 
     <TextView
         android:layout_width="match_parent"
@@ -36,14 +39,15 @@
         android:gravity="center_vertical"
         android:text="@string/informacje"
         android:textColor="#000"
-        android:textSize="14dp"/>
+        android:textSize="14dp"
+        android:visibility="gone"/>
 
     <TextView
         android:layout_width="match_parent"
         android:layout_height="50dp"
         android:drawablePadding="20dp"
         android:gravity="center_vertical"
-        android:text="Led kolor (hex)"
+        android:text="Led kolor"
         android:textColor="#000"
         android:textSize="14dp"/>
 
@@ -53,7 +57,8 @@
         android:layout_height="wrap_content"
         android:maxLength="6"
         android:maxLines="1"
-        android:text="ff0000"/>
+        android:text="ff0000"
+        android:visibility="gone"/>
 
     <TextView
         android:layout_width="match_parent"
@@ -62,10 +67,22 @@
         android:gravity="center_vertical"
         android:text="Led rodzaj"
         android:textColor="#000"
-        android:textSize="14dp"/>
+        android:textSize="14dp"
+        android:visibility="gone"/>
 
     <Spinner
         android:id="@+id/ledTypeSpinner"
         android:layout_width="match_parent"
-        android:layout_height="50dp"/>
+        android:layout_height="50dp"
+        android:visibility="gone"/>
+
+    <tic.tack.toe.arduino.CustomColorPicker
+        android:id="@+id/colorPicker"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_gravity="center"
+        android:padding="10dp"
+        custom:hue="120"
+        custom:saturation="1.0"
+        custom:value="1.0"/>
 </LinearLayout>

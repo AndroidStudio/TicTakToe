@@ -9,6 +9,7 @@ import android.bluetooth.BluetoothGattService;
 import android.bluetooth.BluetoothProfile;
 import android.content.Context;
 
+import java.util.List;
 import java.util.UUID;
 
 import timber.log.Timber;

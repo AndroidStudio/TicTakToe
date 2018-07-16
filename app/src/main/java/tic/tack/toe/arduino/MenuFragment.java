@@ -15,6 +15,9 @@ import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.Spinner;
 
+import com.github.mata1.simpledroidcolorpicker.interfaces.OnColorChangedListener;
+import com.github.mata1.simpledroidcolorpicker.pickers.CircleColorPicker;
+
 import java.util.Objects;
 
 public class MenuFragment extends Fragment {
@@ -82,6 +85,18 @@ public class MenuFragment extends Fragment {
             }
         });
         spinner.setAdapter(adapter);
+
+        CircleColorPicker colorPicker = view.findViewById(R.id.colorPicker);
+        colorPicker.setOnColorChangedListener(new OnColorChangedListener() {
+            @Override
+            public void colorChanged(int color) {
+                String hex = String.format("%02x%02x%02x",
+                        Color.red(color),
+                        Color.green(color),
+                        Color.blue(color));
+                setLedColor(hex);
+            }
+        });
     }
 
     private void setLedColor(String color) {

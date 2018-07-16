@@ -14,7 +14,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <ScrollView
+        <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_above="@+id/bottomLayout"
@@ -22,7 +22,7 @@
 
             <include layout="@layout/menu_list"/>
 
-        </ScrollView>
+        </RelativeLayout>
 
         <RelativeLayout
             android:id="@+id/bottomLayout"
