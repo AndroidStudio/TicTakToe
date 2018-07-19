@@ -21,6 +21,7 @@ import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import java.nio.ByteBuffer;
+import java.util.Locale;
 
 import tic.tack.toe.arduino.bluetooth.BleManager;
 import timber.log.Timber;
@@ -35,6 +36,8 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
 
     private static final byte[] CMD_RESET = "R".getBytes();
     private static final byte[] CMD_PIXEL = "P".getBytes();
+    private static final String CMD_VIBRATE = "56";
+    private static final String CMD_BRIGHTNESS = "42";
 
     private final String[] mFieldValueArray = new String[9];
 
@@ -270,16 +273,14 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
         String commandHex = toHexString(CMD_PIXEL);
         Timber.d("commandHex %s", commandHex);
 
-        ByteBuffer byteBuffer = ByteBuffer.allocate(4);
-        byteBuffer.putInt(index);
-        String indexHex = toHexString(byteBuffer.array())
-                .substring(2, 4);
+        String indexHex = String.format(Locale.getDefault(), "%02d", index);
         Timber.d("indexHex %s", indexHex);
 
         String message = commandHex + indexHex + this.mHexColor;
         Timber.d("message %s", message);
 
         this.writeMessage(hexStringToByteArray(message));
+        this.writeMessage(hexStringToByteArray(CMD_VIBRATE));
         this.mFieldValueArray[index] = character;
         this.updateUI(index);
         this.checkWin();
@@ -485,5 +486,20 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
 
     public void onNewGameClick(View view) {
         reset();
+    }
+
+    public void setBrightness(int brightness) {
+        ByteBuffer byteBuffer = ByteBuffer.allocate(4);
+        byteBuffer.putInt(brightness);
+        String brightnessHexValue = toHexString(byteBuffer.array());
+
+        brightnessHexValue = brightnessHexValue.substring(brightnessHexValue.length() - 2,
+                brightnessHexValue.length());
+
+        Timber.d("brightness %s", brightness);
+        Timber.d("brightnessHexValue %s", brightnessHexValue);
+        String message = CMD_BRIGHTNESS + brightnessHexValue;
+        Timber.d("setBrightness %s", message);
+        this.writeMessage(hexStringToByteArray(message));
     }
 }
