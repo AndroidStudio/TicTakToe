@@ -23,7 +23,7 @@ public class GameSettings {
     private int mPlayer_01Symbol = PLAYER_01SYMBOL_DEFAULT;
     private int mPlayer_02Symbol = PLAYER_02SYMBOL_DEFAULT;
 
-    private  String mMacAddress = Constants.EMPTY_STRING;
+    private String mMacAddress = Constants.EMPTY_STRING;
 
     public static synchronized GameSettings getInstance() {
         if (INSTANCE == null) {
@@ -41,8 +41,8 @@ public class GameSettings {
     }
 
     /*
-    * Mac address
-    * */
+     * Mac address bluetooth
+     * */
     public void setMacAddress(String mMacAddress) {
         this.mMacAddress = mMacAddress;
     }
@@ -63,8 +63,8 @@ public class GameSettings {
     }
 
     /*
-    * Kolor gracza 2
-    * */
+     * Kolor gracza 2
+     * */
     public String getPlayer_02Color() {
         return mPlayer_02Color;
     }
@@ -74,8 +74,8 @@ public class GameSettings {
     }
 
     /*
-    * Symbol gracza 1
-    * */
+     * Symbol gracza 1
+     * */
     public int getPlayer_01Symbol() {
         return mPlayer_01Symbol;
     }
@@ -85,8 +85,8 @@ public class GameSettings {
     }
 
     /*
-    * Symbol gracza 2
-    * */
+     * Symbol gracza 2
+     * */
     public int getPlayer_02Symbol() {
         return mPlayer_02Symbol;
     }

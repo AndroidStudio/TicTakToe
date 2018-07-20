@@ -1,7 +1,5 @@
 <resources>
-    <string name="app_name">ArduinoTicTakToe</string>
-    <string name="mqtt_connection_failed">Błąd połączenia</string>
-    <string name="mqtt_connection_lost">Błąd połączenia</string>
+    <string name="app_name">Arduino Game</string>
     <string name="o_aplikacji">O aplikacji</string>
     <string name="o_witchcraft_lab">O Witchcraft Lab</string>
     <string name="informacje">Informacje</string>

@@ -21,7 +21,13 @@ public class BaseFragment extends Fragment implements MessageListener {
         super.onCreate(savedInstanceState);
         this.mViewModel = ViewModelProviders.of(Objects.requireNonNull(getActivity()))
                 .get(SocketViewModel.class);
-        this.mViewModel.setMessageListener(this);
+        this.mViewModel.addMessageListener(this);
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        this.mViewModel.removeMessageListener(this);
     }
 
     protected void setMessage(JSONObject message) {

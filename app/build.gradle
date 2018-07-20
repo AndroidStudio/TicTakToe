@@ -1,6 +1,14 @@
 apply plugin: 'com.android.application'
 
 android {
+    signingConfigs {
+        signing {
+            storeFile file('C:/keystore/witch_android_cert.key')
+            keyAlias 'witchcraft studios'
+            keyPassword 'w1tchcr4ft'
+            storePassword 'w1tchcr4ft'
+        }
+    }
     compileSdkVersion 27
     defaultConfig {
         applicationId "tic.tack.toe.arduino"
@@ -9,8 +17,14 @@ android {
         versionCode 1
         versionName "1.0"
     }
+
     buildTypes {
+        debug {
+            signingConfig signingConfigs.signing
+        }
         release {
+            signingConfig signingConfigs.signing
+            debuggable = false
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }

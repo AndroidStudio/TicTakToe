@@ -3,6 +3,8 @@ package tic.tack.toe.arduino;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.arch.lifecycle.ViewModelProviders;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
@@ -10,17 +12,31 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 
+import org.json.JSONObject;
+
+import tic.tack.toe.arduino.dialog.MessageDialog;
+import tic.tack.toe.arduino.sockets.MessageListener;
+import tic.tack.toe.arduino.sockets.WebSocketConstants;
+import tic.tack.toe.arduino.viewmodel.SocketViewModel;
+
 @SuppressLint("Registered")
-public class BaseActivity extends AppCompatActivity {
+public class BaseActivity extends AppCompatActivity implements MessageListener {
 
     private static final int REQUEST_LOCATION_ACCESS = 1000;
     protected static final int REQUEST_ENABLE_BT = 1001;
 
+    private SocketViewModel mViewModel;
+    private AlertDialog mMessageDialog;
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        this.mViewModel = ViewModelProviders.of(this)
+                .get(SocketViewModel.class);
+        this.mViewModel.addMessageListener(this);
     }
 
     @Override
@@ -60,6 +76,50 @@ public class BaseActivity extends AppCompatActivity {
                 break;
             default:
                 super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        }
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        this.mViewModel.removeMessageListener(this);
+    }
+
+    protected void setMessage(JSONObject message) {
+        this.mViewModel.sendMessage(message.toString());
+    }
+
+    @Override
+    public void onMessage(String message) {
+        try {
+            JSONObject responseObject = new JSONObject(message);
+            if (responseObject.has(WebSocketConstants.EXIT_GAME)) {
+                exitGame();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void exitGame() {
+        this.hideMessageDialog();
+
+        this.mMessageDialog = MessageDialog.displayDialog(this,
+                "Gracz 2 opuscił grę");
+        this.mMessageDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
+            @Override
+            public void onDismiss(DialogInterface dialog) {
+                Intent intent = new Intent(BaseActivity.this,
+                        InitDeviceActivity.class);
+                startActivity(intent);
+                finish();
+            }
+        });
+    }
+
+    private void hideMessageDialog() {
+        if (this.mMessageDialog != null && this.mMessageDialog.isShowing()) {
+            this.mMessageDialog.dismiss();
         }
     }
 }

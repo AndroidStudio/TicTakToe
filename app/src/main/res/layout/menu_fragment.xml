@@ -9,7 +9,7 @@
         android:layout_width="match_parent"
         android:layout_height="@dimen/menu_image_size"
         android:scaleType="centerCrop"
-        android:src="@drawable/burger_img"/>
+        android:src="@drawable/ic_burger_img"/>
 
     <RelativeLayout
         android:layout_width="match_parent"

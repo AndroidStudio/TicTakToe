@@ -1,7 +1,6 @@
 package tic.tack.toe.arduino;
 
 import android.app.Application;
-import android.nfc.Tag;
 
 import tic.tack.toe.arduino.sockets.UDID;
 import timber.log.Timber;
@@ -13,9 +12,18 @@ public class GameApplication extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
-        Timber.plant(new Timber.DebugTree());
-        UDID.init(this);
+        this.initTimber();
+        this.initUDID();
+    }
 
-        Timber.tag(TAG).e(UDID.getUDID());
+    private void initUDID() {
+        UDID.init(this);
+        Timber.tag(TAG).e("UDID: %s" , UDID.getUDID());
+    }
+
+    private void initTimber() {
+        if (BuildConfig.DEBUG) {
+            Timber.plant(new Timber.DebugTree());
+        }
     }
 }

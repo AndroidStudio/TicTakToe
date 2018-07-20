@@ -14,6 +14,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.Nullable;
+import android.text.TextUtils;
 import android.view.KeyEvent;
 import android.widget.Toast;
 
@@ -72,7 +73,13 @@ public class ScanActivity extends BaseActivity implements Runnable {
             return;
         }
 
-        startScanning();
+        if (TextUtils.isEmpty(GameSettings.getInstance().getMacAddress())) {
+            Intent intent = new Intent(this, MainActivity.class);
+            startActivity(intent);
+            return;
+        }
+
+        this.startScanning();
     }
 
     private void startScanning() {

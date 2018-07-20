@@ -4,20 +4,25 @@ import android.app.Application;
 import android.arch.lifecycle.AndroidViewModel;
 import android.support.annotation.NonNull;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import tic.tack.toe.arduino.sockets.MessageListener;
 import tic.tack.toe.arduino.sockets.WebSocketManager;
 
-public class SocketViewModel extends AndroidViewModel {
+public class SocketViewModel extends AndroidViewModel implements MessageListener {
 
     private final WebSocketManager mWebSocketManager = new WebSocketManager();
 
+    private List<MessageListener> mMessageListenerList = new ArrayList<>();
+
     public SocketViewModel(@NonNull Application application) {
         super(application);
-        this.mWebSocketManager.start();
+        this.mWebSocketManager.setMessageListener(this);
     }
 
-    public void setMessageListener(MessageListener messageListener) {
-        this.mWebSocketManager.setMessageListener(messageListener);
+    public void addMessageListener(MessageListener messageListener) {
+        this.mMessageListenerList.add(messageListener);
     }
 
     public void sendMessage(String message) {
@@ -25,8 +30,21 @@ public class SocketViewModel extends AndroidViewModel {
     }
 
     @Override
+    public void onMessage(String message) {
+        for (int i = 0; i < this.mMessageListenerList.size(); i++) {
+            this.mMessageListenerList.get(i).onMessage(message);
+        }
+    }
+
+    public void removeMessageListener(MessageListener messageListener) {
+        this.mMessageListenerList.remove(messageListener);
+    }
+
+    @Override
     protected void onCleared() {
         super.onCleared();
+
+        this.mMessageListenerList.clear();
         this.mWebSocketManager.close();
     }
 }

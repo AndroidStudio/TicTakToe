@@ -11,6 +11,7 @@ import android.content.Context;
 
 import java.util.UUID;
 
+import tic.tack.toe.arduino.dialog.MessageDialog;
 import timber.log.Timber;
 
 import static tic.tack.toe.arduino.Constants.TAG;
@@ -55,7 +56,7 @@ public class BleManager implements BleGattExecutor.BleExecutorListener {
         }
     }
 
-    public void connect(Context context, String address) {
+    public void connect(final Context context, String address) {
         Timber.tag(TAG).e("start connect");
 
         if (mAdapter == null || address == null) {
@@ -63,9 +64,15 @@ public class BleManager implements BleGattExecutor.BleExecutorListener {
             return;
         }
 
-        mDevice = mAdapter.getRemoteDevice(address);
-        if (mDevice == null) {
-            Timber.tag(TAG).e("Device not found.  Unable to connect.");
+        try {
+            mDevice = mAdapter.getRemoteDevice(address);
+            if (mDevice == null) {
+                Timber.tag(TAG).e("Device not found.  Unable to connect.");
+                return;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            MessageDialog.displayDialog(context, "Nieprawidłowy adres bluetooth");
             return;
         }
 

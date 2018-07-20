@@ -66,6 +66,14 @@ public class WebSocketManager extends WebSocketListener {
     }
 
     public void close() {
+//        try {
+//            JSONObject closeObject = new JSONObject();
+//            closeObject.put(WebSocketConstants.EXIT_GAME,true);
+//            sendMessage(closeObject.toString());
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+
         if (this.mWebSocket != null) {
             this.mWebSocket.close(NORMAL_CLOSURE_STATUS, "Client close request");
             Timber.tag(TAG).e("close");
