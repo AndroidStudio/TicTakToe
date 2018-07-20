@@ -77,7 +77,7 @@ public class GameSettings {
      * Symbol gracza 1
      * */
     public int getPlayer_01Symbol() {
-        return mPlayer_01Symbol;
+        return this.mPlayer_01Symbol;
     }
 
     public void setPlayer_01Symbol(int mPlayer_01Symbol) {
