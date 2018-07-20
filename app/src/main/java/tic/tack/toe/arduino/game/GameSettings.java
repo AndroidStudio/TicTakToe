@@ -48,7 +48,7 @@ public class GameSettings {
     }
 
     public String getMacAddress() {
-        return mMacAddress;
+        return this.mMacAddress;
     }
 
     /*
@@ -88,7 +88,7 @@ public class GameSettings {
      * Symbol gracza 2
      * */
     public int getPlayer_02Symbol() {
-        return mPlayer_02Symbol;
+        return this.mPlayer_02Symbol;
     }
 
     public void setPlayer_02Symbol(int mPlayer_02Symbol) {
