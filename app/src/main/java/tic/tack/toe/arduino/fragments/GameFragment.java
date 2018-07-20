@@ -21,7 +21,7 @@ import tic.tack.toe.arduino.CustomGridView;
 import tic.tack.toe.arduino.MainActivity;
 import tic.tack.toe.arduino.R;
 import tic.tack.toe.arduino.bluetooth.BleManager;
-import tic.tack.toe.arduino.game.ARDUINO_CMD;
+import tic.tack.toe.arduino.game.CMD;
 import tic.tack.toe.arduino.game.FieldType;
 import tic.tack.toe.arduino.game.GameSettings;
 
@@ -106,7 +106,7 @@ public class GameFragment extends BaseFragment implements View.OnClickListener {
         }
 
         String indexHex = String.format(Locale.getDefault(), "%02d", index);
-        String message = ARDUINO_CMD.PIXEL + indexHex + this.mGameSettings.getPlayer_01Color();
+        String message = CMD.PIXEL + indexHex + this.mGameSettings.getPlayer_01Color();
 
         this.writeMessage(hexStringToByteArray(message));
         this.mFieldTypeArray[index] = getCurrentPlayer();
@@ -126,7 +126,7 @@ public class GameFragment extends BaseFragment implements View.OnClickListener {
         brightnessHexValue = brightnessHexValue.substring(brightnessHexValue.length() - 2,
                 brightnessHexValue.length());
 
-        String message = ARDUINO_CMD.BRIGHTNESS + brightnessHexValue;
+        String message = CMD.BRIGHTNESS + brightnessHexValue;
         this.writeMessage(hexStringToByteArray(message));
     }
 
@@ -210,7 +210,7 @@ public class GameFragment extends BaseFragment implements View.OnClickListener {
                     Color.parseColor("#" + this.mGameSettings.getPlayer_02Color()), SRC_IN));
         }
 
-        this.writeMessage(hexStringToByteArray(ARDUINO_CMD.RESET));
+        this.writeMessage(hexStringToByteArray(CMD.RESET));
     }
 
     private void updateUI(int index) {
