@@ -15,13 +15,13 @@ public class GameSettings {
 
     private static GameSettings INSTANCE = null;
 
-    private int mBrightness = DEFAULT_BRIGHTNESS;
-
     private String mPlayer_01Color = DEFAULT_PLAYER_01_COLOR;
     private String mPlayer_02Color = DEFAULT_PLAYER_02_COLOR;
 
     private int mPlayer_01Symbol = PLAYER_01SYMBOL_DEFAULT;
     private int mPlayer_02Symbol = PLAYER_02SYMBOL_DEFAULT;
+
+    private int mBrightness = DEFAULT_BRIGHTNESS;
 
     private String mMacAddress = Constants.EMPTY_STRING;
 
