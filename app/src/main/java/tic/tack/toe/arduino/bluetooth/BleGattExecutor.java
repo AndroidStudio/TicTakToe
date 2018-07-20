@@ -32,7 +32,7 @@ class BleGattExecutor extends BluetoothGattCallback {
 
     public void write(BluetoothGattService gattService, String uuid, byte[] value) {
         ServiceAction action = serviceWriteAction(gattService, uuid, value);
-        mQueue.add(action);
+        this.mQueue.add(action);
     }
 
     private BleGattExecutor.ServiceAction serviceWriteAction(final BluetoothGattService gattService, final String uuid, final byte[] value) {
@@ -56,13 +56,13 @@ class BleGattExecutor extends BluetoothGattCallback {
     }
 
     void execute(BluetoothGatt gatt) {
-        if (mCurrentAction == null) {
+        if (this.mCurrentAction == null) {
             while (!mQueue.isEmpty()) {
                 final BleGattExecutor.ServiceAction action = mQueue.pop();
-                mCurrentAction = action;
+                this.mCurrentAction = action;
                 if (!action.execute(gatt))
                     break;
-                mCurrentAction = null;
+                this.mCurrentAction = null;
             }
         }
     }
@@ -70,22 +70,22 @@ class BleGattExecutor extends BluetoothGattCallback {
     @Override
     public void onDescriptorRead(BluetoothGatt gatt, BluetoothGattDescriptor descriptor, int status) {
         super.onDescriptorRead(gatt, descriptor, status);
-        mCurrentAction = null;
-        execute(gatt);
+        this.mCurrentAction = null;
+        this.execute(gatt);
     }
 
     @Override
     public void onDescriptorWrite(BluetoothGatt gatt, BluetoothGattDescriptor descriptor, int status) {
         super.onDescriptorWrite(gatt, descriptor, status);
-        mCurrentAction = null;
-        execute(gatt);
+        this.mCurrentAction = null;
+        this.execute(gatt);
     }
 
     @Override
     public void onCharacteristicWrite(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
         super.onCharacteristicWrite(gatt, characteristic, status);
-        mCurrentAction = null;
-        execute(gatt);
+        this.mCurrentAction = null;
+        this.execute(gatt);
 
         Timber.tag(TAG).e("onCharacteristicWrite: %s", bytesToHex(characteristic.getValue()));
     }
@@ -104,16 +104,16 @@ class BleGattExecutor extends BluetoothGattCallback {
     @Override
     public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
         if (newState == BluetoothProfile.STATE_DISCONNECTED) {
-            mQueue.clear();
-            mCurrentAction = null;
+            this.mQueue.clear();
+            this.mCurrentAction = null;
         }
     }
 
     @Override
     public void onCharacteristicRead(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
         super.onCharacteristicRead(gatt, characteristic, status);
-        mCurrentAction = null;
-        execute(gatt);
+        this.mCurrentAction = null;
+        this.execute(gatt);
     }
 
     @Override

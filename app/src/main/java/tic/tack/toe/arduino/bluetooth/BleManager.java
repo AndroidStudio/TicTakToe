@@ -23,7 +23,7 @@ public class BleManager implements BleGattExecutor.BleExecutorListener {
 
     public static final int STATE_CONNECTED = 2;
 
-    private static BleManager mInstance = null;
+    private static BleManager INSTANCE = null;
 
     private final BleGattExecutor mExecutor = BleGattExecutor.createExecutor(this);
     private BluetoothAdapter mAdapter;
@@ -36,10 +36,10 @@ public class BleManager implements BleGattExecutor.BleExecutorListener {
     private int mConnectionState = STATE_DISCONNECTED;
 
     public static BleManager getInstance(Context context) {
-        if (mInstance == null) {
-            mInstance = new BleManager(context);
+        if (INSTANCE == null) {
+            INSTANCE = new BleManager(context);
         }
-        return mInstance;
+        return INSTANCE;
     }
 
     public void setBleListener(BleManagerListener listener) {
@@ -47,11 +47,11 @@ public class BleManager implements BleGattExecutor.BleExecutorListener {
     }
 
     private BleManager(Context context) {
-        if (mAdapter == null) {
-            mAdapter = BleUtils.getBluetoothAdapter(context);
+        if (this.mAdapter == null) {
+            this.mAdapter = BleUtils.getBluetoothAdapter(context);
         }
 
-        if (mAdapter == null || !mAdapter.isEnabled()) {
+        if (this.mAdapter == null || !mAdapter.isEnabled()) {
             Timber.tag(TAG).e("Unable to obtain a BluetoothAdapter.");
         }
     }
@@ -59,14 +59,14 @@ public class BleManager implements BleGattExecutor.BleExecutorListener {
     public void connect(final Context context, String address) {
         Timber.tag(TAG).e("start connect");
 
-        if (mAdapter == null || address == null) {
+        if (this.mAdapter == null || address == null) {
             Timber.tag(TAG).e("connect: BluetoothAdapter not initialized or unspecified address.");
             return;
         }
 
         try {
-            mDevice = mAdapter.getRemoteDevice(address);
-            if (mDevice == null) {
+            this.mDevice = this.mAdapter.getRemoteDevice(address);
+            if (this.mDevice == null) {
                 Timber.tag(TAG).e("Device not found.  Unable to connect.");
                 return;
             }
@@ -76,29 +76,29 @@ public class BleManager implements BleGattExecutor.BleExecutorListener {
             return;
         }
 
-        mConnectionState = STATE_CONNECTING;
+        this.mConnectionState = STATE_CONNECTING;
 
-        if (mBleListener != null) {
-            mBleListener.onConnecting();
+        if (this.mBleListener != null) {
+            this.mBleListener.onConnecting();
         }
 
-        mGatt = mDevice.connectGatt(context, false, mExecutor);
+        this.mGatt = this.mDevice.connectGatt(context, false, this.mExecutor);
     }
 
     public void disconnect() {
-        mDevice = null;
-        if (mAdapter == null || mGatt == null) {
+        this.mDevice = null;
+        if (this.mAdapter == null || mGatt == null) {
             Timber.tag(TAG).e("disconnect: BluetoothAdapter not initialized");
             return;
         }
-        mGatt.disconnect();
+        this.mGatt.disconnect();
     }
 
     public void close() {
-        if (mGatt != null) {
-            mGatt.close();
-            mGatt = null;
-            mDevice = null;
+        if (this.mGatt != null) {
+            this.mGatt.close();
+            this.mGatt = null;
+            this.mDevice = null;
         }
     }
 
@@ -108,13 +108,13 @@ public class BleManager implements BleGattExecutor.BleExecutorListener {
 
     public void writeService(BluetoothGattService service, String uuid, byte[] value) {
         if (service != null) {
-            if (mAdapter == null || mGatt == null) {
+            if (this.mAdapter == null || this.mGatt == null) {
                 Timber.tag(TAG).e("writeService: BluetoothAdapter not initialized");
                 return;
             }
 
-            mExecutor.write(service, uuid, value);
-            mExecutor.execute(mGatt);
+            this.mExecutor.write(service, uuid, value);
+            this.mExecutor.execute(this.mGatt);
         }
     }
 
@@ -130,28 +130,28 @@ public class BleManager implements BleGattExecutor.BleExecutorListener {
     @Override
     public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
         if (newState == BluetoothProfile.STATE_CONNECTED) {
-            mConnectionState = STATE_CONNECTED;
-            if (mBleListener != null) {
-                mBleListener.onConnected();
+            this.mConnectionState = STATE_CONNECTED;
+            if (this.mBleListener != null) {
+                this.mBleListener.onConnected();
             }
             gatt.discoverServices();
         } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
-            mConnectionState = STATE_DISCONNECTED;
-            if (mBleListener != null) {
-                mBleListener.onDisconnected();
+            this.mConnectionState = STATE_DISCONNECTED;
+            if (this.mBleListener != null) {
+                this.mBleListener.onDisconnected();
             }
         } else if (newState == BluetoothProfile.STATE_CONNECTING) {
-            mConnectionState = STATE_CONNECTING;
-            if (mBleListener != null) {
-                mBleListener.onConnecting();
+            this.mConnectionState = STATE_CONNECTING;
+            if (this.mBleListener != null) {
+                this.mBleListener.onConnecting();
             }
         }
     }
 
     @Override
     public void onServicesDiscovered(BluetoothGatt gatt, int status) {
-        if (mBleListener != null)
-            mBleListener.onServicesDiscovered();
+        if (this.mBleListener != null)
+            this.mBleListener.onServicesDiscovered();
         if (status != BluetoothGatt.GATT_SUCCESS) {
             Timber.tag(TAG).e("onServicesDiscovered status: %s", status);
         }
@@ -159,8 +159,8 @@ public class BleManager implements BleGattExecutor.BleExecutorListener {
 
     @Override
     public void onCharacteristicRead(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
-        if (mBleListener != null) {
-            mBleListener.onDataAvailable(characteristic);
+        if (this.mBleListener != null) {
+            this.mBleListener.onDataAvailable(characteristic);
         }
 
         if (status != BluetoothGatt.GATT_SUCCESS) {
@@ -170,15 +170,15 @@ public class BleManager implements BleGattExecutor.BleExecutorListener {
 
     @Override
     public void onCharacteristicChanged(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic) {
-        if (mBleListener != null) {
-            mBleListener.onDataAvailable(characteristic);
+        if (this.mBleListener != null) {
+            this.mBleListener.onDataAvailable(characteristic);
         }
     }
 
     @Override
     public void onDescriptorRead(BluetoothGatt gatt, BluetoothGattDescriptor descriptor, int status) {
-        if (mBleListener != null) {
-            mBleListener.onDataAvailable(descriptor);
+        if (this.mBleListener != null) {
+            this.mBleListener.onDataAvailable(descriptor);
         }
 
         if (status != BluetoothGatt.GATT_SUCCESS) {
@@ -188,8 +188,8 @@ public class BleManager implements BleGattExecutor.BleExecutorListener {
 
     @Override
     public void onReadRemoteRssi(BluetoothGatt gatt, int rssi, int status) {
-        if (mBleListener != null) {
-            mBleListener.onReadRemoteRssi(rssi);
+        if (this.mBleListener != null) {
+            this.mBleListener.onReadRemoteRssi(rssi);
         }
 
         if (status != BluetoothGatt.GATT_SUCCESS) {

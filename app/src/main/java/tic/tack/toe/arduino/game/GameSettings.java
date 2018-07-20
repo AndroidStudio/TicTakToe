@@ -37,7 +37,7 @@ public class GameSettings {
     }
 
     public int getLedBrightness() {
-        return mBrightness;
+        return this.mBrightness;
     }
 
     /*
@@ -59,14 +59,14 @@ public class GameSettings {
     }
 
     public String getPlayer_01Color() {
-        return mPlayer_01Color;
+        return this.mPlayer_01Color;
     }
 
     /*
      * Kolor gracza 2
      * */
     public String getPlayer_02Color() {
-        return mPlayer_02Color;
+        return this.mPlayer_02Color;
     }
 
     public void setPlayer_02Color(String mPlayer_02Color) {

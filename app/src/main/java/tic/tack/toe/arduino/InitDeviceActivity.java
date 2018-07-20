@@ -15,8 +15,8 @@ import org.json.JSONObject;
 
 import tic.tack.toe.arduino.dialog.MessageDialog;
 import tic.tack.toe.arduino.game.GameSettings;
+import tic.tack.toe.arduino.sockets.SocketConstants;
 import tic.tack.toe.arduino.sockets.UDID;
-import tic.tack.toe.arduino.sockets.WebSocketConstants;
 import timber.log.Timber;
 
 public class InitDeviceActivity extends BaseActivity {
@@ -27,12 +27,12 @@ public class InitDeviceActivity extends BaseActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.splash_activity);
+        this.setContentView(R.layout.splash_activity);
         if (!isInternetConnection()) {
             displayNoInternetDialog();
             return;
         }
-        initDevice();
+        this.initDevice();
     }
 
     private void displayNoInternetDialog() {
@@ -47,11 +47,11 @@ public class InitDeviceActivity extends BaseActivity {
     }
 
     private void initDevice() {
-        displayInitDeviceProgressDialog();
+        this.displayInitDeviceProgressDialog();
         try {
             JSONObject messageObject = new JSONObject();
-            messageObject.put(WebSocketConstants.UDID, UDID.getUDID());
-            messageObject.put(WebSocketConstants.INIT_GAME, true);
+            messageObject.put(SocketConstants.TYPE, SocketConstants.INIT_GAME);
+            messageObject.put(SocketConstants.UDID, UDID.getUDID());
             setMessage(messageObject);
 
             Timber.tag(TAG).e("initDevice");
@@ -65,10 +65,9 @@ public class InitDeviceActivity extends BaseActivity {
         super.onMessage(message);
         try {
             JSONObject messageObject = new JSONObject(message);
-            if (messageObject.has(WebSocketConstants.BLUETOOTH_ADDRESS)) {
-                String macAddress = messageObject.getString(WebSocketConstants.BLUETOOTH_ADDRESS);
-                GameSettings.getInstance().setMacAddress(macAddress);
-                initDeviceSuccess();
+            if (messageObject.has(SocketConstants.INIT_GAME)) {
+                String macAddress = messageObject.getString(SocketConstants.BLUETOOTH_ADDRESS);
+                this.initDeviceSuccess(macAddress);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -99,7 +98,7 @@ public class InitDeviceActivity extends BaseActivity {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        hideInitDeviceProgressDialog();
+        this.hideInitDeviceProgressDialog();
     }
 
     public void hideInitDeviceProgressDialog() {
@@ -108,11 +107,12 @@ public class InitDeviceActivity extends BaseActivity {
         }
     }
 
-    private void initDeviceSuccess() {
-        Timber.tag(TAG).e("initDeviceSuccess");
-
+    private void initDeviceSuccess(String macAddress) {
+        GameSettings.getInstance().setMacAddress(macAddress);
         Intent intent = new Intent(this, ScanActivity.class);
-        startActivity(intent);
+        this.startActivity(intent);
+
+        Timber.tag(TAG).e("initDeviceSuccess");
     }
 
     @SuppressWarnings("all")

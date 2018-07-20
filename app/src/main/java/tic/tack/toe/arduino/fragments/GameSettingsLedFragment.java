@@ -67,7 +67,6 @@ public class GameSettingsLedFragment extends BaseFragment {
         });
         colorPicker.invalidate();
 
-
         AppCompatSeekBar seekBar = view.findViewById(R.id.seekBar);
         seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override

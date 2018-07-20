@@ -19,7 +19,7 @@ import org.json.JSONObject;
 
 import tic.tack.toe.arduino.dialog.MessageDialog;
 import tic.tack.toe.arduino.sockets.MessageListener;
-import tic.tack.toe.arduino.sockets.WebSocketConstants;
+import tic.tack.toe.arduino.sockets.SocketConstants;
 import tic.tack.toe.arduino.viewmodel.SocketViewModel;
 
 @SuppressLint("Registered")
@@ -42,7 +42,7 @@ public class BaseActivity extends AppCompatActivity implements MessageListener {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == REQUEST_ENABLE_BT && resultCode == Activity.RESULT_CANCELED) {
-            finish();
+            this.finish();
             return;
         }
         super.onActivityResult(requestCode, resultCode, data);
@@ -93,8 +93,11 @@ public class BaseActivity extends AppCompatActivity implements MessageListener {
     public void onMessage(String message) {
         try {
             JSONObject responseObject = new JSONObject(message);
-            if (responseObject.has(WebSocketConstants.EXIT_GAME)) {
-                exitGame();
+            String type = responseObject.getString(SocketConstants.TYPE);
+            switch (type) {
+                case SocketConstants.EXIT_GAME:
+                    this.exitGame();
+                    break;
             }
         } catch (Exception e) {
             e.printStackTrace();

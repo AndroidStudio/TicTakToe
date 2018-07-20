@@ -1,6 +1,6 @@
 package tic.tack.toe.arduino.game;
 
-public class CMD {
+public class ARDUINO_CMD {
 
     /*
     * Wartości w HEX

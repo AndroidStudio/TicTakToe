@@ -21,7 +21,7 @@ import tic.tack.toe.arduino.CustomGridView;
 import tic.tack.toe.arduino.MainActivity;
 import tic.tack.toe.arduino.R;
 import tic.tack.toe.arduino.bluetooth.BleManager;
-import tic.tack.toe.arduino.game.CMD;
+import tic.tack.toe.arduino.game.ARDUINO_CMD;
 import tic.tack.toe.arduino.game.FieldType;
 import tic.tack.toe.arduino.game.GameSettings;
 
@@ -106,7 +106,7 @@ public class GameFragment extends BaseFragment implements View.OnClickListener {
         }
 
         String indexHex = String.format(Locale.getDefault(), "%02d", index);
-        String message = CMD.PIXEL + indexHex + this.mGameSettings.getPlayer_01Color();
+        String message = ARDUINO_CMD.PIXEL + indexHex + this.mGameSettings.getPlayer_01Color();
 
         this.writeMessage(hexStringToByteArray(message));
         this.mFieldTypeArray[index] = getCurrentPlayer();
@@ -126,7 +126,7 @@ public class GameFragment extends BaseFragment implements View.OnClickListener {
         brightnessHexValue = brightnessHexValue.substring(brightnessHexValue.length() - 2,
                 brightnessHexValue.length());
 
-        String message = CMD.BRIGHTNESS + brightnessHexValue;
+        String message = ARDUINO_CMD.BRIGHTNESS + brightnessHexValue;
         this.writeMessage(hexStringToByteArray(message));
     }
 
@@ -154,9 +154,9 @@ public class GameFragment extends BaseFragment implements View.OnClickListener {
     }
 
     private void writeMessage(byte[] message) {
-        BleManager bleManager = this.getBleManager();
-        checkCurrentState();
+        this.checkCurrentState();
 
+        BleManager bleManager = this.getBleManager();
         bleManager.writeService(bleManager.getGattService(
                 "6E400001-B5A3-F393-E0A9-E50E24DCCA9E"),
                 "6E400002-B5A3-F393-E0A9-E50E24DCCA9E", message);
@@ -170,8 +170,8 @@ public class GameFragment extends BaseFragment implements View.OnClickListener {
             message = "gracz 1";
         }
 
-        displayMessageDialog("Wygrywa: " + message);
-        reset();
+        this.displayMessageDialog("Wygrywa: " + message);
+        this.reset();
     }
 
     private void displayMessageDialog(String message) {
@@ -210,7 +210,7 @@ public class GameFragment extends BaseFragment implements View.OnClickListener {
                     Color.parseColor("#" + this.mGameSettings.getPlayer_02Color()), SRC_IN));
         }
 
-        this.writeMessage(hexStringToByteArray(CMD.RESET));
+        this.writeMessage(hexStringToByteArray(ARDUINO_CMD.RESET));
     }
 
     private void updateUI(int index) {

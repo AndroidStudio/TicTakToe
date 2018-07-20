@@ -1,7 +1,8 @@
 package tic.tack.toe.arduino.sockets;
 
-public class WebSocketConstants {
+public class SocketConstants {
 
+    public static final String TYPE = "type";
     public static final String UDID = "udid";
     public static final String INIT_GAME = "init_game";
     public static final String BLUETOOTH_ADDRESS = "bluetooth_address";

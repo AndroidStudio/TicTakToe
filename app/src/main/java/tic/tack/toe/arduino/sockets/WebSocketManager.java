@@ -80,8 +80,8 @@ public class WebSocketManager extends WebSocketListener {
 
         try {
             JSONObject object = new JSONObject();
-            object.put(WebSocketConstants.UDID, UDID.getUDID());
-            object.put(WebSocketConstants.EXIT_GAME, true);
+            object.put(SocketConstants.TYPE, SocketConstants.EXIT_GAME);
+            object.put(SocketConstants.UDID, UDID.getUDID());
             sendMessage(object.toString());
         } catch (Exception e) {
             e.printStackTrace();

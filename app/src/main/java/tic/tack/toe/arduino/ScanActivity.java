@@ -35,16 +35,16 @@ public class ScanActivity extends BaseActivity implements Runnable {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.splash_activity);
+        this.setContentView(R.layout.splash_activity);
 
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
             Toast.makeText(this, "Wymagana minimalna wersja systemu ANDROID 6.0", Toast.LENGTH_LONG).show();
-            finish();
+            this.finish();
             return;
         }
 
         if (!getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
-            finish();
+            this.finish();
             return;
         }
 
@@ -64,18 +64,18 @@ public class ScanActivity extends BaseActivity implements Runnable {
 
         if (!this.mBluetoothAdapter.isEnabled()) {
             Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-            startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
+            this.startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
             return;
         }
 
         if (!checkPermissions()) {
-            requestPermissions();
+            this.requestPermissions();
             return;
         }
 
         if (TextUtils.isEmpty(GameSettings.getInstance().getMacAddress())) {
             Intent intent = new Intent(this, MainActivity.class);
-            startActivity(intent);
+            this.startActivity(intent);
             return;
         }
 
@@ -84,11 +84,12 @@ public class ScanActivity extends BaseActivity implements Runnable {
 
     private void startScanning() {
         Timber.tag(TAG).e("startScanning");
+
         this.mDeviceFound = false;
 
         BluetoothLeScanner bluetoothLeScanner = this.mBluetoothAdapter.getBluetoothLeScanner();
-        bluetoothLeScanner.startScan(mScanCallback);
-        displayScanDialog();
+        bluetoothLeScanner.startScan(this.mScanCallback);
+        this.displayScanDialog();
     }
 
     private void stopScanning() {
@@ -100,7 +101,7 @@ public class ScanActivity extends BaseActivity implements Runnable {
                 bluetoothLeScanner.stopScan(this.mScanCallback);
             }
         }
-        hideScanDialog();
+        this.hideScanDialog();
     }
 
     public void displayScanDialog() {
@@ -126,7 +127,7 @@ public class ScanActivity extends BaseActivity implements Runnable {
     }
 
     public void hideScanDialog() {
-        runOnUiThread(new Runnable() {
+        this.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 if (mScanDialog != null && mScanDialog.isShowing()) {
@@ -163,13 +164,13 @@ public class ScanActivity extends BaseActivity implements Runnable {
     protected void onPause() {
         super.onPause();
         this.mHandler.removeCallbacksAndMessages(null);
-        stopScanning();
+        this.stopScanning();
     }
 
     @Override
     public void run() {
         Intent intent = new Intent(this, MainActivity.class);
-        startActivity(intent);
-        finish();
+        this.startActivity(intent);
+        this.finish();
     }
 }

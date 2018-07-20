@@ -51,15 +51,15 @@ public class MainActivity extends BaseActivity {
                 GameSettings.getInstance().getMacAddress());
 
         if (savedInstanceState == null) {
-            setupMenuFragment();
+            this.setupMenuFragment();
 
             FragmentController.setCurrentFragment(this, new GameSymbolFragment());
         }
     }
 
     private void reconnectClick() {
-        BluetoothManager bluetoothManager = (BluetoothManager)
-                getSystemService(Context.BLUETOOTH_SERVICE);
+        BluetoothManager bluetoothManager = (BluetoothManager) getSystemService(
+                Context.BLUETOOTH_SERVICE);
         if (bluetoothManager != null) {
             BluetoothAdapter bluetoothAdapter = bluetoothManager.getAdapter();
             if (bluetoothAdapter == null) {
@@ -68,12 +68,12 @@ public class MainActivity extends BaseActivity {
 
             if (!bluetoothAdapter.isEnabled()) {
                 Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-                startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
+                this.startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
                 return;
             }
 
             if (!checkPermissions()) {
-                requestPermissions();
+                this.requestPermissions();
                 return;
             }
 
