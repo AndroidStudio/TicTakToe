@@ -43,8 +43,12 @@ public class SocketViewModel extends AndroidViewModel implements MessageListener
     @Override
     protected void onCleared() {
         super.onCleared();
-
         this.mMessageListenerList.clear();
-        this.mWebSocketManager.close();
+    }
+
+    public void disconnectClient() {
+        if (this.mWebSocketManager != null) {
+            this.mWebSocketManager.disconnectClient();
+        }
     }
 }

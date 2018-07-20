@@ -122,4 +122,8 @@ public class BaseActivity extends AppCompatActivity implements MessageListener {
             this.mMessageDialog.dismiss();
         }
     }
+
+    public void disconnectClient() {
+        this.mViewModel.disconnectClient();
+    }
 }

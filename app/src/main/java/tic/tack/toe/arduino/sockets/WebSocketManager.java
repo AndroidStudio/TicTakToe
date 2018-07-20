@@ -1,5 +1,7 @@
 package tic.tack.toe.arduino.sockets;
 
+import org.json.JSONObject;
+
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
@@ -13,6 +15,7 @@ public class WebSocketManager extends WebSocketListener {
     private static final String TAG = "WebSocketManager";
 
     private final OkHttpClient mClient = new OkHttpClient();
+
     private MessageListener mMessageListener;
     private WebSocket mWebSocket;
 
@@ -35,7 +38,7 @@ public class WebSocketManager extends WebSocketListener {
 
     @Override
     public void onMessage(WebSocket webSocket, String text) {
-        Timber.tag(TAG).e("onMessage");
+        Timber.tag(TAG).e("onMessage %s", text);
         if (this.mMessageListener != null) {
             this.mMessageListener.onMessage(text);
         }
@@ -65,19 +68,26 @@ public class WebSocketManager extends WebSocketListener {
         }
     }
 
-    public void close() {
-//        try {
-//            JSONObject closeObject = new JSONObject();
-//            closeObject.put(WebSocketConstants.EXIT_GAME,true);
-//            sendMessage(closeObject.toString());
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
-
+    private void closeConnection() {
         if (this.mWebSocket != null) {
             this.mWebSocket.close(NORMAL_CLOSURE_STATUS, "Client close request");
-            Timber.tag(TAG).e("close");
+            Timber.tag(TAG).e("closeConnection");
         }
+    }
+
+    public void disconnectClient() {
+        Timber.tag(TAG).e("disconnectClient");
+
+        try {
+            JSONObject object = new JSONObject();
+            object.put(WebSocketConstants.UDID, UDID.getUDID());
+            object.put(WebSocketConstants.EXIT_GAME, true);
+            sendMessage(object.toString());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        this.closeConnection();
     }
 }
 
