@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              xmlns:grid="http://schemas.android.com/apk/res-auto"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:orientation="vertical">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:gravity="center_horizontal"
+        android:text="@string/kolejka"
+        android:textColor="#000"
+        android:textSize="14dp"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="20dp"
+        android:layout_margin="10dp"
+        android:gravity="center"
+        android:orientation="horizontal">
+
+        <ImageView
+            android:id="@+id/mPlayer_01ImageView"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:layout_marginRight="5dp"/>
+
+        <ImageView
+            android:id="@+id/mPlayer_02ImageView"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:layout_marginLeft="5dp"/>
+    </LinearLayout>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_above="@+id/newGameButton">
+
+            <tic.tack.toe.arduino.CustomGridView
+                android:id="@+id/gridLayout"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_centerInParent="true"
+                android:layout_margin="20dp"
+                android:background="@drawable/ic_plansza"
+                grid:columnCount="3"
+                grid:rowCount="3">
+
+                <ImageView
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:padding="20dp"
+                    android:scaleType="fitCenter"
+                    grid:layout_columnWeight="1"
+                    grid:layout_rowWeight="1"/>
+
+                <ImageView
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:padding="20dp"
+                    android:scaleType="fitCenter"
+                    grid:layout_columnWeight="1"
+                    grid:layout_rowWeight="1"/>
+
+                <ImageView
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:padding="20dp"
+                    android:scaleType="fitCenter"
+                    grid:layout_columnWeight="1"
+                    grid:layout_rowWeight="1"/>
+
+                <ImageView
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:padding="20dp"
+                    android:scaleType="fitCenter"
+                    grid:layout_columnWeight="1"
+                    grid:layout_rowWeight="1"/>
+
+                <ImageView
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:padding="20dp"
+                    android:scaleType="fitCenter"
+                    grid:layout_columnWeight="1"
+                    grid:layout_rowWeight="1"/>
+
+                <ImageView
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:padding="20dp"
+                    android:scaleType="fitCenter"
+                    grid:layout_columnWeight="1"
+                    grid:layout_rowWeight="1"/>
+
+                <ImageView
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:padding="20dp"
+                    android:scaleType="fitCenter"
+                    grid:layout_columnWeight="1"
+                    grid:layout_rowWeight="1"/>
+
+                <ImageView
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:padding="20dp"
+                    android:scaleType="fitCenter"
+                    grid:layout_columnWeight="1"
+                    grid:layout_rowWeight="1"/>
+
+                <ImageView
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:padding="20dp"
+                    android:scaleType="fitCenter"
+                    grid:layout_columnWeight="1"
+                    grid:layout_rowWeight="1"/>
+
+            </tic.tack.toe.arduino.CustomGridView>
+
+        </RelativeLayout>
+
+        <Button
+            android:id="@+id/newGameButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_margin="50dp"
+            android:background="#000"
+            android:text="@string/nowa_gra"
+            android:textColor="#fff"
+            android:textSize="14dp"/>
+
+    </RelativeLayout>
+
+</LinearLayout>

@@ -8,4 +8,10 @@
     <string name="zakoncz">Zakończ</string>
     <string name="kolejka">Kolejka</string>
     <string name="nowa_gra">Nowa gra</string>
+    <string name="wybierz_znak">Wybierz znak</string>
+    <string name="dalej">Dalej</string>
+    <string name="sc">Jasność</string>
+    <string name="led_kolor">Led kolor</string>
+    <string name="wstecz">Wstecz</string>
+    <string name="prosze_wybrac_symbol">Proszę wybrać symbol</string>
 </resources>

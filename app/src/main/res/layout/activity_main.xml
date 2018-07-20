@@ -6,13 +6,13 @@
 
 
     <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                  xmlns:grid="http://schemas.android.com/apk/res-auto"
                   android:layout_width="match_parent"
                   android:layout_height="match_parent"
                   android:background="#ffffff"
                   android:orientation="vertical">
 
         <RelativeLayout
+            android:id="@+id/headerLayout"
             android:layout_width="match_parent"
             android:layout_height="55dp">
 
@@ -42,146 +42,11 @@
                 android:src="@drawable/ic_bluetooth_disconnected"/>
         </RelativeLayout>
 
-        <TextView
+        <FrameLayout
+            android:id="@+id/contentLayout"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
-            android:gravity="center_horizontal"
-            android:text="@string/kolejka"
-            android:textColor="#000"
-            android:textSize="14dp"/>
+            android:layout_height="match_parent"/>
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="20dp"
-            android:layout_margin="10dp"
-            android:gravity="center"
-            android:orientation="horizontal">
-
-            <ImageView
-                android:id="@+id/oImageView"
-                android:layout_width="20dp"
-                android:layout_height="20dp"
-                android:layout_marginRight="5dp"
-                android:src="@drawable/ic_o_inactive"/>
-
-            <ImageView
-                android:id="@+id/xImageView"
-                android:layout_width="20dp"
-                android:layout_height="20dp"
-                android:layout_marginLeft="5dp"
-                android:src="@drawable/ic_x_active"/>
-        </LinearLayout>
-
-
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
-
-            <RelativeLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_above="@+id/newButton">
-
-                <tic.tack.toe.arduino.CustomGridView
-                    android:id="@+id/gridLayout"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_centerInParent="true"
-                    android:layout_margin="20dp"
-                    android:background="@drawable/ic_plansza"
-                    grid:columnCount="3"
-                    grid:rowCount="3">
-
-                    <ImageView
-                        android:padding="20dp"
-                        android:scaleType="fitCenter"
-                        android:layout_width="0dp"
-                        android:layout_height="0dp"
-                        grid:layout_columnWeight="1"
-                        grid:layout_rowWeight="1"/>
-
-                    <ImageView
-                        android:padding="20dp"
-                        android:scaleType="fitCenter"
-                        android:layout_width="0dp"
-                        android:layout_height="0dp"
-                        grid:layout_columnWeight="1"
-                        grid:layout_rowWeight="1"/>
-
-                    <ImageView
-                        android:padding="20dp"
-                        android:scaleType="fitCenter"
-                        android:layout_width="0dp"
-                        android:layout_height="0dp"
-                        grid:layout_columnWeight="1"
-                        grid:layout_rowWeight="1"/>
-
-                    <ImageView
-                        android:padding="20dp"
-                        android:scaleType="fitCenter"
-                        android:layout_width="0dp"
-                        android:layout_height="0dp"
-                        grid:layout_columnWeight="1"
-                        grid:layout_rowWeight="1"/>
-
-                    <ImageView
-                        android:padding="20dp"
-                        android:scaleType="fitCenter"
-                        android:layout_width="0dp"
-                        android:layout_height="0dp"
-                        grid:layout_columnWeight="1"
-                        grid:layout_rowWeight="1"/>
-
-                    <ImageView
-                        android:padding="20dp"
-                        android:scaleType="fitCenter"
-                        android:layout_width="0dp"
-                        android:layout_height="0dp"
-                        grid:layout_columnWeight="1"
-                        grid:layout_rowWeight="1"/>
-
-                    <ImageView
-                        android:padding="20dp"
-                        android:scaleType="fitCenter"
-                        android:layout_width="0dp"
-                        android:layout_height="0dp"
-                        grid:layout_columnWeight="1"
-                        grid:layout_rowWeight="1"/>
-
-                    <ImageView
-                        android:padding="20dp"
-                        android:scaleType="fitCenter"
-                        android:layout_width="0dp"
-                        android:layout_height="0dp"
-                        grid:layout_columnWeight="1"
-                        grid:layout_rowWeight="1"/>
-
-                    <ImageView
-                        android:padding="20dp"
-                        android:scaleType="fitCenter"
-                        android:layout_width="0dp"
-                        android:layout_height="0dp"
-                        grid:layout_columnWeight="1"
-                        grid:layout_rowWeight="1"/>
-
-                </tic.tack.toe.arduino.CustomGridView>
-
-            </RelativeLayout>
-
-            <Button
-                android:id="@+id/newButton"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_alignParentBottom="true"
-                android:layout_margin="50dp"
-                android:background="#000"
-                android:onClick="onNewGameClick"
-                android:text="@string/nowa_gra"
-                android:textColor="#fff"
-                android:textSize="14dp"/>
-
-        </RelativeLayout>
     </LinearLayout>
 
     <FrameLayout

@@ -5,72 +5,36 @@ import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothGattDescriptor;
 import android.bluetooth.BluetoothManager;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.AlertDialog;
-import android.support.v7.widget.GridLayout;
-import android.text.TextUtils;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
-import android.widget.Toast;
-
-import java.nio.ByteBuffer;
-import java.util.Locale;
 
 import tic.tack.toe.arduino.bluetooth.BleManager;
+import tic.tack.toe.arduino.fragments.FragmentController;
+import tic.tack.toe.arduino.fragments.GameSymbolFragment;
 import timber.log.Timber;
 
 import static tic.tack.toe.arduino.Constants.MAC_ADDRESS;
 import static tic.tack.toe.arduino.Constants.TAG;
 
-public class MainActivity extends BaseActivity implements View.OnClickListener {
-
-    private static final String START_CHARACTER = "O";
-    private static final String EMPTY = "";
-
-    private static final byte[] CMD_RESET = "R".getBytes();
-    private static final byte[] CMD_PIXEL = "P".getBytes();
-    private static final String CMD_VIBRATE = "56";
-    private static final String CMD_BRIGHTNESS = "42";
-
-    private final String[] mFieldValueArray = new String[9];
-
-    private String mCurrentCharacter = START_CHARACTER;
-
-    private BleManager mBleManager;
+public class MainActivity extends BaseActivity {
 
     private ImageView mBluetoothStatusImageView;
     private ProgressBar mProgressBar;
-    private GridLayout mGridLayout;
 
-    private ImageView mXImageView;
-    private ImageView mOImageView;
-
-    private String mHexColor = "FF0000";
+    public BleManager mBleManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         this.setContentView(R.layout.activity_main);
         Timber.tag(Constants.TAG).e("onCreate");
-
-        this.mGridLayout = findViewById(R.id.gridLayout);
-        int childCount = this.mGridLayout.getChildCount();
-        for (int i = 0; i < childCount; i++) {
-            this.mFieldValueArray[i] = EMPTY;
-            View view = this.mGridLayout.getChildAt(i);
-            view.setTag(i);
-            view.setOnClickListener(this);
-        }
-
-        this.mXImageView = findViewById(R.id.xImageView);
-        this.mOImageView = findViewById(R.id.oImageView);
 
         this.mProgressBar = findViewById(R.id.progressBar);
         this.mBluetoothStatusImageView = findViewById(R.id.bluetoothStatusImageView);
@@ -87,28 +51,9 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
 
         if (savedInstanceState == null) {
             setupMenuFragment();
-        }
-    }
 
-    public void setLedType(String type) {
-        String ledType = null;
-        switch (type) {
-            case "Kółko krzyżyk":
-                ledType = "k";
-                break;
-            case "Serduszka":
-                ledType = "s";
-                break;
+            FragmentController.setCurrentFragment(this, new GameSymbolFragment());
         }
-
-        if (!TextUtils.isEmpty(ledType)) {
-            String message = "l_type:" + ledType;
-            writeMessage(message);
-        }
-    }
-
-    public void setLedColor(String hexColor) {
-        this.mHexColor = hexColor;
     }
 
     private void reconnectClick() {
@@ -241,265 +186,10 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
         });
     }
 
-    public void displayMessageDialog(String message) {
-        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
-        alertDialogBuilder.setTitle("Komunikat");
-        alertDialogBuilder.setMessage(message)
-                .setOnDismissListener(new DialogInterface.OnDismissListener() {
-                    @Override
-                    public void onDismiss(DialogInterface dialog) {
-                    }
-                })
-                .setCancelable(false)
-                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int id) {
-                        dialog.dismiss();
-                    }
-                });
-        AlertDialog alertDialog = alertDialogBuilder.create();
-        alertDialog.show();
-    }
-
-    @Override
-    public void onClick(View view) {
-        int index = (int) view.getTag();
-        String value = this.mFieldValueArray[index];
-        if (!TextUtils.isEmpty(value)) {
-            return;
-        }
-
-        String character = getCharacter();
-
-        String commandHex = toHexString(CMD_PIXEL);
-        Timber.d("commandHex %s", commandHex);
-
-        String indexHex = String.format(Locale.getDefault(), "%02d", index);
-        Timber.d("indexHex %s", indexHex);
-
-        String message = commandHex + indexHex + this.mHexColor;
-        Timber.d("message %s", message);
-
-        this.writeMessage(hexStringToByteArray(message));
-        this.writeMessage(hexStringToByteArray(CMD_VIBRATE));
-        this.mFieldValueArray[index] = character;
-        this.updateUI(index);
-        this.checkWin();
-    }
-
-    public byte[] hexStringToByteArray(String value) {
-        int length = value.length();
-        byte[] data = new byte[length / 2];
-        for (int i = 0; i < length; i += 2) {
-            data[i / 2] = (byte) ((Character.digit(value.charAt(i), 16) << 4)
-                    + Character.digit(value.charAt(i + 1), 16));
-        }
-        return data;
-    }
-
-    public String toHexString(byte[] bytes) {
-        StringBuilder stringBuilder = new StringBuilder();
-        for (byte b : bytes) stringBuilder.append(String.format("%x", b));
-        return stringBuilder.toString();
-    }
-
-    private void checkCurrentState() {
-        int currentState = this.mBleManager.getCurrentState();
-        if (currentState != BleManager.STATE_CONNECTED) {
-            Toast.makeText(this, "Brak połącznenia z bluetooth...", Toast.LENGTH_SHORT).show();
-        }
-    }
-
-    private void writeMessage(String message) {
-        checkCurrentState();
-        this.mBleManager.writeService(this.mBleManager.getGattService(
-                "6E400001-B5A3-F393-E0A9-E50E24DCCA9E"),
-                "6E400002-B5A3-F393-E0A9-E50E24DCCA9E", message.getBytes());
-    }
-
-    private void writeMessage(byte[] message) {
-        checkCurrentState();
-        this.mBleManager.writeService(this.mBleManager.getGattService(
-                "6E400001-B5A3-F393-E0A9-E50E24DCCA9E"),
-                "6E400002-B5A3-F393-E0A9-E50E24DCCA9E", message);
-    }
-
-    private void win(String value) {
-        String message = "win:" + value;
-        writeMessage(message);
-
-        if (value.equals("O")) {
-            value = "kółko";
-        } else {
-            value = "krzyżyk";
-        }
-
-        displayMessageDialog("Wygrywa: " + value);
-        reset();
-    }
-
-    private void reset() {
-        this.mCurrentCharacter = START_CHARACTER;
-
-        int childCount = this.mGridLayout.getChildCount();
-        for (int i = 0; i < childCount; i++) {
-            this.mFieldValueArray[i] = EMPTY;
-            ImageView view = (ImageView) mGridLayout.getChildAt(i);
-            view.setImageDrawable(null);
-        }
-
-        if (this.mCurrentCharacter.equals("O")) {
-            this.mXImageView.setImageResource(R.drawable.ic_x_active);
-            this.mOImageView.setImageResource(R.drawable.ic_o_inactive);
-        } else {
-            this.mXImageView.setImageResource(R.drawable.ic_x_inactive);
-            this.mOImageView.setImageResource(R.drawable.ic_o_active);
-        }
-
-        String commandHex = toHexString(CMD_RESET);
-        Timber.d("commandHex %s", commandHex);
-        this.writeMessage(hexStringToByteArray(commandHex));
-    }
-
-    private void updateUI(int index) {
-        ImageView view = (ImageView) mGridLayout.getChildAt(index);
-        if (this.mCurrentCharacter.equals("X")) {
-            view.setImageResource(R.drawable.ic_big_x);
-        } else {
-            view.setImageResource(R.drawable.ic_big_o);
-        }
-    }
-
-    private String getCharacter() {
-        final String character;
-        if (this.mCurrentCharacter.equals("X")) {
-            this.mXImageView.setImageResource(R.drawable.ic_x_active);
-            this.mOImageView.setImageResource(R.drawable.ic_o_inactive);
-            character = "O";
-        } else {
-            this.mXImageView.setImageResource(R.drawable.ic_x_inactive);
-            this.mOImageView.setImageResource(R.drawable.ic_o_active);
-            character = "X";
-        }
-
-        this.mCurrentCharacter = character;
-        return character;
-    }
-
-    private void checkWin() {
-        checkLine1();
-        checkLine2();
-        checkLine3();
-        checkLine4();
-        checkLine5();
-        checkLine6();
-        checkLine7();
-        checkLine8();
-
-        for (int i = 0; i < 9; i++) {
-            String character = String.valueOf(this.mFieldValueArray[i]);
-            if (TextUtils.isEmpty(character)) {
-                return;
-            }
-        }
-
-        reset();
-    }
-
-    private void checkLine1() {
-        String v1 = this.mFieldValueArray[0];
-        String v2 = this.mFieldValueArray[1];
-        String v3 = this.mFieldValueArray[2];
-        if (v1.equals(v2) && v1.equals(v3) && !TextUtils.isEmpty(v1)) {
-            this.win(v1);
-        }
-    }
-
-    private void checkLine2() {
-        String v1 = this.mFieldValueArray[3];
-        String v2 = this.mFieldValueArray[4];
-        String v3 = this.mFieldValueArray[5];
-        if (v1.equals(v2) && v1.equals(v3) && !TextUtils.isEmpty(v1)) {
-            this.win(v1);
-        }
-    }
-
-    private void checkLine3() {
-        String v1 = this.mFieldValueArray[6];
-        String v2 = this.mFieldValueArray[7];
-        String v3 = this.mFieldValueArray[8];
-        if (v1.equals(v2) && v1.equals(v3) && !TextUtils.isEmpty(v1)) {
-            this.win(v1);
-        }
-    }
-
-    private void checkLine4() {
-        String v1 = this.mFieldValueArray[0];
-        String v2 = this.mFieldValueArray[3];
-        String v3 = this.mFieldValueArray[6];
-        if (v1.equals(v2) && v1.equals(v3) && !TextUtils.isEmpty(v1)) {
-            this.win(v1);
-        }
-    }
-
-    private void checkLine5() {
-        String v1 = this.mFieldValueArray[1];
-        String v2 = this.mFieldValueArray[4];
-        String v3 = this.mFieldValueArray[7];
-        if (v1.equals(v2) && v1.equals(v3) && !TextUtils.isEmpty(v1)) {
-            this.win(v1);
-        }
-    }
-
-    private void checkLine6() {
-        String v1 = this.mFieldValueArray[2];
-        String v2 = this.mFieldValueArray[5];
-        String v3 = this.mFieldValueArray[8];
-        if (v1.equals(v2) && v1.equals(v3) && !TextUtils.isEmpty(v1)) {
-            this.win(v1);
-        }
-    }
-
-    private void checkLine7() {
-        String v1 = this.mFieldValueArray[0];
-        String v2 = this.mFieldValueArray[4];
-        String v3 = this.mFieldValueArray[8];
-        if (v1.equals(v2) && v1.equals(v3) && !TextUtils.isEmpty(v1)) {
-            this.win(v1);
-        }
-    }
-
-    private void checkLine8() {
-        String v1 = this.mFieldValueArray[2];
-        String v2 = this.mFieldValueArray[4];
-        String v3 = this.mFieldValueArray[6];
-        if (v1.equals(v2) && v1.equals(v3) && !TextUtils.isEmpty(v1)) {
-            this.win(v1);
-        }
-    }
-
     @Override
     protected void onDestroy() {
         super.onDestroy();
         this.mBleManager.disconnect();
         this.mBleManager.close();
-    }
-
-    public void onNewGameClick(View view) {
-        reset();
-    }
-
-    public void setBrightness(int brightness) {
-        ByteBuffer byteBuffer = ByteBuffer.allocate(4);
-        byteBuffer.putInt(brightness);
-        String brightnessHexValue = toHexString(byteBuffer.array());
-
-        brightnessHexValue = brightnessHexValue.substring(brightnessHexValue.length() - 2,
-                brightnessHexValue.length());
-
-        Timber.d("brightness %s", brightness);
-        Timber.d("brightnessHexValue %s", brightnessHexValue);
-        String message = CMD_BRIGHTNESS + brightnessHexValue;
-        Timber.d("setBrightness %s", message);
-        this.writeMessage(hexStringToByteArray(message));
     }
 }
