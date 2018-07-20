@@ -14,9 +14,7 @@ import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.ViewParent;
 
-import com.github.mata1.simpledroidcolorpicker.interfaces.OnColorChangedListener;
 import com.github.mata1.simpledroidcolorpicker.pickers.ColorPicker;
-import com.github.mata1.simpledroidcolorpicker.pickers.linear.ValueLinearColorPicker;
 import com.github.mata1.simpledroidcolorpicker.utils.ColorUtils;
 import com.github.mata1.simpledroidcolorpicker.utils.Utils;
 

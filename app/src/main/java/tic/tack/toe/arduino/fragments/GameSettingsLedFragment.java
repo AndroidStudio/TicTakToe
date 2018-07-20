@@ -4,7 +4,6 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
 import android.support.v7.widget.AppCompatSeekBar;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -20,7 +19,7 @@ import tic.tack.toe.arduino.CustomColorPicker;
 import tic.tack.toe.arduino.R;
 import tic.tack.toe.arduino.game.GameSettings;
 
-public class GameSettingsLedFragment extends Fragment {
+public class GameSettingsLedFragment extends BaseFragment {
 
     @Nullable
     @Override

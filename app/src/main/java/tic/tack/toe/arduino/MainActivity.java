@@ -18,9 +18,9 @@ import android.widget.ProgressBar;
 import tic.tack.toe.arduino.bluetooth.BleManager;
 import tic.tack.toe.arduino.fragments.FragmentController;
 import tic.tack.toe.arduino.fragments.GameSymbolFragment;
+import tic.tack.toe.arduino.game.GameSettings;
 import timber.log.Timber;
 
-import static tic.tack.toe.arduino.Constants.MAC_ADDRESS;
 import static tic.tack.toe.arduino.Constants.TAG;
 
 public class MainActivity extends BaseActivity {
@@ -47,7 +47,8 @@ public class MainActivity extends BaseActivity {
 
         this.mBleManager = BleManager.getInstance(this);
         this.mBleManager.setBleListener(this.bleCallbacks);
-        this.mBleManager.connect(MainActivity.this, MAC_ADDRESS);
+        this.mBleManager.connect(MainActivity.this,
+                GameSettings.getInstance().getMacAddress());
 
         if (savedInstanceState == null) {
             setupMenuFragment();
@@ -76,7 +77,8 @@ public class MainActivity extends BaseActivity {
                 return;
             }
 
-            this.mBleManager.connect(MainActivity.this, MAC_ADDRESS);
+            this.mBleManager.connect(MainActivity.this,
+                    GameSettings.getInstance().getMacAddress());
         }
     }
 

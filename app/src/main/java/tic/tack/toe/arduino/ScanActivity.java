@@ -17,12 +17,12 @@ import android.support.annotation.Nullable;
 import android.view.KeyEvent;
 import android.widget.Toast;
 
+import tic.tack.toe.arduino.game.GameSettings;
 import timber.log.Timber;
 
-import static tic.tack.toe.arduino.Constants.MAC_ADDRESS;
 import static tic.tack.toe.arduino.Constants.TAG;
 
-public class SplashActivity extends BaseActivity implements Runnable {
+public class ScanActivity extends BaseActivity implements Runnable {
 
     private final Handler mHandler = new Handler();
 
@@ -113,7 +113,8 @@ public class SplashActivity extends BaseActivity implements Runnable {
         });
         this.mScanDialog.setCanceledOnTouchOutside(false);
         this.mScanDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-        this.mScanDialog.setMessage("Wyszukiwanie urządzenia MAC: " + Constants.MAC_ADDRESS);
+        this.mScanDialog.setMessage("Wyszukiwanie urządzenia MAC: " + GameSettings
+                .getInstance().getMacAddress());
         this.mScanDialog.show();
     }
 
@@ -141,11 +142,11 @@ public class SplashActivity extends BaseActivity implements Runnable {
             super.onScanResult(callbackType, result);
             String address = result.getDevice().getAddress();
             Timber.tag(TAG).e("Device found address: %s", address);
-            if (address.equals(MAC_ADDRESS) && !mDeviceFound) {
-                mHandler.postDelayed(SplashActivity.this, 3000);
+            if (address.equals(GameSettings.getInstance().getMacAddress()) && !mDeviceFound) {
+                mHandler.postDelayed(ScanActivity.this, 3000);
                 mDeviceFound = true;
                 stopScanning();
-                Toast.makeText(SplashActivity.this, "Urządzenie zostało odnalezione",
+                Toast.makeText(ScanActivity.this, "Urządzenie zostało odnalezione",
                         Toast.LENGTH_LONG).show();
             }
         }

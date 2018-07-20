@@ -1,14 +1,11 @@
 package tic.tack.toe.arduino.fragments;
 
-import android.content.DialogInterface;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffColorFilter;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
-import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,9 +15,10 @@ import java.util.Objects;
 
 import tic.tack.toe.arduino.CustomGridView;
 import tic.tack.toe.arduino.R;
+import tic.tack.toe.arduino.dialog.MessageDialog;
 import tic.tack.toe.arduino.game.GameSettings;
 
-public class GameSymbolFragment extends Fragment implements View.OnClickListener {
+public class GameSymbolFragment extends BaseFragment implements View.OnClickListener {
     private final static int NO_SYMBOL = -1;
 
     private final int[] mSymbolArray = new int[]{
@@ -64,7 +62,7 @@ public class GameSymbolFragment extends Fragment implements View.OnClickListener
         @Override
         public void onClick(View v) {
             if (mSelectedSymbol == NO_SYMBOL) {
-                displayMessageDialog(getString(R.string.prosze_wybrac_symbol));
+                MessageDialog.displayDialog(getActivity(), getString(R.string.prosze_wybrac_symbol));
                 return;
             }
 
@@ -73,21 +71,6 @@ public class GameSymbolFragment extends Fragment implements View.OnClickListener
                     new GameSettingsLedFragment());
         }
     };
-
-    private void displayMessageDialog(String message) {
-        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(Objects
-                .requireNonNull(getActivity()));
-        alertDialogBuilder.setTitle("Komunikat");
-        alertDialogBuilder.setMessage(message)
-                .setCancelable(false)
-                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int id) {
-                        dialog.dismiss();
-                    }
-                });
-        AlertDialog alertDialog = alertDialogBuilder.create();
-        alertDialog.show();
-    }
 
     @Override
     public void onClick(View v) {

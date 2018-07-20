@@ -9,6 +9,7 @@ public class CustomGridView extends android.support.v7.widget.GridLayout {
         super(context, attrs);
     }
 
+    @SuppressWarnings("SuspiciousNameCombination")
     @Override
     protected void onMeasure(int widthSpec, int heightSpec) {
         int parentWidth = MeasureSpec.getSize(widthSpec);

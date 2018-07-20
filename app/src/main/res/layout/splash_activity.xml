@@ -4,11 +4,15 @@
                 android:layout_height="match_parent"
                 android:orientation="vertical">
 
-    <ImageView
-        android:src="@drawable/splash"
-        android:scaleType="centerCrop"
+    <FrameLayout
+        android:id="@+id/contentLayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>
 
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scaleType="centerCrop"
+        android:src="@drawable/splash"/>
 
 </RelativeLayout>
