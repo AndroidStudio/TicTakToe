@@ -7,12 +7,12 @@ import tic.tack.toe.arduino.R;
 
 public class FragmentController {
 
-    public static void setCurrentFragment(FragmentActivity context, Fragment fragment, boolean add) {
-        if (add) {
+    public static void setCurrentFragment(FragmentActivity context, Fragment fragment, boolean addBackStack) {
+        if (addBackStack) {
             context.getSupportFragmentManager()
                     .beginTransaction()
                     .addToBackStack(null)
-                    .add(R.id.contentLayout, fragment, null)
+                    .replace(R.id.contentLayout, fragment, null)
                     .commit();
         } else {
             context.getSupportFragmentManager()

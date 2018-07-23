@@ -22,6 +22,8 @@ public class SocketConstants {
     public static final String INFO = "info";
     public static final String UDID = "udid";
     public static final String WIN = "win";
+
+    public static final String AWAITING = "AWAITING";
     public static final String OK = "OK";
 
 }

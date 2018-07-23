@@ -3,6 +3,7 @@ package tic.tack.toe.arduino;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -25,7 +26,10 @@ public class MenuFragment extends Fragment {
         view.findViewById(R.id.finishButton).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Objects.requireNonNull(getActivity()).finish();
+                GameApplication application = (GameApplication)getActivity().getApplication();
+                application.disconnect();
+
+                ActivityCompat.finishAffinity(Objects.requireNonNull(getActivity()));
             }
         });
     }

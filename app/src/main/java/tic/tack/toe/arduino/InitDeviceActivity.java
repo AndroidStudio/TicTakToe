@@ -14,7 +14,7 @@ import android.view.KeyEvent;
 import org.json.JSONObject;
 
 import tic.tack.toe.arduino.dialog.MessageDialog;
-import tic.tack.toe.arduino.game.GameSettings;
+import tic.tack.toe.arduino.sockets.OpenSocketListener;
 import tic.tack.toe.arduino.sockets.SocketConstants;
 import tic.tack.toe.arduino.sockets.UDID;
 import timber.log.Timber;
@@ -23,6 +23,7 @@ public class InitDeviceActivity extends BaseActivity {
 
     private static final String TAG = "InitDeviceActivity";
     private ProgressDialog mInitDeviceProgressDialog;
+    private boolean mIsDeviceInitialized = false;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -30,9 +31,23 @@ public class InitDeviceActivity extends BaseActivity {
         this.setContentView(R.layout.splash_activity);
         if (!isInternetConnection()) {
             displayNoInternetDialog();
-            return;
         }
-        this.initDevice();
+
+        this.mGameApplication.setOpenSocketListener(new OpenSocketListener() {
+            @Override
+            public void onSocketOpen() {
+                Timber.tag(TAG).e("onSocketOpen");
+                initDevice();
+            }
+        });
+    }
+
+    @Override
+    protected void onPostCreate(@Nullable Bundle savedInstanceState) {
+        super.onPostCreate(savedInstanceState);
+        if (this.mGameApplication.isSocketOpen()) {
+            this.initDevice();
+        }
     }
 
     private void displayNoInternetDialog() {
@@ -108,12 +123,18 @@ public class InitDeviceActivity extends BaseActivity {
     }
 
     private void initDeviceSuccess(String macAddress) {
+        if (this.mIsDeviceInitialized) {
+            return;
+        }
+
         Timber.tag(TAG).e("initDeviceSuccess");
 
-        GameSettings.getInstance().setMacAddress(macAddress);
+        //GameSettings.getInstance().setMacAddress(macAddress);
         Intent intent = new Intent(this, ScanActivity.class);
         this.startActivity(intent);
         this.finish();
+
+        this.mIsDeviceInitialized = true;
     }
 
     @SuppressWarnings("all")

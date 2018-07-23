@@ -44,12 +44,7 @@ public class ScanActivity extends BaseActivity implements Runnable {
         }
 
         if (!getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
-            /*
-            * Emulator
-            * */
-            Intent intent = new Intent(this,MainActivity.class);
-            startActivity(intent);
-            this.finish();
+            this.startMainActivity();
             return;
         }
 
@@ -58,6 +53,12 @@ public class ScanActivity extends BaseActivity implements Runnable {
         if (bluetoothManager != null) {
             this.mBluetoothAdapter = bluetoothManager.getAdapter();
         }
+    }
+
+    private void startMainActivity() {
+        Intent intent = new Intent(this, MainActivity.class);
+        this.startActivity(intent);
+        this.finish();
     }
 
     @Override
@@ -79,8 +80,7 @@ public class ScanActivity extends BaseActivity implements Runnable {
         }
 
         if (TextUtils.isEmpty(GameSettings.getInstance().getMacAddress())) {
-            Intent intent = new Intent(this, MainActivity.class);
-            this.startActivity(intent);
+            this.startMainActivity();
             return;
         }
 
@@ -174,8 +174,6 @@ public class ScanActivity extends BaseActivity implements Runnable {
 
     @Override
     public void run() {
-        Intent intent = new Intent(this, MainActivity.class);
-        this.startActivity(intent);
-        this.finish();
+        this.startMainActivity();
     }
 }

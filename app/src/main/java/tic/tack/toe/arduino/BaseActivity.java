@@ -3,7 +3,6 @@ package tic.tack.toe.arduino;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.arch.lifecycle.ViewModelProviders;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -21,7 +20,6 @@ import org.json.JSONObject;
 import tic.tack.toe.arduino.dialog.MessageDialog;
 import tic.tack.toe.arduino.sockets.MessageListener;
 import tic.tack.toe.arduino.sockets.SocketConstants;
-import tic.tack.toe.arduino.viewmodel.SocketViewModel;
 import timber.log.Timber;
 
 @SuppressLint("Registered")
@@ -32,15 +30,14 @@ public class BaseActivity extends AppCompatActivity implements MessageListener {
 
     private static final String TAG = "BaseActivity";
 
-    private SocketViewModel mViewModel;
+    protected GameApplication mGameApplication;
     private AlertDialog mMessageDialog;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        this.mViewModel = ViewModelProviders.of(this)
-                .get(SocketViewModel.class);
-        this.mViewModel.addMessageListener(this);
+        this.mGameApplication = (GameApplication) getApplication();
+        this.mGameApplication.addMessageListener(this);
     }
 
     @Override
@@ -86,11 +83,11 @@ public class BaseActivity extends AppCompatActivity implements MessageListener {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        this.mViewModel.removeMessageListener(this);
+        this.mGameApplication.removeMessageListener(this);
     }
 
     protected void setMessage(JSONObject message) {
-        this.mViewModel.sendMessage(message.toString());
+        this.mGameApplication.sendMessage(message.toString());
     }
 
     @Override
@@ -104,14 +101,24 @@ public class BaseActivity extends AppCompatActivity implements MessageListener {
                 case SocketConstants.EXIT_GAME:
                     this.exitGame();
                     break;
+                case SocketConstants.NEW_GAME:
+                    this.newGame();
+                    break;
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
+    private void newGame() {
+        Intent intent = new Intent(this, InitDeviceActivity.class);
+        startActivity(intent);
+        finish();
+    }
+
     private void exitGame() {
         this.hideMessageDialog();
+
         this.mMessageDialog = MessageDialog.displayDialog(this,
                 "Gracz 2 opuscił grę");
         this.mMessageDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
@@ -131,14 +138,10 @@ public class BaseActivity extends AppCompatActivity implements MessageListener {
         }
     }
 
-    public void disconnectClient() {
-        this.mViewModel.disconnectClient();
-    }
-
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (event.getAction() == KeyEvent.ACTION_DOWN) {
-            this.mViewModel.onKeyDown(keyCode, event);
+            this.mGameApplication.onKeyDown(keyCode, event);
         }
         return super.onKeyDown(keyCode, event);
     }

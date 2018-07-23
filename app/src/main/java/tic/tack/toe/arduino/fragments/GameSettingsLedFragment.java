@@ -132,11 +132,16 @@ public class GameSettingsLedFragment extends BaseFragment {
     }
 
     private void ledColorInitialized() {
-        Objects.requireNonNull(getActivity()).getSupportFragmentManager()
-                .popBackStack();
+        Objects.requireNonNull(getActivity()).runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                Objects.requireNonNull(getActivity()).getSupportFragmentManager()
+                        .popBackStack();
 
-        FragmentController.setCurrentFragment(Objects.requireNonNull(getActivity()),
-                new GameFragment(), false);
+                FragmentController.setCurrentFragment(Objects.requireNonNull(getActivity()),
+                        new GameFragment(), false);
+            }
+        });
     }
 
     private void setBrightness(int brightness) {

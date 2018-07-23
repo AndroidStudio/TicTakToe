@@ -12,8 +12,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.Toast;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.nio.ByteBuffer;
@@ -37,7 +37,7 @@ public class GameFragment extends BaseFragment implements View.OnClickListener, 
 
     private static final FieldType START_PLAYER = FieldType.PLAYER_01;
 
-    private static final long GAME_UPDATE_DELAY = 1000;
+    private static final long GAME_UPDATE_DELAY = 500;
     private static final String TAG = "GameFragment";
 
     private final GameSettings mGameSettings = GameSettings.getInstance();
@@ -46,8 +46,11 @@ public class GameFragment extends BaseFragment implements View.OnClickListener, 
 
     private FieldType mCurrentPlayer = START_PLAYER;
 
+    private boolean mIsGameInitialized = false;
+
     private ImageView mPlayer_01ImageView;
     private ImageView mPlayer_02ImageView;
+    private AlertDialog mMessageDialog;
     private CustomGridView mGameGrid;
 
     @Nullable
@@ -56,30 +59,42 @@ public class GameFragment extends BaseFragment implements View.OnClickListener, 
                              @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
         return inflater.inflate(R.layout.game_layout, container, false);
-
     }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        view.findViewById(R.id.newGameButton).setOnClickListener(this.mResetGameClickListener);
+        view.findViewById(R.id.newGameButton).setOnClickListener(this.mNewGameClickListener);
 
         this.mPlayer_01ImageView = view.findViewById(R.id.mPlayer_01ImageView);
         this.mPlayer_02ImageView = view.findViewById(R.id.mPlayer_02ImageView);
         this.mGameGrid = view.findViewById(R.id.gridLayout);
 
         this.mGameHandler.postDelayed(this, GAME_UPDATE_DELAY);
-        //this.initGame();
     }
 
-    private final View.OnClickListener mResetGameClickListener = new View.OnClickListener() {
+    private final View.OnClickListener mNewGameClickListener = new View.OnClickListener() {
 
         @Override
         public void onClick(View v) {
-//            FragmentController.setCurrentFragment(Objects.requireNonNull(getActivity()),
-//                    new GameSymbolFragment());
+            newGame();
         }
     };
+
+    private void newGame() {
+        try {
+            try {
+                JSONObject requestObject = new JSONObject();
+                requestObject.put(SocketConstants.TYPE, SocketConstants.NEW_GAME);
+                requestObject.put(SocketConstants.UDID, UDID.getUDID());
+                setMessage(requestObject);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
     private void initGame() {
         this.mPlayer_01ImageView.setImageResource(this.mGameSettings.getPlayer_01Symbol());
@@ -93,6 +108,12 @@ public class GameFragment extends BaseFragment implements View.OnClickListener, 
             view.setOnClickListener(this);
         }
 
+        this.updateCurrentPlayer();
+        this.setBrightness(this.mGameSettings.getLedBrightness());
+        this.mIsGameInitialized = true;
+    }
+
+    private void updateCurrentPlayer() {
         if (this.mCurrentPlayer == FieldType.PLAYER_01) {
             this.mPlayer_01ImageView.setColorFilter(new PorterDuffColorFilter(
                     Color.parseColor("#" + this.mGameSettings.getPlayer_01Color()), SRC_IN));
@@ -102,8 +123,6 @@ public class GameFragment extends BaseFragment implements View.OnClickListener, 
             this.mPlayer_02ImageView.setColorFilter(new PorterDuffColorFilter(
                     Color.parseColor("#" + this.mGameSettings.getPlayer_02Color()), SRC_IN));
         }
-
-        this.setBrightness(this.mGameSettings.getLedBrightness());
     }
 
     @Override
@@ -133,7 +152,10 @@ public class GameFragment extends BaseFragment implements View.OnClickListener, 
             String type = responseObject.getString(SocketConstants.TYPE);
             switch (type) {
                 case SocketConstants.GAME_INFO:
-
+                    updateGame(responseObject);
+                    break;
+                case SocketConstants.WIN:
+                    win();
                     break;
             }
         } catch (Exception e) {
@@ -141,25 +163,109 @@ public class GameFragment extends BaseFragment implements View.OnClickListener, 
         }
     }
 
-    @Override
-    public void onClick(View view) {
-        int index = (int) view.getTag();
-        this.onFieldClick(index);
+    private void win() {
+        reset();
+        displayMessageDialog("Wygrał przeciwnik");
     }
 
-    private void onFieldClick(int index) {
-        FieldType fieldType = this.mFieldTypeArray[index];
-        if (FieldType.EMPTY != fieldType) {
+    private void updateGame(JSONObject responseObject) throws Exception {
+        String status = responseObject.getString(SocketConstants.STATUS);
+        if (status.equals(SocketConstants.AWAITING)) {
             return;
         }
 
-        String indexHex = String.format(Locale.getDefault(), "%02d", index);
-        String message = CMD.PIXEL + indexHex + this.mGameSettings.getPlayer_01Color();
+        JSONArray playersInfo = responseObject.getJSONArray(SocketConstants.INFO);
+        JSONObject playerObject_01 = playersInfo.getJSONObject(0);
+        JSONObject playerObject_02 = playersInfo.getJSONObject(1);
 
-        this.writeMessage(hexStringToByteArray(message));
-        this.mFieldTypeArray[index] = getCurrentPlayer();
-        this.updateUI(index);
+        GameSettings gameSettings = GameSettings.getInstance();
+        if (playerObject_01.getString(SocketConstants.UDID).equals(UDID.getUDID())) {
+            if (!playerObject_01.isNull(SocketConstants.COLOR)
+                    && !playerObject_02.isNull(SocketConstants.COLOR)) {
+                gameSettings.setPlayer_01Color(playerObject_01.getString(SocketConstants.COLOR));
+                gameSettings.setPlayer_02Color(playerObject_02.getString(SocketConstants.COLOR));
+            }
+            if (!playerObject_01.isNull(SocketConstants.SYMBOL)
+                    && !playerObject_02.isNull(SocketConstants.SYMBOL)) {
+                gameSettings.setPlayer_01Symbol(GameSettings.mSymbolArray[playerObject_01
+                        .getInt(SocketConstants.SYMBOL)]);
+                gameSettings.setPlayer_02Symbol(GameSettings.mSymbolArray[playerObject_02
+                        .getInt(SocketConstants.SYMBOL)]);
+            }
+        } else {
+            if (!playerObject_01.isNull(SocketConstants.COLOR)
+                    && !playerObject_02.isNull(SocketConstants.COLOR)) {
+                gameSettings.setPlayer_01Color(playerObject_02.getString(SocketConstants.COLOR));
+                gameSettings.setPlayer_02Color(playerObject_01.getString(SocketConstants.COLOR));
+            }
+
+            if (!playerObject_01.isNull(SocketConstants.SYMBOL)
+                    && !playerObject_02.isNull(SocketConstants.SYMBOL)) {
+                gameSettings.setPlayer_01Symbol(GameSettings.mSymbolArray[playerObject_02
+                        .getInt(SocketConstants.SYMBOL)]);
+                gameSettings.setPlayer_02Symbol(GameSettings.mSymbolArray[playerObject_01
+                        .getInt(SocketConstants.SYMBOL)]);
+            }
+        }
+
+        String currentPlayerUDID = responseObject.getString(SocketConstants.CURRENT_PLAYER);
+        if (currentPlayerUDID.equals(UDID.getUDID())) {
+            this.mCurrentPlayer = FieldType.PLAYER_01;
+        } else {
+            this.mCurrentPlayer = FieldType.PLAYER_02;
+        }
+
+        updateCurrentPlayer();
+        updateGameBoard(responseObject);
+
+        if (!this.mIsGameInitialized) {
+            this.initGame();
+        }
+    }
+
+    private void updateGameBoard(JSONObject responseObject) throws Exception {
+        JSONArray gameBoardArray = responseObject.getJSONArray(SocketConstants.GAME_BOARD);
+        int length = gameBoardArray.length();
+
+        for (int i = 0; i < length; i++) {
+            int value = gameBoardArray.getInt(i);
+            switch (value) {
+                case 0:
+                    this.mFieldTypeArray[i] = FieldType.EMPTY;
+                    break;
+                case 1:
+                    this.mFieldTypeArray[i] = FieldType.PLAYER_01;
+                    break;
+                case 2:
+                    this.mFieldTypeArray[i] = FieldType.PLAYER_02;
+                    break;
+            }
+            this.updateUI(i);
+        }
+
         this.checkWin();
+    }
+
+    @Override
+    public void onClick(View view) {
+        if (this.mCurrentPlayer == FieldType.PLAYER_01) {
+            int index = (int) view.getTag();
+            this.onFieldClick(index);
+        }
+    }
+
+    private void onFieldClick(int index) {
+        try {
+            JSONObject messageObject = new JSONObject();
+            messageObject.put(SocketConstants.TYPE, SocketConstants.INDEX);
+            messageObject.put(SocketConstants.UDID, UDID.getUDID());
+            messageObject.put(SocketConstants.INDEX, index);
+
+            setMessage(messageObject);
+            Timber.tag(TAG).e("setIndex");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     private BleManager getBleManager() {
@@ -194,16 +300,7 @@ public class GameFragment extends BaseFragment implements View.OnClickListener, 
         return stringBuilder.toString();
     }
 
-    private void checkCurrentState() {
-        int currentState = this.getBleManager().getCurrentState();
-        if (currentState != BleManager.STATE_CONNECTED) {
-            Toast.makeText(getActivity(), "Brak połącznenia z bluetooth...", Toast.LENGTH_SHORT).show();
-        }
-    }
-
     private void writeMessage(byte[] message) {
-        this.checkCurrentState();
-
         BleManager bleManager = this.getBleManager();
         bleManager.writeService(bleManager.getGattService(
                 "6E400001-B5A3-F393-E0A9-E50E24DCCA9E"),
@@ -211,18 +308,24 @@ public class GameFragment extends BaseFragment implements View.OnClickListener, 
     }
 
     private void win(FieldType fieldType) {
-        String message;
         if (fieldType == FieldType.PLAYER_01) {
-            message = "gracz 2";
-        } else {
-            message = "gracz 1";
-        }
+            try {
+                JSONObject requestObject = new JSONObject();
+                requestObject.put(SocketConstants.TYPE, SocketConstants.WIN);
+                requestObject.put(SocketConstants.UDID, UDID.getUDID());
+                setMessage(requestObject);
 
-        this.displayMessageDialog("Wygrywa: " + message);
+                displayMessageDialog("Wygrałeś");
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
         this.reset();
     }
 
     private void displayMessageDialog(String message) {
+        this.hideMessageDialog();
+
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(Objects
                 .requireNonNull(getActivity()));
         alertDialogBuilder.setTitle("Komunikat");
@@ -233,8 +336,14 @@ public class GameFragment extends BaseFragment implements View.OnClickListener, 
                         dialog.dismiss();
                     }
                 });
-        AlertDialog alertDialog = alertDialogBuilder.create();
-        alertDialog.show();
+        this.mMessageDialog = alertDialogBuilder.create();
+        this.mMessageDialog.show();
+    }
+
+    private void hideMessageDialog() {
+        if (this.mMessageDialog != null && this.mMessageDialog.isShowing()) {
+            this.mMessageDialog.dismiss();
+        }
     }
 
     public void reset() {
@@ -263,33 +372,30 @@ public class GameFragment extends BaseFragment implements View.OnClickListener, 
 
     private void updateUI(int index) {
         ImageView view = (ImageView) mGameGrid.getChildAt(index);
-        if (this.mCurrentPlayer == FieldType.PLAYER_02) {
-            view.setImageResource(this.mGameSettings.getPlayer_01Symbol());
-            view.setColorFilter(new PorterDuffColorFilter(
-                    Color.parseColor("#" + this.mGameSettings.getPlayer_01Color()), SRC_IN));
-        } else {
-            view.setImageResource(this.mGameSettings.getPlayer_02Symbol());
-            view.setColorFilter(new PorterDuffColorFilter(
-                    Color.parseColor("#" + this.mGameSettings.getPlayer_02Color()), SRC_IN));
-        }
-    }
+        FieldType fieldType = this.mFieldTypeArray[index];
 
-    private FieldType getCurrentPlayer() {
-        final FieldType currentPlayer;
-        if (this.mCurrentPlayer == FieldType.PLAYER_02) {
-            this.mPlayer_01ImageView.setColorFilter(new PorterDuffColorFilter(
-                    Color.parseColor("#" + this.mGameSettings.getPlayer_01Color()), SRC_IN));
-            this.mPlayer_02ImageView.clearColorFilter();
-            currentPlayer = FieldType.PLAYER_01;
-        } else {
-            this.mPlayer_01ImageView.clearColorFilter();
-            this.mPlayer_02ImageView.setColorFilter(new PorterDuffColorFilter(
-                    Color.parseColor("#" + this.mGameSettings.getPlayer_02Color()), SRC_IN));
-            currentPlayer = FieldType.PLAYER_02;
+        switch (fieldType) {
+            case EMPTY:
+                break;
+            case PLAYER_01:
+                view.setImageResource(this.mGameSettings.getPlayer_01Symbol());
+                view.setColorFilter(new PorterDuffColorFilter(
+                        Color.parseColor("#" + this.mGameSettings.getPlayer_01Color()), SRC_IN));
+                break;
+            case PLAYER_02:
+                view.setImageResource(this.mGameSettings.getPlayer_02Symbol());
+                view.setColorFilter(new PorterDuffColorFilter(
+                        Color.parseColor("#" + this.mGameSettings.getPlayer_02Color()), SRC_IN));
+                break;
         }
 
-        this.mCurrentPlayer = currentPlayer;
-        return currentPlayer;
+        if (FieldType.EMPTY != fieldType) {
+            return;
+        }
+
+        String indexHex = String.format(Locale.getDefault(), "%02d", index);
+        String message = CMD.PIXEL + indexHex + this.mGameSettings.getPlayer_01Color();
+        this.writeMessage(hexStringToByteArray(message));
     }
 
     private void checkWin() {
@@ -385,9 +491,10 @@ public class GameFragment extends BaseFragment implements View.OnClickListener, 
     }
 
     @Override
-    public void onDestroy() {
-        super.onDestroy();
+    public void onDestroyView() {
+        super.onDestroyView();
         this.mGameHandler.removeCallbacksAndMessages(null);
+        this.hideMessageDialog();
         this.reset();
     }
 }

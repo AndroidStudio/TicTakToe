@@ -190,8 +190,6 @@ public class MainActivity extends BaseActivity {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        this.disconnectClient();
-
         this.mBleManager.disconnect();
         this.mBleManager.close();
     }

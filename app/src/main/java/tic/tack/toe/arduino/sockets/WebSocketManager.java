@@ -1,5 +1,8 @@
 package tic.tack.toe.arduino.sockets;
 
+import android.os.Handler;
+import android.os.Looper;
+
 import org.json.JSONObject;
 
 import okhttp3.OkHttpClient;
@@ -14,14 +17,17 @@ public class WebSocketManager extends WebSocketListener {
     private static final int NORMAL_CLOSURE_STATUS = 1000;
     private static final String TAG = "WebSocketManager";
 
+    private final Handler mHandler = new Handler(Looper.getMainLooper());
     private final OkHttpClient mClient = new OkHttpClient();
 
-    private MessageListener mMessageListener;
+    private OpenSocketListener mOpenSocketListener = null;
+    private MessageListener mMessageListener = null;
+
     private WebSocket mWebSocket;
 
     public void start() {
         Request request = new Request.Builder()
-                .url("ws://daily-live.wcstd.net:9697")
+                .url("ws://192.168.1.28:9696")
                 .build();
         this.mClient.newWebSocket(request, this);
     }
@@ -30,18 +36,41 @@ public class WebSocketManager extends WebSocketListener {
         this.mMessageListener = messageListener;
     }
 
+    public void setOpenSocketListener(OpenSocketListener openSocketListener) {
+        this.mOpenSocketListener = openSocketListener;
+    }
+
+    public boolean isSocketOpen() {
+        return this.mWebSocket != null;
+    }
+
     @Override
     public void onOpen(WebSocket webSocket, Response response) {
         this.mWebSocket = webSocket;
         Timber.tag(TAG).e("onOpen");
+
+        this.mHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                if (mOpenSocketListener != null) {
+                    mOpenSocketListener.onSocketOpen();
+                }
+            }
+        });
     }
 
     @Override
-    public void onMessage(WebSocket webSocket, String text) {
+    public void onMessage(WebSocket webSocket, final String text) {
         Timber.tag(TAG).e("onMessage %s", text);
-        if (this.mMessageListener != null) {
-            this.mMessageListener.onMessage(text);
-        }
+
+        this.mHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                if (mMessageListener != null) {
+                    mMessageListener.onMessage(text);
+                }
+            }
+        });
     }
 
     @Override

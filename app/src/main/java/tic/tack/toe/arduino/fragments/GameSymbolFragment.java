@@ -101,7 +101,7 @@ public class GameSymbolFragment extends BaseFragment implements View.OnClickList
 
     private void playerSymbolInitialized() {
         try {
-            if (this.mSymbolIndex == GameSettings.NO_SYMBOL_INDEX) {
+            if (this.mSymbolIndex == GameSettings.NO_SYMBOL_INDEX || !isResumed()) {
                 return;
             }
 
