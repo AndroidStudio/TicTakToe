@@ -229,6 +229,11 @@ public class GameFragment extends BaseFragment implements View.OnClickListener, 
 
         for (int i = 0; i < length; i++) {
             int value = gameBoardArray.getInt(i);
+
+            if (this.mFieldTypeArray[i] == FieldType.EMPTY && value != 0) {
+                this.setPixel(i, value);
+            }
+
             switch (value) {
                 case 0:
                     this.mFieldTypeArray[i] = FieldType.EMPTY;
@@ -244,6 +249,14 @@ public class GameFragment extends BaseFragment implements View.OnClickListener, 
         }
 
         this.checkWin();
+    }
+
+    private void setPixel(int index, int value) {
+        String indexHex = String.format(Locale.getDefault(), "%02d", index);
+        String message = CMD.PIXEL + indexHex + (value == 1
+                ? this.mGameSettings.getPlayer_01Color()
+                : this.mGameSettings.getPlayer_02Color());
+        this.writeMessage(hexStringToByteArray(message));
     }
 
     @Override
@@ -388,14 +401,6 @@ public class GameFragment extends BaseFragment implements View.OnClickListener, 
                         Color.parseColor("#" + this.mGameSettings.getPlayer_02Color()), SRC_IN));
                 break;
         }
-
-        if (FieldType.EMPTY != fieldType) {
-            return;
-        }
-
-        String indexHex = String.format(Locale.getDefault(), "%02d", index);
-        String message = CMD.PIXEL + indexHex + this.mGameSettings.getPlayer_01Color();
-        this.writeMessage(hexStringToByteArray(message));
     }
 
     private void checkWin() {

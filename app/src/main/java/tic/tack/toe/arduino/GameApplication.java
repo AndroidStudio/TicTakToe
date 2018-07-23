@@ -80,26 +80,21 @@ public class GameApplication extends Application implements MessageListener {
         try {
             Timber.tag(TAG).e("onKeyDown %s: ", keyCode);
             switch (keyCode) {
-                case 8: {
+                case 8:
                     initDevice();
                     break;
-                }
-                case 9: {
+                case 9:
                     initSymbol();
                     break;
-                }
-                case 10: {
+                case 10:
                     initLedColor();
                     break;
-                }
-                case 11: {
+                case 11:
                     gameInfo();
                     break;
-                }
-                case 12: {
+                case 12:
                     newGame();
                     break;
-                }
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -178,9 +173,9 @@ public class GameApplication extends Application implements MessageListener {
     }
 
     /*
-    * Key code 5
-    * */
-    private void newGame() throws Exception{
+     * Key code 5
+     * */
+    private void newGame() throws Exception {
         JSONObject jsonObject = new JSONObject();
         jsonObject.put(SocketConstants.TYPE, SocketConstants.NEW_GAME);
         jsonObject.put(SocketConstants.UDID, UDID.getUDID());
