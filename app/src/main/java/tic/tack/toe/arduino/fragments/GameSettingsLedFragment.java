@@ -13,17 +13,27 @@ import android.widget.SeekBar;
 
 import com.github.mata1.simpledroidcolorpicker.interfaces.OnColorChangedListener;
 
+import org.json.JSONObject;
+
 import java.util.Objects;
 
 import tic.tack.toe.arduino.CustomColorPicker;
 import tic.tack.toe.arduino.R;
+import tic.tack.toe.arduino.dialog.MessageDialog;
 import tic.tack.toe.arduino.game.GameSettings;
+import tic.tack.toe.arduino.sockets.SocketConstants;
+import tic.tack.toe.arduino.sockets.UDID;
+import timber.log.Timber;
 
 public class GameSettingsLedFragment extends BaseFragment {
 
+    private static final String TAG = "GameSettingsLedFragment";
+
     @Nullable
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater,
+                             @Nullable ViewGroup container,
+                             @Nullable Bundle savedInstanceState) {
         return inflater.inflate(R.layout.game_led_fragment, container, false);
     }
 
@@ -33,16 +43,14 @@ public class GameSettingsLedFragment extends BaseFragment {
         view.findViewById(R.id.nextButton).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                FragmentController.setCurrentFragment(Objects.requireNonNull(getActivity()),
-                        new GameFragment());
+                initLedColor();
             }
         });
 
         view.findViewById(R.id.previousButton).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                FragmentController.setCurrentFragment(Objects.requireNonNull(getActivity()),
-                        new GameSymbolFragment());
+                Objects.requireNonNull(getActivity()).getSupportFragmentManager().popBackStack();
             }
         });
 
@@ -84,6 +92,51 @@ public class GameSettingsLedFragment extends BaseFragment {
                 setBrightness(seekBar.getProgress());
             }
         });
+    }
+
+    private void initLedColor() {
+        try {
+            JSONObject messageObject = new JSONObject();
+            messageObject.put(SocketConstants.TYPE, SocketConstants.LED_SETTINGS);
+            messageObject.put(SocketConstants.COLOR, GameSettings.getInstance().getPlayer_01Color());
+            messageObject.put(SocketConstants.UDID, UDID.getUDID());
+            messageObject.put(SocketConstants.BRIGHTNESS, 255);
+
+            setMessage(messageObject);
+            Timber.tag(TAG).e("initLedColor");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void onMessage(String message) {
+        super.onMessage(message);
+        try {
+            JSONObject responseObject = new JSONObject(message);
+            String type = responseObject.getString(SocketConstants.TYPE);
+            switch (type) {
+                case SocketConstants.LED_SETTINGS:
+                    String symbolStatus = responseObject.getString(SocketConstants.COLOR);
+                    if (symbolStatus.equals(SocketConstants.OK)) {
+                        ledColorInitialized();
+                    } else {
+                        MessageDialog.displayDialog(getActivity(), "Błąd ustawiania koloru")
+                                .show();
+                    }
+                    break;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void ledColorInitialized() {
+        Objects.requireNonNull(getActivity()).getSupportFragmentManager()
+                .popBackStack();
+
+        FragmentController.setCurrentFragment(Objects.requireNonNull(getActivity()),
+                new GameFragment(), false);
     }
 
     private void setBrightness(int brightness) {

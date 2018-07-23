@@ -4,6 +4,7 @@ import android.content.DialogInterface;
 import android.graphics.Color;
 import android.graphics.PorterDuffColorFilter;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AlertDialog;
@@ -12,6 +13,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.Toast;
+
+import org.json.JSONObject;
 
 import java.nio.ByteBuffer;
 import java.util.Locale;
@@ -24,15 +27,22 @@ import tic.tack.toe.arduino.bluetooth.BleManager;
 import tic.tack.toe.arduino.game.CMD;
 import tic.tack.toe.arduino.game.FieldType;
 import tic.tack.toe.arduino.game.GameSettings;
+import tic.tack.toe.arduino.sockets.SocketConstants;
+import tic.tack.toe.arduino.sockets.UDID;
+import timber.log.Timber;
 
 import static android.graphics.PorterDuff.Mode.SRC_IN;
 
-public class GameFragment extends BaseFragment implements View.OnClickListener {
+public class GameFragment extends BaseFragment implements View.OnClickListener, Runnable {
 
     private static final FieldType START_PLAYER = FieldType.PLAYER_01;
 
+    private static final long GAME_UPDATE_DELAY = 1000;
+    private static final String TAG = "GameFragment";
+
     private final GameSettings mGameSettings = GameSettings.getInstance();
     private final FieldType[] mFieldTypeArray = new FieldType[9];
+    private final Handler mGameHandler = new Handler();
 
     private FieldType mCurrentPlayer = START_PLAYER;
 
@@ -42,7 +52,9 @@ public class GameFragment extends BaseFragment implements View.OnClickListener {
 
     @Nullable
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater,
+                             @Nullable ViewGroup container,
+                             @Nullable Bundle savedInstanceState) {
         return inflater.inflate(R.layout.game_layout, container, false);
 
     }
@@ -56,15 +68,16 @@ public class GameFragment extends BaseFragment implements View.OnClickListener {
         this.mPlayer_02ImageView = view.findViewById(R.id.mPlayer_02ImageView);
         this.mGameGrid = view.findViewById(R.id.gridLayout);
 
-        this.initGame();
+        this.mGameHandler.postDelayed(this, GAME_UPDATE_DELAY);
+        //this.initGame();
     }
 
     private final View.OnClickListener mResetGameClickListener = new View.OnClickListener() {
 
         @Override
         public void onClick(View v) {
-            FragmentController.setCurrentFragment(Objects.requireNonNull(getActivity()),
-                    new GameSymbolFragment());
+//            FragmentController.setCurrentFragment(Objects.requireNonNull(getActivity()),
+//                    new GameSymbolFragment());
         }
     };
 
@@ -91,6 +104,41 @@ public class GameFragment extends BaseFragment implements View.OnClickListener {
         }
 
         this.setBrightness(this.mGameSettings.getLedBrightness());
+    }
+
+    @Override
+    public void run() {
+        try {
+            try {
+                JSONObject messageObject = new JSONObject();
+                messageObject.put(SocketConstants.TYPE, SocketConstants.GAME_INFO);
+                messageObject.put(SocketConstants.UDID, UDID.getUDID());
+
+                setMessage(messageObject);
+                Timber.tag(TAG).e("gameInfo");
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        this.mGameHandler.postDelayed(this, GAME_UPDATE_DELAY);
+    }
+
+    @Override
+    public void onMessage(String message) {
+        super.onMessage(message);
+        try {
+            JSONObject responseObject = new JSONObject(message);
+            String type = responseObject.getString(SocketConstants.TYPE);
+            switch (type) {
+                case SocketConstants.GAME_INFO:
+
+                    break;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -339,6 +387,7 @@ public class GameFragment extends BaseFragment implements View.OnClickListener {
     @Override
     public void onDestroy() {
         super.onDestroy();
+        this.mGameHandler.removeCallbacksAndMessages(null);
         this.reset();
     }
 }

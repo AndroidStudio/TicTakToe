@@ -52,8 +52,7 @@ public class MainActivity extends BaseActivity {
 
         if (savedInstanceState == null) {
             this.setupMenuFragment();
-
-            FragmentController.setCurrentFragment(this, new GameSymbolFragment());
+            FragmentController.setCurrentFragment(this, new GameSymbolFragment(), false);
         }
     }
 

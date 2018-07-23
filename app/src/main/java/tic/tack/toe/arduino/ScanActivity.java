@@ -44,6 +44,11 @@ public class ScanActivity extends BaseActivity implements Runnable {
         }
 
         if (!getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
+            /*
+            * Emulator
+            * */
+            Intent intent = new Intent(this,MainActivity.class);
+            startActivity(intent);
             this.finish();
             return;
         }

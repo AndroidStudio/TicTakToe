@@ -14,6 +14,7 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.view.KeyEvent;
 
 import org.json.JSONObject;
 
@@ -21,12 +22,15 @@ import tic.tack.toe.arduino.dialog.MessageDialog;
 import tic.tack.toe.arduino.sockets.MessageListener;
 import tic.tack.toe.arduino.sockets.SocketConstants;
 import tic.tack.toe.arduino.viewmodel.SocketViewModel;
+import timber.log.Timber;
 
 @SuppressLint("Registered")
 public class BaseActivity extends AppCompatActivity implements MessageListener {
 
     private static final int REQUEST_LOCATION_ACCESS = 1000;
     protected static final int REQUEST_ENABLE_BT = 1001;
+
+    private static final String TAG = "BaseActivity";
 
     private SocketViewModel mViewModel;
     private AlertDialog mMessageDialog;
@@ -92,6 +96,8 @@ public class BaseActivity extends AppCompatActivity implements MessageListener {
     @Override
     public void onMessage(String message) {
         try {
+            Timber.tag(TAG).e(message);
+
             JSONObject responseObject = new JSONObject(message);
             String type = responseObject.getString(SocketConstants.TYPE);
             switch (type) {
@@ -106,7 +112,6 @@ public class BaseActivity extends AppCompatActivity implements MessageListener {
 
     private void exitGame() {
         this.hideMessageDialog();
-
         this.mMessageDialog = MessageDialog.displayDialog(this,
                 "Gracz 2 opuscił grę");
         this.mMessageDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
@@ -128,5 +133,13 @@ public class BaseActivity extends AppCompatActivity implements MessageListener {
 
     public void disconnectClient() {
         this.mViewModel.disconnectClient();
+    }
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (event.getAction() == KeyEvent.ACTION_DOWN) {
+            this.mViewModel.onKeyDown(keyCode, event);
+        }
+        return super.onKeyDown(keyCode, event);
     }
 }

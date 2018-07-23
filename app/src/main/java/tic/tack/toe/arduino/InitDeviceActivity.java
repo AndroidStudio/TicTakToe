@@ -65,9 +65,11 @@ public class InitDeviceActivity extends BaseActivity {
         super.onMessage(message);
         try {
             JSONObject messageObject = new JSONObject(message);
-            if (messageObject.has(SocketConstants.INIT_GAME)) {
-                String macAddress = messageObject.getString(SocketConstants.BLUETOOTH_ADDRESS);
-                this.initDeviceSuccess(macAddress);
+            switch (messageObject.getString(SocketConstants.TYPE)) {
+                case SocketConstants.INIT_GAME:
+                    String macAddress = messageObject.getString(SocketConstants.BLUETOOTH_ADDRESS);
+                    this.initDeviceSuccess(macAddress);
+                    break;
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -83,9 +85,7 @@ public class InitDeviceActivity extends BaseActivity {
         this.mInitDeviceProgressDialog.setOnKeyListener(new DialogInterface.OnKeyListener() {
             @Override
             public boolean onKey(DialogInterface dialog, int keyCode, KeyEvent event) {
-                if (keyCode == KeyEvent.KEYCODE_BACK) {
-                    finish();
-                }
+                onKeyDown(keyCode, event);
                 return true;
             }
         });
@@ -108,11 +108,12 @@ public class InitDeviceActivity extends BaseActivity {
     }
 
     private void initDeviceSuccess(String macAddress) {
+        Timber.tag(TAG).e("initDeviceSuccess");
+
         GameSettings.getInstance().setMacAddress(macAddress);
         Intent intent = new Intent(this, ScanActivity.class);
         this.startActivity(intent);
-
-        Timber.tag(TAG).e("initDeviceSuccess");
+        this.finish();
     }
 
     @SuppressWarnings("all")

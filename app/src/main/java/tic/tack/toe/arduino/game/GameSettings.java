@@ -25,6 +25,20 @@ public class GameSettings {
 
     private String mMacAddress = Constants.EMPTY_STRING;
 
+    public final static int NO_SYMBOL_INDEX = -1;
+
+    public final static int[] mSymbolArray = new int[]{
+            R.drawable.ic_game_symbol_01,
+            R.drawable.ic_game_symbol_02,
+            R.drawable.ic_game_symbol_03,
+            R.drawable.ic_game_symbol_04,
+            R.drawable.ic_game_symbol_05,
+            R.drawable.ic_game_symbol_06,
+            R.drawable.ic_game_symbol_07,
+            R.drawable.ic_game_symbol_08,
+            R.drawable.ic_game_symbol_09,
+    };
+
     public static synchronized GameSettings getInstance() {
         if (INSTANCE == null) {
             INSTANCE = new GameSettings();
