@@ -96,6 +96,10 @@ public class GameApplication extends Application implements MessageListener {
                     gameInfo();
                     break;
                 }
+                case 12: {
+                    newGame();
+                    break;
+                }
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -105,6 +109,7 @@ public class GameApplication extends Application implements MessageListener {
     /*
      * Key code 1
      * */
+
     private void initDevice() throws Exception {
         JSONObject jsonObject = new JSONObject();
         jsonObject.put(SocketConstants.TYPE, SocketConstants.INIT_GAME);
@@ -112,30 +117,30 @@ public class GameApplication extends Application implements MessageListener {
 
         onMessage(jsonObject.toString());
     }
-
     /*
      * Key code 2
      * */
+
     private void initSymbol() throws Exception {
         JSONObject jsonObject = new JSONObject();
         jsonObject.put(SocketConstants.TYPE, SocketConstants.SYMBOL);
         jsonObject.put(SocketConstants.SYMBOL, SocketConstants.OK);
         onMessage(jsonObject.toString());
     }
-
     /*
      * Key code 3
      * */
+
     private void initLedColor() throws Exception {
         JSONObject jsonObject = new JSONObject();
         jsonObject.put(SocketConstants.TYPE, SocketConstants.LED_SETTINGS);
         jsonObject.put(SocketConstants.COLOR, SocketConstants.OK);
         onMessage(jsonObject.toString());
     }
-
     /*
      * Key code 4
      * */
+
     private void gameInfo() throws Exception {
         JSONObject jsonObject = new JSONObject();
         jsonObject.put(SocketConstants.TYPE, SocketConstants.GAME_INFO);
@@ -169,6 +174,16 @@ public class GameApplication extends Application implements MessageListener {
         jsonObject.put(SocketConstants.GAME_BOARD, gameBoardArray);
 
         jsonObject.put(SocketConstants.INFO, infoArray);
+        onMessage(jsonObject.toString());
+    }
+
+    /*
+    * Key code 5
+    * */
+    private void newGame() throws Exception{
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put(SocketConstants.TYPE, SocketConstants.NEW_GAME);
+        jsonObject.put(SocketConstants.UDID, UDID.getUDID());
         onMessage(jsonObject.toString());
     }
 
