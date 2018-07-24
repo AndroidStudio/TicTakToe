@@ -50,6 +50,7 @@ public class GameFragment extends BaseFragment implements View.OnClickListener, 
 
     private ImageView mPlayer_01ImageView;
     private ImageView mPlayer_02ImageView;
+
     private AlertDialog mMessageDialog;
     private CustomGridView mGameGrid;
     private boolean mClicked = false;
@@ -101,6 +102,8 @@ public class GameFragment extends BaseFragment implements View.OnClickListener, 
     private void initGame() {
         this.mPlayer_01ImageView.setImageResource(this.mGameSettings.getPlayer_01Symbol());
         this.mPlayer_02ImageView.setImageResource(this.mGameSettings.getPlayer_02Symbol());
+        this.mPlayer_01ImageView.clearColorFilter();
+        this.mPlayer_02ImageView.clearColorFilter();
 
         int length = this.mFieldTypeArray.length;
         for (int i = 0; i < length; i++) {
@@ -111,8 +114,13 @@ public class GameFragment extends BaseFragment implements View.OnClickListener, 
         }
 
         this.updateCurrentPlayer();
-        this.setBrightness(this.mGameSettings.getLedBrightness());
+
+        int ledBrightness = this.mGameSettings.getLedBrightness();
+        Timber.tag(TAG).e("ledBrightness %s: " + ledBrightness);
+
+        this.setBrightness(ledBrightness);
         this.mIsGameInitialized = true;
+        this.reset();
     }
 
     private void updateCurrentPlayer() {
@@ -158,6 +166,9 @@ public class GameFragment extends BaseFragment implements View.OnClickListener, 
                     break;
                 case SocketConstants.WIN:
                     win();
+                    break;
+                case SocketConstants.RESET_BOARD:
+                    reset();
                     break;
             }
         } catch (Exception e) {
@@ -345,7 +356,7 @@ public class GameFragment extends BaseFragment implements View.OnClickListener, 
                 requestObject.put(SocketConstants.UDID, UDID.getUDID());
                 setMessage(requestObject);
 
-                displayMessageDialog("Wygrałeś");
+                displayMessageDialog("Wygrana");
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -378,8 +389,6 @@ public class GameFragment extends BaseFragment implements View.OnClickListener, 
     }
 
     public void reset() {
-        this.mCurrentPlayer = START_PLAYER;
-
         int childCount = this.mGameGrid.getChildCount();
         for (int i = 0; i < childCount; i++) {
             this.mFieldTypeArray[i] = FieldType.EMPTY;
@@ -439,6 +448,19 @@ public class GameFragment extends BaseFragment implements View.OnClickListener, 
         }
 
         this.reset();
+        this.resetBoard();
+    }
+
+    private void resetBoard() {
+        Timber.tag(TAG).e("resetBoard");
+        try {
+            JSONObject requestObject = new JSONObject();
+            requestObject.put(SocketConstants.TYPE, SocketConstants.RESET_BOARD);
+            requestObject.put(SocketConstants.UDID, UDID.getUDID());
+            setMessage(requestObject);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     private void checkLine1() {

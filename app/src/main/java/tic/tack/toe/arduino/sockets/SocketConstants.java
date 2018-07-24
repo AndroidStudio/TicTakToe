@@ -26,4 +26,5 @@ public class SocketConstants {
     public static final String AWAITING = "AWAITING";
     public static final String OK = "OK";
 
+    public static final String RESET_BOARD = "reset_board";
 }

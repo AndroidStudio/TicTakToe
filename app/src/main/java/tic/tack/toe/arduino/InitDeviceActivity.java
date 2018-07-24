@@ -14,6 +14,7 @@ import android.view.KeyEvent;
 import org.json.JSONObject;
 
 import tic.tack.toe.arduino.dialog.MessageDialog;
+import tic.tack.toe.arduino.game.GameSettings;
 import tic.tack.toe.arduino.sockets.SocketConnectionListener;
 import tic.tack.toe.arduino.sockets.SocketConstants;
 import tic.tack.toe.arduino.sockets.UDID;
@@ -48,7 +49,6 @@ public class InitDeviceActivity extends BaseActivity {
             @Override
             public void onSocketFailure() {
                 displaySocketConnectionErrorDialog();
-                finish();
             }
 
             @Override
@@ -60,7 +60,7 @@ public class InitDeviceActivity extends BaseActivity {
 
     private void displaySocketConnectionErrorDialog() {
         this.mSocketConnectionDialog = MessageDialog.displayDialog(this,
-                getString(R.string.no_internet_connection));
+                getString(R.string.blad_polaczenia_z_serwerem));
         this.mSocketConnectionDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
             @Override
             public void onDismiss(DialogInterface dialog) {
@@ -165,7 +165,7 @@ public class InitDeviceActivity extends BaseActivity {
 
         Timber.tag(TAG).e("initDeviceSuccess");
 
-        //GameSettings.getInstance().setMacAddress(macAddress);
+        GameSettings.getInstance().setMacAddress(macAddress);
         Intent intent = new Intent(this, ScanActivity.class);
         this.startActivity(intent);
         this.finish();

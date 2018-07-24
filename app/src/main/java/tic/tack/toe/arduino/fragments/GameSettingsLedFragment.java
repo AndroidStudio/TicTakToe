@@ -28,6 +28,7 @@ import timber.log.Timber;
 public class GameSettingsLedFragment extends BaseFragment {
 
     private static final String TAG = "GameSettingsLedFragment";
+    private int mBrightness = 255;
 
     @Nullable
     @Override
@@ -76,6 +77,7 @@ public class GameSettingsLedFragment extends BaseFragment {
         colorPicker.invalidate();
 
         AppCompatSeekBar seekBar = view.findViewById(R.id.seekBar);
+        seekBar.setProgress(GameSettings.getInstance().getLedBrightness());
         seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
@@ -100,7 +102,7 @@ public class GameSettingsLedFragment extends BaseFragment {
             messageObject.put(SocketConstants.TYPE, SocketConstants.LED_SETTINGS);
             messageObject.put(SocketConstants.COLOR, GameSettings.getInstance().getPlayer_01Color());
             messageObject.put(SocketConstants.UDID, UDID.getUDID());
-            messageObject.put(SocketConstants.BRIGHTNESS, 255);
+            messageObject.put(SocketConstants.BRIGHTNESS, this.mBrightness);
 
             setMessage(messageObject);
             Timber.tag(TAG).e("initLedColor");
@@ -145,6 +147,7 @@ public class GameSettingsLedFragment extends BaseFragment {
     }
 
     private void setBrightness(int brightness) {
+        this.mBrightness = brightness;
         GameSettings.getInstance().setLedBrightness(brightness);
     }
 
@@ -153,9 +156,6 @@ public class GameSettingsLedFragment extends BaseFragment {
             Color.parseColor(String.valueOf("#".concat(color)));
         } catch (Exception e) {
             e.printStackTrace();
-            return;
         }
-
-        GameSettings.getInstance().setPlayer_01Color(color);
     }
 }

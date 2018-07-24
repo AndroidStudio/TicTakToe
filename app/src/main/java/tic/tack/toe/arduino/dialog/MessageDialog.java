@@ -25,7 +25,12 @@ public class MessageDialog {
                     }
                 });
         AlertDialog alertDialog = alertDialogBuilder.create();
-        alertDialog.show();
+
+        try{
+            alertDialog.show();
+        }catch (Exception e){
+            e.printStackTrace();
+        }
 
         Window window = alertDialog.getWindow();
         if (window != null) {

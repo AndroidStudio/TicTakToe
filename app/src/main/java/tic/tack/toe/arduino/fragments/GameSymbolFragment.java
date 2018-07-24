@@ -6,6 +6,7 @@ import android.graphics.PorterDuffColorFilter;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -26,6 +27,8 @@ import timber.log.Timber;
 public class GameSymbolFragment extends BaseFragment implements View.OnClickListener {
 
     private static final String TAG = "GameSymbolFragment";
+
+    private AlertDialog mIncorrectSymbolDialog;
     private CustomGridView mGridLayout;
 
     private int mSymbolIndex = GameSettings.NO_SYMBOL_INDEX;
@@ -75,13 +78,19 @@ public class GameSymbolFragment extends BaseFragment implements View.OnClickList
                     if (symbolStatus.equals(SocketConstants.OK)) {
                         playerSymbolInitialized();
                     } else {
-                        MessageDialog.displayDialog(getActivity(), "Symbol niedostępny")
-                                .show();
+                        displayIncorrectSymbolDialog();
                     }
                     break;
             }
         } catch (Exception e) {
             e.printStackTrace();
+        }
+    }
+
+    private void displayIncorrectSymbolDialog() {
+        if (this.mIncorrectSymbolDialog == null || !this.mIncorrectSymbolDialog.isShowing()) {
+            this.mIncorrectSymbolDialog = MessageDialog.displayDialog(getActivity(),
+                    "Symbol niedostępny");
         }
     }
 
@@ -125,5 +134,13 @@ public class GameSymbolFragment extends BaseFragment implements View.OnClickList
                 PorterDuff.Mode.SRC_IN));
 
         this.mSymbolIndex = (int) v.getTag();
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        if (this.mIncorrectSymbolDialog != null && this.mIncorrectSymbolDialog.isShowing()) {
+            this.mIncorrectSymbolDialog.dismiss();
+        }
     }
 }
