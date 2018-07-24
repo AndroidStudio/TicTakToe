@@ -18,6 +18,8 @@ import com.github.mata1.simpledroidcolorpicker.pickers.ColorPicker;
 import com.github.mata1.simpledroidcolorpicker.utils.ColorUtils;
 import com.github.mata1.simpledroidcolorpicker.utils.Utils;
 
+import java.util.Random;
+
 public class CustomColorPicker extends ColorPicker {
 
     private Paint mSaturationPaint, mValuePaint;
@@ -59,7 +61,7 @@ public class CustomColorPicker extends ColorPicker {
         mValuePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         mValuePaint.setAlpha((int) ((1 - mVal) * 255));
 
-        mHandlePaint.setColor(Color.RED);
+        mHandlePaint.setColor(Color.GREEN);
     }
 
     @Override
@@ -164,5 +166,21 @@ public class CustomColorPicker extends ColorPicker {
         mValuePaint.setAlpha((int) ((1 - mVal) * 255));
 
         animateHandleTo(x, y);
+    }
+
+    public int getRandomColor() {
+        int[] colors = new int[]{
+                Color.RED,
+                Color.GREEN,
+                Color.BLUE,
+                Color.YELLOW,
+                Color.CYAN,
+                Color.BLUE,
+                Color.MAGENTA,
+        };
+
+        Random random = new Random();
+        int randomNum = random.nextInt(colors.length - 1);
+        return colors[randomNum];
     }
 }

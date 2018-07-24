@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import tic.tack.toe.arduino.sockets.MessageListener;
-import tic.tack.toe.arduino.sockets.OpenSocketListener;
+import tic.tack.toe.arduino.sockets.SocketConnectionListener;
 import tic.tack.toe.arduino.sockets.SocketConstants;
 import tic.tack.toe.arduino.sockets.UDID;
 import tic.tack.toe.arduino.sockets.WebSocketManager;
@@ -27,18 +27,23 @@ public class GameApplication extends Application implements MessageListener {
     @Override
     public void onCreate() {
         super.onCreate();
+        Timber.tag(TAG).e("onMessage");
+
         this.initWebSocket();
         this.initTimber();
         this.initUDID();
     }
 
     private void initWebSocket() {
-        this.mWebSocketManager.start();
         this.mWebSocketManager.setMessageListener(this);
     }
 
-    public void setOpenSocketListener(final OpenSocketListener openSocketListener) {
-        this.mWebSocketManager.setOpenSocketListener(openSocketListener);
+    public void openSocket(){
+        this.mWebSocketManager.start();
+    }
+
+    public void setOpenSocketListener(final SocketConnectionListener socketConnectionListener) {
+        this.mWebSocketManager.setOpenSocketListener(socketConnectionListener);
     }
 
     public boolean isSocketOpen() {
@@ -180,9 +185,5 @@ public class GameApplication extends Application implements MessageListener {
         jsonObject.put(SocketConstants.TYPE, SocketConstants.NEW_GAME);
         jsonObject.put(SocketConstants.UDID, UDID.getUDID());
         onMessage(jsonObject.toString());
-    }
-
-    public void disconnect() {
-        this.mWebSocketManager.disconnectClient();
     }
 }

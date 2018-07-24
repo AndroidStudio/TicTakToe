@@ -52,6 +52,7 @@ public class GameFragment extends BaseFragment implements View.OnClickListener, 
     private ImageView mPlayer_02ImageView;
     private AlertDialog mMessageDialog;
     private CustomGridView mGameGrid;
+    private boolean mClicked = false;
 
     @Nullable
     @Override
@@ -77,6 +78,7 @@ public class GameFragment extends BaseFragment implements View.OnClickListener, 
 
         @Override
         public void onClick(View v) {
+            reset();
             newGame();
         }
     };
@@ -211,6 +213,7 @@ public class GameFragment extends BaseFragment implements View.OnClickListener, 
         String currentPlayerUDID = responseObject.getString(SocketConstants.CURRENT_PLAYER);
         if (currentPlayerUDID.equals(UDID.getUDID())) {
             this.mCurrentPlayer = FieldType.PLAYER_01;
+            this.mClicked = false;
         } else {
             this.mCurrentPlayer = FieldType.PLAYER_02;
         }
@@ -252,6 +255,14 @@ public class GameFragment extends BaseFragment implements View.OnClickListener, 
     }
 
     private void setPixel(int index, int value) {
+        Timber.tag(TAG).e("setPixelIndex %s", index);
+
+        if (index == 3) {
+            index = 5;
+        } else if (index == 5) {
+            index = 3;
+        }
+
         String indexHex = String.format(Locale.getDefault(), "%02d", index);
         String message = CMD.PIXEL + indexHex + (value == 1
                 ? this.mGameSettings.getPlayer_01Color()
@@ -261,13 +272,19 @@ public class GameFragment extends BaseFragment implements View.OnClickListener, 
 
     @Override
     public void onClick(View view) {
-        if (this.mCurrentPlayer == FieldType.PLAYER_01) {
+        if (this.mCurrentPlayer == FieldType.PLAYER_01 && !this.mClicked) {
             int index = (int) view.getTag();
             this.onFieldClick(index);
+            this.mClicked = true;
         }
     }
 
     private void onFieldClick(int index) {
+        FieldType fieldType = mFieldTypeArray[index];
+        if (fieldType != FieldType.EMPTY) {
+            return;
+        }
+
         try {
             JSONObject messageObject = new JSONObject();
             messageObject.put(SocketConstants.TYPE, SocketConstants.INDEX);
@@ -349,6 +366,7 @@ public class GameFragment extends BaseFragment implements View.OnClickListener, 
                         dialog.dismiss();
                     }
                 });
+
         this.mMessageDialog = alertDialogBuilder.create();
         this.mMessageDialog.show();
     }

@@ -14,7 +14,7 @@ import android.view.KeyEvent;
 import org.json.JSONObject;
 
 import tic.tack.toe.arduino.dialog.MessageDialog;
-import tic.tack.toe.arduino.sockets.OpenSocketListener;
+import tic.tack.toe.arduino.sockets.SocketConnectionListener;
 import tic.tack.toe.arduino.sockets.SocketConstants;
 import tic.tack.toe.arduino.sockets.UDID;
 import timber.log.Timber;
@@ -22,24 +22,57 @@ import timber.log.Timber;
 public class InitDeviceActivity extends BaseActivity {
 
     private static final String TAG = "InitDeviceActivity";
+
     private ProgressDialog mInitDeviceProgressDialog;
+    private AlertDialog mSocketConnectionDialog;
+
     private boolean mIsDeviceInitialized = false;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         this.setContentView(R.layout.splash_activity);
-        if (!isInternetConnection()) {
-            displayNoInternetDialog();
+        if (!this.isInternetConnection()) {
+            this.displayNoInternetDialog();
+            return;
         }
 
-        this.mGameApplication.setOpenSocketListener(new OpenSocketListener() {
+        this.mGameApplication.setOpenSocketListener(new SocketConnectionListener() {
+
             @Override
             public void onSocketOpen() {
                 Timber.tag(TAG).e("onSocketOpen");
                 initDevice();
             }
+
+            @Override
+            public void onSocketFailure() {
+                displaySocketConnectionErrorDialog();
+                finish();
+            }
+
+            @Override
+            public void onSocketClose() {
+                displaySocketConnectionErrorDialog();
+            }
         });
+    }
+
+    private void displaySocketConnectionErrorDialog() {
+        this.mSocketConnectionDialog = MessageDialog.displayDialog(this,
+                getString(R.string.no_internet_connection));
+        this.mSocketConnectionDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
+            @Override
+            public void onDismiss(DialogInterface dialog) {
+                finish();
+            }
+        });
+    }
+
+    private void hideSocketConnectionErrorDialog() {
+        if (this.mSocketConnectionDialog != null && this.mSocketConnectionDialog.isShowing()) {
+            this.mSocketConnectionDialog.dismiss();
+        }
     }
 
     @Override
@@ -47,6 +80,8 @@ public class InitDeviceActivity extends BaseActivity {
         super.onPostCreate(savedInstanceState);
         if (this.mGameApplication.isSocketOpen()) {
             this.initDevice();
+        } else {
+            this.mGameApplication.openSocket();
         }
     }
 
@@ -113,6 +148,7 @@ public class InitDeviceActivity extends BaseActivity {
     @Override
     public void onDestroy() {
         super.onDestroy();
+        this.hideSocketConnectionErrorDialog();
         this.hideInitDeviceProgressDialog();
     }
 

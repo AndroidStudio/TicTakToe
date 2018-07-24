@@ -110,8 +110,14 @@ public class BaseActivity extends AppCompatActivity implements MessageListener {
         }
     }
 
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        System.exit(0);
+    }
+
     private void newGame() {
-        Intent intent = new Intent(this, InitDeviceActivity.class);
+        Intent intent = new Intent(BaseActivity.this, InitDeviceActivity.class);
         startActivity(intent);
         finish();
     }

@@ -59,7 +59,7 @@ public class GameSettingsLedFragment extends BaseFragment {
             @Override
             public void onGlobalLayout() {
                 colorPicker.getViewTreeObserver().removeOnGlobalLayoutListener(this);
-                colorPicker.setColor(Color.RED);
+                colorPicker.setColor(colorPicker.getRandomColor());
             }
         });
 
