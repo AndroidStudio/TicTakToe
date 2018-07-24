@@ -28,6 +28,8 @@ import timber.log.Timber;
 public class GameSettingsLedFragment extends BaseFragment {
 
     private static final String TAG = "GameSettingsLedFragment";
+    private String mSelectedColor = "ff0000";
+    private CustomColorPicker mColorPicker;
     private int mBrightness = 255;
 
     @Nullable
@@ -55,30 +57,30 @@ public class GameSettingsLedFragment extends BaseFragment {
             }
         });
 
-        final CustomColorPicker colorPicker = view.findViewById(R.id.colorPicker);
-        colorPicker.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+        this.mColorPicker = view.findViewById(R.id.colorPicker);
+        this.mColorPicker.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
             @Override
             public void onGlobalLayout() {
-                colorPicker.getViewTreeObserver().removeOnGlobalLayoutListener(this);
-                colorPicker.setColor(colorPicker.getRandomColor());
+                mColorPicker.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+                mColorPicker.setColor(mColorPicker.getRandomColor());
             }
         });
 
-        colorPicker.setOnColorChangedListener(new OnColorChangedListener() {
+        this.mColorPicker.setOnColorChangedListener(new OnColorChangedListener() {
             @Override
             public void colorChanged(int color) {
-                String hex = String.format("%02x%02x%02x",
+                GameSettingsLedFragment.this.mSelectedColor = String.format("%02x%02x%02x",
                         Color.red(color),
                         Color.green(color),
                         Color.blue(color));
-                setLedColor(hex);
             }
         });
-        colorPicker.invalidate();
+        this.mColorPicker.invalidate();
 
         AppCompatSeekBar seekBar = view.findViewById(R.id.seekBar);
         seekBar.setProgress(GameSettings.getInstance().getLedBrightness());
         seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
 
@@ -100,7 +102,7 @@ public class GameSettingsLedFragment extends BaseFragment {
         try {
             JSONObject messageObject = new JSONObject();
             messageObject.put(SocketConstants.TYPE, SocketConstants.LED_SETTINGS);
-            messageObject.put(SocketConstants.COLOR, GameSettings.getInstance().getPlayer_01Color());
+            messageObject.put(SocketConstants.COLOR, this.mSelectedColor);
             messageObject.put(SocketConstants.UDID, UDID.getUDID());
             messageObject.put(SocketConstants.BRIGHTNESS, this.mBrightness);
 
@@ -149,13 +151,5 @@ public class GameSettingsLedFragment extends BaseFragment {
     private void setBrightness(int brightness) {
         this.mBrightness = brightness;
         GameSettings.getInstance().setLedBrightness(brightness);
-    }
-
-    private void setLedColor(String color) {
-        try {
-            Color.parseColor(String.valueOf("#".concat(color)));
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
     }
 }

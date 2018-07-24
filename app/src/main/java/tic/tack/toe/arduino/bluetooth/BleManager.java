@@ -67,7 +67,7 @@ public class BleManager implements BleGattExecutor.BleExecutorListener {
         try {
             this.mDevice = this.mAdapter.getRemoteDevice(address);
             if (this.mDevice == null) {
-                Timber.tag(TAG).e("Device not found.  Unable to connect.");
+                Timber.tag(TAG).e("Device not found. Unable to connect.");
                 return;
             }
         } catch (Exception e) {
