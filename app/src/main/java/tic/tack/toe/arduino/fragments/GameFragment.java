@@ -42,10 +42,13 @@ public class GameFragment extends BaseFragment implements View.OnClickListener, 
 
     private final GameSettings mGameSettings = GameSettings.getInstance();
     private final FieldType[] mFieldTypeArray = new FieldType[9];
+    private final int[] mFieldBluetoothIndexArray = new int[]{
+            6, 7, 8, 5, 4, 3, 0, 1, 2
+    };
+
     private final Handler mGameHandler = new Handler();
 
     private FieldType mCurrentPlayer = START_PLAYER;
-
     private boolean mIsGameInitialized = false;
 
     private ImageView mPlayer_01ImageView;
@@ -116,7 +119,7 @@ public class GameFragment extends BaseFragment implements View.OnClickListener, 
         this.updateCurrentPlayer();
 
         int ledBrightness = this.mGameSettings.getLedBrightness();
-        Timber.tag(TAG).e("ledBrightness %s: " + ledBrightness);
+        Timber.tag(TAG).e("ledBrightness %s: ", ledBrightness);
 
         this.setBrightness(ledBrightness);
         this.mIsGameInitialized = true;
@@ -261,20 +264,13 @@ public class GameFragment extends BaseFragment implements View.OnClickListener, 
             }
             this.updateUI(i);
         }
-
         this.checkWin();
     }
 
     private void setPixel(int index, int value) {
         Timber.tag(TAG).e("setPixelIndex %s", index);
-
-        if (index == 3) {
-            index = 5;
-        } else if (index == 5) {
-            index = 3;
-        }
-
-        String indexHex = String.format(Locale.getDefault(), "%02d", index);
+        String indexHex = String.format(Locale.getDefault(),
+                "%02d", this.mFieldBluetoothIndexArray[index]);
         String message = CMD.PIXEL + indexHex + (value == 1
                 ? this.mGameSettings.getPlayer_01Color()
                 : this.mGameSettings.getPlayer_02Color());
@@ -291,7 +287,7 @@ public class GameFragment extends BaseFragment implements View.OnClickListener, 
     }
 
     private void onFieldClick(int index) {
-        FieldType fieldType = mFieldTypeArray[index];
+        FieldType fieldType = this.mFieldTypeArray[index];
         if (fieldType != FieldType.EMPTY) {
             return;
         }
