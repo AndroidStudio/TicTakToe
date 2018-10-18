@@ -269,6 +269,7 @@ public class GameFragment extends BaseFragment implements View.OnClickListener, 
 
     private void setPixel(int index, int value) {
         Timber.tag(TAG).e("setPixelIndex %s", index);
+
         String indexHex = String.format(Locale.getDefault(),
                 "%02d", this.mFieldBluetoothIndexArray[index]);
         String message = CMD.PIXEL + indexHex + (value == 1

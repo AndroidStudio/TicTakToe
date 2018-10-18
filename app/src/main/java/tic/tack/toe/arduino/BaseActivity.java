@@ -18,6 +18,8 @@ import android.view.KeyEvent;
 import org.json.JSONObject;
 
 import tic.tack.toe.arduino.dialog.MessageDialog;
+import tic.tack.toe.arduino.fragments.FragmentController;
+import tic.tack.toe.arduino.fragments.GameSymbolFragment;
 import tic.tack.toe.arduino.sockets.MessageListener;
 import tic.tack.toe.arduino.sockets.SocketConstants;
 import timber.log.Timber;
@@ -117,9 +119,7 @@ public class BaseActivity extends AppCompatActivity implements MessageListener {
     }
 
     private void newGame() {
-        Intent intent = new Intent(BaseActivity.this, InitDeviceActivity.class);
-        startActivity(intent);
-        finish();
+        FragmentController.setCurrentFragment(this, new GameSymbolFragment(), false);
     }
 
     private void exitGame() {

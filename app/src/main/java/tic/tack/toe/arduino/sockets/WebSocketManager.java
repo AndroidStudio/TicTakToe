@@ -14,6 +14,8 @@ import timber.log.Timber;
 public class WebSocketManager extends WebSocketListener {
     private static final int NORMAL_CLOSURE_STATUS = 1000;
     private static final String TAG = "WebSocketManager";
+    private static final String API_URL = "ws://graox.dev2.wcstd.net:9700";
+    // private static final String API_URL = "ws://192.168.1.28:9696";
 
     private final Handler mHandler = new Handler(Looper.getMainLooper());
     private final OkHttpClient mClient = new OkHttpClient();
@@ -25,7 +27,7 @@ public class WebSocketManager extends WebSocketListener {
 
     public void start() {
         Request request = new Request.Builder()
-                .url("ws://192.168.1.28:9696")
+                .url(API_URL)
                 .build();
         this.mClient.newWebSocket(request, this);
     }

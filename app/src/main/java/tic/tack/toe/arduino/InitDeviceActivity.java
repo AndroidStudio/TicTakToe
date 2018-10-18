@@ -9,6 +9,7 @@ import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AlertDialog;
+import android.text.TextUtils;
 import android.view.KeyEvent;
 
 import org.json.JSONObject;
@@ -164,13 +165,18 @@ public class InitDeviceActivity extends BaseActivity {
         }
 
         Timber.tag(TAG).e("initDeviceSuccess");
-
         GameSettings.getInstance().setMacAddress(macAddress);
-        Intent intent = new Intent(this, ScanActivity.class);
-        this.startActivity(intent);
-        this.finish();
+
+        if (TextUtils.isEmpty(macAddress)) {
+            Intent intent = new Intent(this, MainActivity.class);
+            this.startActivity(intent);
+        } else {
+            Intent intent = new Intent(this, ScanActivity.class);
+            this.startActivity(intent);
+        }
 
         this.mIsDeviceInitialized = true;
+        this.finish();
     }
 
     @SuppressWarnings("all")
