@@ -15,7 +15,7 @@ public class WebSocketManager extends WebSocketListener {
     private static final int NORMAL_CLOSURE_STATUS = 1000;
     private static final String TAG = "WebSocketManager";
     private static final String API_URL = "ws://graox.dev2.wcstd.net:9700";
-    // private static final String API_URL = "ws://192.168.1.28:9696";
+    //private static final String API_URL = "ws://192.168.1.28:9696";
 
     private final Handler mHandler = new Handler(Looper.getMainLooper());
     private final OkHttpClient mClient = new OkHttpClient();
