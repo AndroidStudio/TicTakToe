@@ -21,7 +21,7 @@ public class BleManager implements BleGattExecutor.BleExecutorListener {
     private static final int STATE_DISCONNECTED = 0;
     private static final int STATE_CONNECTING = 1;
 
-    private static final int STATE_CONNECTED = 2;
+    public static final int STATE_CONNECTED = 2;
 
     private static BleManager INSTANCE = null;
 

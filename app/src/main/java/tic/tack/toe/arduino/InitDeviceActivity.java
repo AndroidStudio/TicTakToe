@@ -3,19 +3,17 @@ package tic.tack.toe.arduino;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AlertDialog;
-import android.text.TextUtils;
 import android.view.KeyEvent;
 
 import org.json.JSONObject;
 
+import tic.tack.toe.arduino.dialog.InputMACDialog;
 import tic.tack.toe.arduino.dialog.MessageDialog;
-import tic.tack.toe.arduino.game.GameSettings;
 import tic.tack.toe.arduino.sockets.SocketConnectionListener;
 import tic.tack.toe.arduino.sockets.SocketConstants;
 import tic.tack.toe.arduino.sockets.UDID;
@@ -164,8 +162,18 @@ public class InitDeviceActivity extends BaseActivity {
             return;
         }
 
+        try {
+            mInitDeviceProgressDialog.dismiss();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
         Timber.tag(TAG).e("initDeviceSuccess");
-        GameSettings.getInstance().setMacAddress(macAddress);
+        InputMACDialog macDialog = new InputMACDialog(this);
+        macDialog.show();
+
+        this.mIsDeviceInitialized = true;
+        /*    GameSettings.getInstance().setMacAddress(macAddress);
 
         if (TextUtils.isEmpty(macAddress)) {
             Intent intent = new Intent(this, MainActivity.class);
@@ -175,8 +183,9 @@ public class InitDeviceActivity extends BaseActivity {
             this.startActivity(intent);
         }
 
-        this.mIsDeviceInitialized = true;
-        this.finish();
+        this.finish();*/
+
+
     }
 
     @SuppressWarnings("all")
