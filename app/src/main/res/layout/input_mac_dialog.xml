@@ -11,11 +11,25 @@
         android:layout_height="wrap_content"
         android:text="Adres MAC:"/>
 
-    <EditText
-        android:id="@+id/macEditText"
+    <RadioGroup
+        android:id="@+id/radio_group"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"/>
+        android:layout_marginTop="20dp"
+        android:orientation="vertical">
+
+        <RadioButton
+            android:id="@+id/radio_01"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="C4:2B:2D:00:FF:1D"/>
+
+        <RadioButton
+            android:id="@+id/radio_02"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="D7:90:F4:FE:A4:55"/>
+    </RadioGroup>
 
     <Button
         android:id="@+id/saveButton"
@@ -24,5 +38,4 @@
         android:layout_gravity="right"
         android:layout_marginTop="20dp"
         android:text="Zapisz"/>
-
 </LinearLayout>
