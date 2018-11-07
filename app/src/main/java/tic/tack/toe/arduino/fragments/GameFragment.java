@@ -8,6 +8,7 @@ import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AlertDialog;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -42,15 +43,13 @@ public class GameFragment extends BaseFragment implements View.OnClickListener, 
 
     private final GameSettings mGameSettings = GameSettings.getInstance();
     private final FieldType[] mFieldTypeArray = new FieldType[9];
-    private final int[] mFieldBluetoothIndexArray = new int[]{
-            6, 7, 8, 5, 4, 3, 0, 1, 2
-    };
-
     private final Handler mGameHandler = new Handler();
 
+    private int[] mFieldBluetoothIndexArray;
     private FieldType mCurrentPlayer = START_PLAYER;
     private boolean mIsGameInitialized = false;
 
+    private ImageView mPlayerSymbolImageView;
     private ImageView mPlayer_01ImageView;
     private ImageView mPlayer_02ImageView;
 
@@ -74,8 +73,19 @@ public class GameFragment extends BaseFragment implements View.OnClickListener, 
         this.mPlayer_01ImageView = view.findViewById(R.id.mPlayer_01ImageView);
         this.mPlayer_02ImageView = view.findViewById(R.id.mPlayer_02ImageView);
         this.mGameGrid = view.findViewById(R.id.gridLayout);
-
+        this.mPlayerSymbolImageView = view.findViewById(R.id.playerSymbolImageView);
         this.mGameHandler.postDelayed(this, GAME_UPDATE_DELAY);
+
+        String macAddress = mGameSettings.getMacAddress();
+        if (TextUtils.isEmpty(macAddress)) {
+            return;
+        }
+
+        if (macAddress.equals("C4:2B:2D:00:FF:1D")) {
+            this.mFieldBluetoothIndexArray = new int[]{8, 7, 6, 3, 4, 5, 2, 1, 0};
+        } else {
+            this.mFieldBluetoothIndexArray = new int[]{6, 7, 8, 5, 4, 3, 0, 1, 2};
+        }
     }
 
     private final View.OnClickListener mNewGameClickListener = new View.OnClickListener() {
@@ -108,6 +118,10 @@ public class GameFragment extends BaseFragment implements View.OnClickListener, 
         this.mPlayer_01ImageView.clearColorFilter();
         this.mPlayer_02ImageView.clearColorFilter();
 
+        this.mPlayerSymbolImageView.setImageResource(this.mGameSettings.getPlayer_01Symbol());
+        this.mPlayerSymbolImageView.setColorFilter(new PorterDuffColorFilter(
+                Color.parseColor("#" + this.mGameSettings.getPlayer_01Color()), SRC_IN));
+
         int length = this.mFieldTypeArray.length;
         for (int i = 0; i < length; i++) {
             this.mFieldTypeArray[i] = FieldType.EMPTY;
@@ -128,10 +142,14 @@ public class GameFragment extends BaseFragment implements View.OnClickListener, 
 
     private void updateCurrentPlayer() {
         if (this.mCurrentPlayer == FieldType.PLAYER_01) {
+            this.mPlayer_02ImageView.setVisibility(View.GONE);
+            this.mPlayer_01ImageView.setVisibility(View.VISIBLE);
             this.mPlayer_01ImageView.setColorFilter(new PorterDuffColorFilter(
                     Color.parseColor("#" + this.mGameSettings.getPlayer_01Color()), SRC_IN));
             this.mPlayer_02ImageView.clearColorFilter();
         } else {
+            this.mPlayer_01ImageView.setVisibility(View.GONE);
+            this.mPlayer_02ImageView.setVisibility(View.VISIBLE);
             this.mPlayer_01ImageView.clearColorFilter();
             this.mPlayer_02ImageView.setColorFilter(new PorterDuffColorFilter(
                     Color.parseColor("#" + this.mGameSettings.getPlayer_02Color()), SRC_IN));
@@ -267,7 +285,7 @@ public class GameFragment extends BaseFragment implements View.OnClickListener, 
         this.checkWin();
     }
 
-    private void setPixel(int index, int value) {
+    public void setPixel(int index, int value) {
         Timber.tag(TAG).e("setPixelIndex %s", index);
 
         String indexHex = String.format(Locale.getDefault(),
@@ -275,6 +293,7 @@ public class GameFragment extends BaseFragment implements View.OnClickListener, 
         String message = CMD.PIXEL + indexHex + (value == 1
                 ? this.mGameSettings.getPlayer_01Color()
                 : this.mGameSettings.getPlayer_02Color());
+        Timber.tag(TAG).e("message %s", message);
         this.writeMessage(hexStringToByteArray(message));
     }
 

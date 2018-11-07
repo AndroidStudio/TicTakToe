@@ -35,7 +35,6 @@ public class ScanActivity extends BaseActivity implements Runnable {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         this.setContentView(R.layout.splash_activity);
-
         if (!getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
             this.startMainActivity();
             return;
@@ -113,6 +112,7 @@ public class ScanActivity extends BaseActivity implements Runnable {
             public boolean onKey(DialogInterface dialog, int keyCode, KeyEvent event) {
                 if (keyCode == KeyEvent.KEYCODE_BACK) {
                     finish();
+                    System.exit(0);
                 }
                 return true;
             }

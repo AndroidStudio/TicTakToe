@@ -5,36 +5,18 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:paddingLeft="20dp"
-    android:paddingRight="20dp"
-    android:paddingTop="10dp">
+    android:paddingTop="10dp"
+    android:paddingRight="20dp">
 
     <TextView
-        android:layout_width="match_parent"
-        android:layout_height="50dp"
-        android:drawableLeft="@drawable/ic_burger_o"
-        android:drawablePadding="20dp"
-        android:gravity="center_vertical"
-        android:text="@string/o_aplikacji"
-        android:textColor="#000"
-        android:textSize="14dp"/>
-
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="50dp"
-        android:drawableLeft="@drawable/ic_burger_lab"
-        android:drawablePadding="20dp"
-        android:gravity="center_vertical"
-        android:text="@string/o_witchcraft_lab"
-        android:textColor="#000"
-        android:textSize="14dp"/>
-
-    <TextView
+        android:id="@+id/testButton"
         android:layout_width="match_parent"
         android:layout_height="50dp"
         android:drawableLeft="@drawable/ic_burger_info"
         android:drawablePadding="20dp"
         android:gravity="center_vertical"
-        android:text="@string/informacje"
+        android:text="@string/test"
         android:textColor="#000"
         android:textSize="14dp"/>
+
 </LinearLayout>

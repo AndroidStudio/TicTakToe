@@ -14,5 +14,7 @@
     <string name="prosze_wybrac_symbol">Proszę wybrać symbol</string>
     <string name="komunikat">Komunikat</string>
     <string name="no_internet_connection">Aplikacja wymaga dostępu do internetu</string>
-    <string name="blad_polaczenia_z_serwerem">Błąd połączenia z serwerem</string>
+    <string name="blad_polaczenia_z_serwerem">Połączenie z serwerem zostało zerwane</string>
+    <string name="test">LED test</string>
+    <string name="twoj_symbol">Twój symbol</string>
 </resources>

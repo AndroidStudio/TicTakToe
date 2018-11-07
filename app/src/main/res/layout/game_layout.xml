@@ -10,6 +10,21 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="20dp"
         android:gravity="center_horizontal"
+        android:text="@string/twoj_symbol"
+        android:textColor="#000"
+        android:textSize="14dp"/>
+
+    <ImageView
+        android:id="@+id/playerSymbolImageView"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="5dp"/>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_horizontal"
         android:text="@string/kolejka"
         android:textColor="#000"
         android:textSize="14dp"/>
@@ -141,7 +156,5 @@
             android:text="@string/nowa_gra"
             android:textColor="#fff"
             android:textSize="14dp"/>
-
     </RelativeLayout>
-
 </LinearLayout>

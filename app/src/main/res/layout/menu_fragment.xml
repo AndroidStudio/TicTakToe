@@ -30,10 +30,10 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_alignParentBottom="true"
-            android:paddingBottom="20dp"
             android:paddingLeft="50dp"
+            android:paddingTop="20dp"
             android:paddingRight="50dp"
-            android:paddingTop="20dp">
+            android:paddingBottom="20dp">
 
             <Button
                 android:id="@+id/finishButton"

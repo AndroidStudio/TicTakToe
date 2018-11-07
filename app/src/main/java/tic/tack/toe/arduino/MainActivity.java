@@ -14,6 +14,7 @@ import android.support.v4.widget.DrawerLayout;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 
 import tic.tack.toe.arduino.bluetooth.BleManager;
 import tic.tack.toe.arduino.fragments.FragmentController;
@@ -29,6 +30,7 @@ public class MainActivity extends BaseActivity {
     private ProgressBar mProgressBar;
 
     public BleManager mBleManager;
+    public TextView mMacAddressTextView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,6 +56,9 @@ public class MainActivity extends BaseActivity {
             this.setupMenuFragment();
             FragmentController.setCurrentFragment(this, new GameSymbolFragment(), false);
         }
+
+        this.mMacAddressTextView = findViewById(R.id.macAddressTextView);
+        this.mMacAddressTextView.setText("MAC: " + GameSettings.getInstance().getMacAddress());
     }
 
     private void reconnectClick() {
@@ -176,8 +181,10 @@ public class MainActivity extends BaseActivity {
                 try {
                     if (isConnected) {
                         mBluetoothStatusImageView.setImageResource(R.drawable.ic_bluetooth_connected);
+                        mMacAddressTextView.setText("MAC: " + GameSettings.getInstance().getMacAddress() + " connected");
                     } else {
                         mBluetoothStatusImageView.setImageResource(R.drawable.ic_bluetooth_disconnected);
+                        mMacAddressTextView.setText("MAC: " + GameSettings.getInstance().getMacAddress() + " disconnected");
                     }
                     mProgressBar.setVisibility(View.GONE);
                 } catch (Exception e) {

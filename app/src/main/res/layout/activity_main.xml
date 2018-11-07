@@ -26,6 +26,15 @@
                 android:scaleType="centerInside"
                 android:src="@drawable/ic_hamburger"/>
 
+            <TextView
+                android:id="@+id/macAddressTextView"
+                android:layout_width="150dp"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:textColor="#000"
+                android:gravity="center"
+                android:textSize="12dp"/>
+
             <ProgressBar
                 android:id="@+id/progressBar"
                 android:layout_width="30dp"

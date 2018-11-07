@@ -102,7 +102,6 @@ public class InitDeviceActivity extends BaseActivity {
             messageObject.put(SocketConstants.TYPE, SocketConstants.INIT_GAME);
             messageObject.put(SocketConstants.UDID, UDID.getUDID());
             setMessage(messageObject);
-
             Timber.tag(TAG).e("initDevice");
         } catch (Exception e) {
             e.printStackTrace();
@@ -134,7 +133,13 @@ public class InitDeviceActivity extends BaseActivity {
         this.mInitDeviceProgressDialog.setOnKeyListener(new DialogInterface.OnKeyListener() {
             @Override
             public boolean onKey(DialogInterface dialog, int keyCode, KeyEvent event) {
-                onKeyDown(keyCode, event);
+                try {
+                    mInitDeviceProgressDialog.dismiss();
+                    finish();
+                    System.exit(0);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
                 return true;
             }
         });
