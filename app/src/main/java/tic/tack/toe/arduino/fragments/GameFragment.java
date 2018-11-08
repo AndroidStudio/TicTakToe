@@ -45,7 +45,7 @@ public class GameFragment extends BaseFragment implements View.OnClickListener, 
     private final FieldType[] mFieldTypeArray = new FieldType[9];
     private final Handler mGameHandler = new Handler();
 
-    private int[] mFieldBluetoothIndexArray;
+    private int[] mFieldBluetoothIndexArray = new int[]{8, 7, 6, 3, 4, 5, 2, 1, 0};
     private FieldType mCurrentPlayer = START_PLAYER;
     private boolean mIsGameInitialized = false;
 
@@ -264,6 +264,10 @@ public class GameFragment extends BaseFragment implements View.OnClickListener, 
 
         for (int i = 0; i < length; i++) {
             int value = gameBoardArray.getInt(i);
+
+            if (value > 2) {
+                throw new IllegalArgumentException("Nieprawidłowa wartość identyfikatora gracza");
+            }
 
             if (this.mFieldTypeArray[i] == FieldType.EMPTY && value != 0) {
                 this.setPixel(i, value);

@@ -219,4 +219,6 @@ public class InitDeviceActivity extends BaseActivity {
         }
         return false;
     }
+
+
 }
