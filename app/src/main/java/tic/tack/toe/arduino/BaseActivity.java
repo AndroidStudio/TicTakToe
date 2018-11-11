@@ -30,16 +30,21 @@ public class BaseActivity extends AppCompatActivity implements MessageListener {
     private static final int REQUEST_LOCATION_ACCESS = 1000;
     protected static final int REQUEST_ENABLE_BT = 1001;
 
-    private static final String TAG = "BaseActivity";
-
     protected GameApplication mGameApplication;
     private AlertDialog mMessageDialog;
+
+    private boolean isPaused = true;
+    private boolean newGameRequest = false;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         this.mGameApplication = (GameApplication) getApplication();
         this.mGameApplication.addMessageListener(this);
+    }
+
+    public void startSocket() {
+        mGameApplication.startSocket();
     }
 
     @Override
@@ -83,6 +88,22 @@ public class BaseActivity extends AppCompatActivity implements MessageListener {
     }
 
     @Override
+    protected void onResume() {
+        super.onResume();
+        isPaused = false;
+        if (newGameRequest) {
+            newGame();
+            newGameRequest = false;
+        }
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        isPaused = true;
+    }
+
+    @Override
     public void onDestroy() {
         super.onDestroy();
         this.mGameApplication.removeMessageListener(this);
@@ -95,8 +116,6 @@ public class BaseActivity extends AppCompatActivity implements MessageListener {
     @Override
     public void onMessage(String message) {
         try {
-            Timber.tag(TAG).e(message);
-
             JSONObject responseObject = new JSONObject(message);
             String type = responseObject.getString(SocketConstants.TYPE);
             switch (type) {
@@ -113,20 +132,12 @@ public class BaseActivity extends AppCompatActivity implements MessageListener {
     }
 
     @Override
-    public void onBackPressed() {
-        super.onBackPressed();
-        System.exit(0);
-    }
+    public void onConnectionError() {
+        if (this.mMessageDialog != null && this.mMessageDialog.isShowing()) {
+            return;
+        }
 
-    private void newGame() {
-        FragmentController.setCurrentFragment(this, new GameSymbolFragment(), false);
-    }
-
-    private void exitGame() {
-        this.hideMessageDialog();
-
-        this.mMessageDialog = MessageDialog.displayDialog(this,
-                "Gracz 2 opuscił grę");
+        this.mMessageDialog = MessageDialog.displayDialog(this, "Połączenie z serwerem zostało zerwane");
         this.mMessageDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
             @Override
             public void onDismiss(DialogInterface dialog) {
@@ -134,14 +145,38 @@ public class BaseActivity extends AppCompatActivity implements MessageListener {
                         InitDeviceActivity.class);
                 startActivity(intent);
                 finish();
+                System.exit(0);
             }
         });
     }
 
-    private void hideMessageDialog() {
-        if (this.mMessageDialog != null && this.mMessageDialog.isShowing()) {
-            this.mMessageDialog.dismiss();
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        System.exit(0);
+    }
+
+    private void newGame() {
+        if (isPaused) {
+            newGameRequest = true;
+        } else {
+            FragmentController.setCurrentFragment(this, new GameSymbolFragment(), false);
         }
+    }
+
+    private void exitGame() {
+        if (this.mMessageDialog != null && this.mMessageDialog.isShowing()) {
+            return;
+        }
+
+        this.mMessageDialog = MessageDialog.displayDialog(this, "Przeciwnik opuscił grę");
+        this.mMessageDialog.setOnDismissListener(dialog -> {
+            Intent intent = new Intent(BaseActivity.this,
+                    InitDeviceActivity.class);
+            startActivity(intent);
+            finish();
+            System.exit(0);
+        });
     }
 
     @Override

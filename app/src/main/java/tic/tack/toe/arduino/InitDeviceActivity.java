@@ -14,7 +14,6 @@ import org.json.JSONObject;
 
 import tic.tack.toe.arduino.dialog.InputMACDialog;
 import tic.tack.toe.arduino.dialog.MessageDialog;
-import tic.tack.toe.arduino.sockets.SocketConnectionListener;
 import tic.tack.toe.arduino.sockets.SocketConstants;
 import tic.tack.toe.arduino.sockets.UDID;
 import timber.log.Timber;
@@ -24,9 +23,6 @@ public class InitDeviceActivity extends BaseActivity {
     private static final String TAG = "InitDeviceActivity";
 
     private ProgressDialog mInitDeviceProgressDialog;
-    private AlertDialog mSocketConnectionDialog;
-
-    private boolean mIsDeviceInitialized = false;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -36,52 +32,7 @@ public class InitDeviceActivity extends BaseActivity {
             this.displayNoInternetDialog();
             return;
         }
-
-        this.mGameApplication.setOpenSocketListener(new SocketConnectionListener() {
-
-            @Override
-            public void onSocketOpen() {
-                Timber.tag(TAG).e("onSocketOpen");
-                initDevice();
-            }
-
-            @Override
-            public void onSocketFailure() {
-                displaySocketConnectionErrorDialog();
-            }
-
-            @Override
-            public void onSocketClose() {
-                displaySocketConnectionErrorDialog();
-            }
-        });
-    }
-
-    private void displaySocketConnectionErrorDialog() {
-        this.mSocketConnectionDialog = MessageDialog.displayDialog(this,
-                getString(R.string.blad_polaczenia_z_serwerem));
-        this.mSocketConnectionDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
-            @Override
-            public void onDismiss(DialogInterface dialog) {
-                finish();
-            }
-        });
-    }
-
-    private void hideSocketConnectionErrorDialog() {
-        if (this.mSocketConnectionDialog != null && this.mSocketConnectionDialog.isShowing()) {
-            this.mSocketConnectionDialog.dismiss();
-        }
-    }
-
-    @Override
-    protected void onPostCreate(@Nullable Bundle savedInstanceState) {
-        super.onPostCreate(savedInstanceState);
-        if (this.mGameApplication.isSocketOpen()) {
-            this.initDevice();
-        } else {
-            this.mGameApplication.openSocket();
-        }
+        this.initDevice();
     }
 
     private void displayNoInternetDialog() {
@@ -91,21 +42,14 @@ public class InitDeviceActivity extends BaseActivity {
             @Override
             public void onDismiss(DialogInterface dialog) {
                 finish();
+                System.exit(0);
             }
         });
     }
 
     private void initDevice() {
         this.displayInitDeviceProgressDialog();
-        try {
-            JSONObject messageObject = new JSONObject();
-            messageObject.put(SocketConstants.TYPE, SocketConstants.INIT_GAME);
-            messageObject.put(SocketConstants.UDID, UDID.getUDID());
-            setMessage(messageObject);
-            Timber.tag(TAG).e("initDevice");
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        startSocket();
     }
 
     @Override
@@ -115,8 +59,7 @@ public class InitDeviceActivity extends BaseActivity {
             JSONObject messageObject = new JSONObject(message);
             switch (messageObject.getString(SocketConstants.TYPE)) {
                 case SocketConstants.INIT_GAME:
-                    String macAddress = messageObject.getString(SocketConstants.BLUETOOTH_ADDRESS);
-                    this.initDeviceSuccess(macAddress);
+                    this.initDeviceSuccess();
                     break;
             }
         } catch (Exception e) {
@@ -145,14 +88,13 @@ public class InitDeviceActivity extends BaseActivity {
         });
         this.mInitDeviceProgressDialog.setCanceledOnTouchOutside(false);
         this.mInitDeviceProgressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-        this.mInitDeviceProgressDialog.setMessage("Inicjalizacja urządzenia,\nUDID: " + UDID.getUDID());
+        this.mInitDeviceProgressDialog.setMessage("Oczekiwanie na przeciwnika");
         this.mInitDeviceProgressDialog.show();
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
-        this.hideSocketConnectionErrorDialog();
         this.hideInitDeviceProgressDialog();
     }
 
@@ -162,11 +104,7 @@ public class InitDeviceActivity extends BaseActivity {
         }
     }
 
-    private void initDeviceSuccess(String macAddress) {
-        if (this.mIsDeviceInitialized) {
-            return;
-        }
-
+    private void initDeviceSuccess() {
         try {
             mInitDeviceProgressDialog.dismiss();
         } catch (Exception e) {
@@ -176,21 +114,6 @@ public class InitDeviceActivity extends BaseActivity {
         Timber.tag(TAG).e("initDeviceSuccess");
         InputMACDialog macDialog = new InputMACDialog(this);
         macDialog.show();
-
-        this.mIsDeviceInitialized = true;
-        /*    GameSettings.getInstance().setMacAddress(macAddress);
-
-        if (TextUtils.isEmpty(macAddress)) {
-            Intent intent = new Intent(this, MainActivity.class);
-            this.startActivity(intent);
-        } else {
-            Intent intent = new Intent(this, ScanActivity.class);
-            this.startActivity(intent);
-        }
-
-        this.finish();*/
-
-
     }
 
     @SuppressWarnings("all")
@@ -219,6 +142,4 @@ public class InitDeviceActivity extends BaseActivity {
         }
         return false;
     }
-
-
 }

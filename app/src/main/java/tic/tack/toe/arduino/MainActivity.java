@@ -40,12 +40,7 @@ public class MainActivity extends BaseActivity {
 
         this.mProgressBar = findViewById(R.id.progressBar);
         this.mBluetoothStatusImageView = findViewById(R.id.bluetoothStatusImageView);
-        this.mBluetoothStatusImageView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                reconnectClick();
-            }
-        });
+        this.mBluetoothStatusImageView.setOnClickListener(v -> reconnectClick());
 
         this.mBleManager = BleManager.getInstance(this);
         this.mBleManager.setBleListener(this.bleCallbacks);
@@ -97,12 +92,7 @@ public class MainActivity extends BaseActivity {
         @Override
         public void onConnecting() {
             Timber.tag(TAG).e("onConnecting");
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    mProgressBar.setVisibility(View.VISIBLE);
-                }
-            });
+            runOnUiThread(() -> mProgressBar.setVisibility(View.VISIBLE));
         }
 
         @Override
@@ -175,21 +165,18 @@ public class MainActivity extends BaseActivity {
     }
 
     private void updateBluetoothStatusUI(final boolean isConnected) {
-        this.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    if (isConnected) {
-                        mBluetoothStatusImageView.setImageResource(R.drawable.ic_bluetooth_connected);
-                        mMacAddressTextView.setText("MAC: " + GameSettings.getInstance().getMacAddress() + " connected");
-                    } else {
-                        mBluetoothStatusImageView.setImageResource(R.drawable.ic_bluetooth_disconnected);
-                        mMacAddressTextView.setText("MAC: " + GameSettings.getInstance().getMacAddress() + " disconnected");
-                    }
-                    mProgressBar.setVisibility(View.GONE);
-                } catch (Exception e) {
-                    e.printStackTrace();
+        this.runOnUiThread(() -> {
+            try {
+                if (isConnected) {
+                    mBluetoothStatusImageView.setImageResource(R.drawable.ic_bluetooth_connected);
+                    mMacAddressTextView.setText("MAC: " + GameSettings.getInstance().getMacAddress() + " connected");
+                } else {
+                    mBluetoothStatusImageView.setImageResource(R.drawable.ic_bluetooth_disconnected);
+                    mMacAddressTextView.setText("MAC: " + GameSettings.getInstance().getMacAddress() + " disconnected");
                 }
+                mProgressBar.setVisibility(View.GONE);
+            } catch (Exception e) {
+                e.printStackTrace();
             }
         });
     }

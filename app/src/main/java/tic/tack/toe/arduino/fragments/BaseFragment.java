@@ -36,4 +36,9 @@ public class BaseFragment extends Fragment implements MessageListener {
     public void onMessage(String message) {
 
     }
+
+    @Override
+    public void onConnectionError() {
+
+    }
 }

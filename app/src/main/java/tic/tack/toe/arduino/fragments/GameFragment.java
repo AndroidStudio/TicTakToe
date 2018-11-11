@@ -208,38 +208,14 @@ public class GameFragment extends BaseFragment implements View.OnClickListener, 
             return;
         }
 
-        JSONArray playersInfo = responseObject.getJSONArray(SocketConstants.INFO);
-        JSONObject playerObject_01 = playersInfo.getJSONObject(0);
-        JSONObject playerObject_02 = playersInfo.getJSONObject(1);
+        if (responseObject.has(SocketConstants.INFO)) {
+            JSONArray playersInfo = responseObject.getJSONArray(SocketConstants.INFO);
+            JSONObject opponent = playersInfo.getJSONObject(0);
 
-        GameSettings gameSettings = GameSettings.getInstance();
-        if (playerObject_01.getString(SocketConstants.UDID).equals(UDID.getUDID())) {
-            if (!playerObject_01.isNull(SocketConstants.COLOR)
-                    && !playerObject_02.isNull(SocketConstants.COLOR)) {
-                gameSettings.setPlayer_01Color(playerObject_01.getString(SocketConstants.COLOR));
-                gameSettings.setPlayer_02Color(playerObject_02.getString(SocketConstants.COLOR));
-            }
-            if (!playerObject_01.isNull(SocketConstants.SYMBOL)
-                    && !playerObject_02.isNull(SocketConstants.SYMBOL)) {
-                gameSettings.setPlayer_01Symbol(GameSettings.mSymbolArray[playerObject_01
-                        .getInt(SocketConstants.SYMBOL)]);
-                gameSettings.setPlayer_02Symbol(GameSettings.mSymbolArray[playerObject_02
-                        .getInt(SocketConstants.SYMBOL)]);
-            }
-        } else {
-            if (!playerObject_01.isNull(SocketConstants.COLOR)
-                    && !playerObject_02.isNull(SocketConstants.COLOR)) {
-                gameSettings.setPlayer_01Color(playerObject_02.getString(SocketConstants.COLOR));
-                gameSettings.setPlayer_02Color(playerObject_01.getString(SocketConstants.COLOR));
-            }
-
-            if (!playerObject_01.isNull(SocketConstants.SYMBOL)
-                    && !playerObject_02.isNull(SocketConstants.SYMBOL)) {
-                gameSettings.setPlayer_01Symbol(GameSettings.mSymbolArray[playerObject_02
-                        .getInt(SocketConstants.SYMBOL)]);
-                gameSettings.setPlayer_02Symbol(GameSettings.mSymbolArray[playerObject_01
-                        .getInt(SocketConstants.SYMBOL)]);
-            }
+            GameSettings gameSettings = GameSettings.getInstance();
+            gameSettings.setPlayer_02Color(opponent.getString(SocketConstants.COLOR));
+            gameSettings.setPlayer_02Symbol(GameSettings.mSymbolArray[opponent
+                    .getInt(SocketConstants.SYMBOL)]);
         }
 
         String currentPlayerUDID = responseObject.getString(SocketConstants.CURRENT_PLAYER);

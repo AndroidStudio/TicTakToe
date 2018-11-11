@@ -50,12 +50,7 @@ public class GameSettingsLedFragment extends BaseFragment {
             }
         });
 
-        view.findViewById(R.id.previousButton).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Objects.requireNonNull(getActivity()).getSupportFragmentManager().popBackStack();
-            }
-        });
+        view.findViewById(R.id.previousButton).setOnClickListener(v -> Objects.requireNonNull(getActivity()).getSupportFragmentManager().popBackStack());
 
         this.mColorPicker = view.findViewById(R.id.colorPicker);
         this.mColorPicker.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
@@ -66,14 +61,12 @@ public class GameSettingsLedFragment extends BaseFragment {
             }
         });
 
-        this.mColorPicker.setOnColorChangedListener(new OnColorChangedListener() {
-            @Override
-            public void colorChanged(int color) {
-                GameSettingsLedFragment.this.mSelectedColor = String.format("%02x%02x%02x",
-                        Color.red(color),
-                        Color.green(color),
-                        Color.blue(color));
-            }
+        this.mColorPicker.setOnColorChangedListener(color -> {
+            GameSettingsLedFragment.this.mSelectedColor = String.format("%02x%02x%02x",
+                    Color.red(color),
+                    Color.green(color),
+                    Color.blue(color));
+            GameSettings.getInstance().setPlayer_01Color(mSelectedColor);
         });
         this.mColorPicker.invalidate();
 
@@ -136,15 +129,12 @@ public class GameSettingsLedFragment extends BaseFragment {
     }
 
     private void ledColorInitialized() {
-        Objects.requireNonNull(getActivity()).runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                Objects.requireNonNull(getActivity()).getSupportFragmentManager()
-                        .popBackStack();
+        Objects.requireNonNull(getActivity()).runOnUiThread(() -> {
+            Objects.requireNonNull(getActivity()).getSupportFragmentManager()
+                    .popBackStack();
 
-                FragmentController.setCurrentFragment(Objects.requireNonNull(getActivity()),
-                        new GameFragment(), false);
-            }
+            FragmentController.setCurrentFragment(Objects.requireNonNull(getActivity()),
+                    new GameFragment(), false);
         });
     }
 

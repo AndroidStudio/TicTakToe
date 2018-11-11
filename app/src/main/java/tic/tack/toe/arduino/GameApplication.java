@@ -10,15 +10,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 import tic.tack.toe.arduino.sockets.MessageListener;
-import tic.tack.toe.arduino.sockets.SocketConnectionListener;
 import tic.tack.toe.arduino.sockets.SocketConstants;
 import tic.tack.toe.arduino.sockets.UDID;
-import tic.tack.toe.arduino.sockets.WebSocketManager;
+import tic.tack.toe.arduino.sockets.SocketManager;
 import timber.log.Timber;
 
 public class GameApplication extends Application implements MessageListener {
 
-    private final WebSocketManager mWebSocketManager = new WebSocketManager();
+    private final SocketManager socketManager = new SocketManager();
 
     private List<MessageListener> mMessageListenerList = new ArrayList<>();
 
@@ -28,26 +27,13 @@ public class GameApplication extends Application implements MessageListener {
     public void onCreate() {
         super.onCreate();
         Timber.tag(TAG).e("onMessage");
-
-        this.initWebSocket();
         this.initTimber();
         this.initUDID();
     }
 
-    private void initWebSocket() {
-        this.mWebSocketManager.setMessageListener(this);
-    }
-
-    public void openSocket(){
-        this.mWebSocketManager.start();
-    }
-
-    public void setOpenSocketListener(final SocketConnectionListener socketConnectionListener) {
-        this.mWebSocketManager.setOpenSocketListener(socketConnectionListener);
-    }
-
-    public boolean isSocketOpen() {
-        return this.mWebSocketManager.isSocketOpen();
+    public void startSocket() {
+        socketManager.setMessageListener(this);
+        socketManager.start();
     }
 
     private void initUDID() {
@@ -66,13 +52,20 @@ public class GameApplication extends Application implements MessageListener {
     }
 
     public void sendMessage(String message) {
-        this.mWebSocketManager.sendMessage(message);
+        this.socketManager.sendMessage(message);
     }
 
     @Override
     public void onMessage(final String message) {
         for (int i = 0; i < mMessageListenerList.size(); i++) {
             this.mMessageListenerList.get(i).onMessage(message);
+        }
+    }
+
+    @Override
+    public void onConnectionError() {
+        for (int i = 0; i < mMessageListenerList.size(); i++) {
+            this.mMessageListenerList.get(i).onConnectionError();
         }
     }
 

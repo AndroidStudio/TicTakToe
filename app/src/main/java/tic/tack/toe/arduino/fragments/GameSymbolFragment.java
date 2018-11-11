@@ -55,15 +55,12 @@ public class GameSymbolFragment extends BaseFragment implements View.OnClickList
         }
     }
 
-    private final View.OnClickListener onNextClickListener = new View.OnClickListener() {
-        @Override
-        public void onClick(View v) {
-            if (mSymbolIndex == GameSettings.NO_SYMBOL_INDEX) {
-                MessageDialog.displayDialog(getActivity(), getString(R.string.prosze_wybrac_symbol));
-                return;
-            }
-            initPlayerSymbol();
+    private final View.OnClickListener onNextClickListener = v -> {
+        if (mSymbolIndex == GameSettings.NO_SYMBOL_INDEX) {
+            MessageDialog.displayDialog(getActivity(), getString(R.string.prosze_wybrac_symbol));
+            return;
         }
+        initPlayerSymbol();
     };
 
     @Override

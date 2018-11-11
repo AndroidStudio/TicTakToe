@@ -65,6 +65,7 @@ public class InputMACDialog extends Dialog {
     public void onBackPressed() {
         super.onBackPressed();
         this.context.finish();
+        System.exit(0);
     }
 }
 

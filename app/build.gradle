@@ -1,14 +1,6 @@
 apply plugin: 'com.android.application'
 
 android {
-    signingConfigs {
-        signing {
-            storeFile file('C:/keystore/witch_android_cert.key')
-            keyAlias 'witchcraft studios'
-            keyPassword 'w1tchcr4ft'
-            storePassword 'w1tchcr4ft'
-        }
-    }
     compileSdkVersion 27
     defaultConfig {
         applicationId "tic.tack.toe.arduino"
@@ -20,14 +12,16 @@ android {
 
     buildTypes {
         debug {
-            signingConfig signingConfigs.signing
         }
         release {
-            signingConfig signingConfigs.signing
             debuggable = false
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
     }
 }
 
@@ -43,7 +37,6 @@ dependencies {
     implementation 'com.jakewharton.timber:timber:4.7.0'
     implementation 'com.github.mata1:SimpleDroidColorPicker:v0.3'
     implementation 'com.squareup.okhttp3:okhttp:3.10.0'
-    implementation "android.arch.lifecycle:extensions:1.1.1"
-
+    implementation 'android.arch.lifecycle:extensions:1.1.1'
     annotationProcessor "android.arch.lifecycle:compiler:1.1.1"
 }
