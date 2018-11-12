@@ -145,7 +145,7 @@ public class SocketManager extends Thread {
 
     private void initSocket() throws Exception {
         Log.e(TAG, "initSocket");
-        socket = new Socket(SERVER_ADDRESS, 9700);
+        socket = new Socket(SERVER_ADDRESS, 25565);
     }
 
     public void sendMessage(String message) {
