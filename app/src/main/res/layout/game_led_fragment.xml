@@ -32,7 +32,7 @@
             android:layout_height="50dp"
             android:drawablePadding="20dp"
             android:gravity="center_vertical"
-            android:text="@string/led_kolor"
+            android:text="Wybierz kolor:"
             android:textColor="#000"
             android:textSize="14dp"/>
 
@@ -90,7 +90,7 @@
             android:layout_height="wrap_content">
 
             <View
-                android:id="@+id/selectedColor"
+                android:id="@+id/selectedColorView"
                 android:layout_width="50dp"
                 android:layout_height="50dp"
                 android:layout_centerHorizontal="true"

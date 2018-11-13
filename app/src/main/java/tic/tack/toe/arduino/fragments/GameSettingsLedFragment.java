@@ -8,7 +8,6 @@ import android.support.v7.widget.AppCompatSeekBar;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.SeekBar;
 
 import org.json.JSONObject;
@@ -89,7 +88,7 @@ public class GameSettingsLedFragment extends BaseFragment {
         view.setScaleX(1.2f);
         view.setScaleY(1.2f);
 
-        ImageView selectedColorView = v.findViewById(R.id.selectedColor);
+        View selectedColorView = v.findViewById(R.id.selectedColorView);
         selectedColorView.setBackgroundColor(Color.parseColor("#" + color));
     }
 
