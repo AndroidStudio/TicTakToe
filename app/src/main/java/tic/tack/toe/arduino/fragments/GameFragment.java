@@ -196,6 +196,9 @@ public class GameFragment extends BaseFragment implements View.OnClickListener, 
                 case SocketConstants.WIN:
                     win();
                     break;
+                case SocketConstants.EXIT_GAME:
+                    reset();
+                    break;
                 case SocketConstants.RESET_BOARD:
                     reset();
                     break;

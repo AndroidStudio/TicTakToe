@@ -76,6 +76,27 @@
                     android:background="#f3f3f3"/>
             </LinearLayout>
         </RelativeLayout>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="Wybrany kolor"
+            android:textColor="#000"
+            android:textSize="14dp"/>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <View
+                android:id="@+id/selectedColor"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_centerHorizontal="true"
+                android:layout_margin="10dp"
+                android:background="#ff0000"/>
+        </RelativeLayout>
     </LinearLayout>
 
     <LinearLayout

@@ -54,7 +54,9 @@ public class MainActivity extends BaseActivity {
         }
 
         this.mMacAddressTextView = findViewById(R.id.macAddressTextView);
-        mMacAddressTextView.setText("Bluetooth: " + GameSettings.getInstance().getMacAddress() + " disconnected");
+        mMacAddressTextView.setText("Bluetooth: "
+                + GameSettings.getInstance().getMacAddress()
+                + " disconnected...");
 
     }
 
@@ -134,12 +136,7 @@ public class MainActivity extends BaseActivity {
     @Override
     protected void onPause() {
         super.onPause();
-        new Handler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                closeDrawerLayout();
-            }
-        }, 300);
+        new Handler().postDelayed(() -> closeDrawerLayout(), 300);
     }
 
     public void setupMenuFragment() {
@@ -170,7 +167,6 @@ public class MainActivity extends BaseActivity {
         DrawerLayout drawerLayout = findViewById(R.id.drawerLayout);
         if (drawerLayout != null && drawerLayout.isDrawerOpen(GravityCompat.START)) {
             drawerLayout.closeDrawer(GravityCompat.START);
-            return;
         }
     }
 

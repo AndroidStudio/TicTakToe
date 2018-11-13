@@ -16,6 +16,9 @@ public class DiagnosticFragment extends BaseFragment {
 
     private TextView diagnosticTextView;
 
+
+    boolean loggingEnabled = true;
+
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -34,22 +37,18 @@ public class DiagnosticFragment extends BaseFragment {
         TextView identifier = view.findViewById(R.id.identifier);
         identifier.setText(String.valueOf("Identyfikator urządzenia: " + UDID.getUDID()));
 
-        view.findViewById(R.id.close).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                getActivity().getSupportFragmentManager().popBackStack();
-            }
-        });
+        view.findViewById(R.id.close).setOnClickListener(v -> getActivity().getSupportFragmentManager().popBackStack());
+        view.findViewById(R.id.stop).setOnClickListener(v -> loggingEnabled = !loggingEnabled);
     }
 
     @Override
     public void onMessage(String message) {
-        if (!TextUtils.isEmpty(message) && diagnosticTextView != null) {
+        if (!TextUtils.isEmpty(message) && diagnosticTextView != null && loggingEnabled) {
             String text = diagnosticTextView.getText().toString();
             if (text.length() > 10000) {
                 text = "";
             }
-            diagnosticTextView.setText(message + "/n" + text);
+            diagnosticTextView.setText("server-->" + message + "\n" + text);
         }
 
     }

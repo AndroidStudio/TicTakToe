@@ -1,5 +1,6 @@
 package tic.tack.toe.arduino.fragments;
 
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -7,6 +8,7 @@ import android.support.v7.widget.AppCompatSeekBar;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.SeekBar;
 
 import org.json.JSONObject;
@@ -86,6 +88,9 @@ public class GameSettingsLedFragment extends BaseFragment {
 
         view.setScaleX(1.2f);
         view.setScaleY(1.2f);
+
+        ImageView selectedColorView = v.findViewById(R.id.selectedColor);
+        selectedColorView.setBackgroundColor(Color.parseColor("#" + color));
     }
 
     private void initLedColor() {

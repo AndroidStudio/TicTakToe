@@ -12,9 +12,12 @@ import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.Nullable;
+import android.support.v7.app.AlertDialog;
 import android.text.TextUtils;
 import android.view.KeyEvent;
 import android.widget.Toast;
+
+import java.util.concurrent.TimeUnit;
 
 import tic.tack.toe.arduino.game.GameSettings;
 import timber.log.Timber;
@@ -23,15 +26,17 @@ import static tic.tack.toe.arduino.Constants.TAG;
 
 public class ScanActivity extends BaseActivity implements Runnable {
 
-    private static final long SCANNING_TIME = 20000;
+    private static final long SCANNING_TIME = TimeUnit.SECONDS.toMillis(10);
     private final Handler mHandler = new Handler();
 
     private BluetoothAdapter mBluetoothAdapter;
     private ProgressDialog mScanDialog;
 
-    private boolean mDeviceFound = false;
+    private boolean deviceFound = false;
 
-    private final Handler mScanningHandler = new Handler();
+    private final Handler scanningHandler = new Handler();
+
+    private AlertDialog deviceNotFoundDialog;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -80,20 +85,37 @@ public class ScanActivity extends BaseActivity implements Runnable {
 
         this.startScanning();
 
-        mScanningHandler.removeCallbacksAndMessages(null);
-        mScanningHandler.postDelayed(() -> {
-            stopScanning();
-            Toast.makeText(ScanActivity.this, "Urządzenie nie zostało odnalezione",
-                    Toast.LENGTH_LONG).show();
-            startMainActivity();
-        }, SCANNING_TIME);
+        this.scanningHandler.removeCallbacksAndMessages(null);
+        this.scanningHandler.postDelayed(() -> showStopScanningDialog(), SCANNING_TIME);
+    }
+
+    private void showStopScanningDialog() {
+        hideScanDialog();
+        stopScanning();
+
+        deviceNotFoundDialog = new AlertDialog.Builder(this)
+                .setTitle("Urządzenie nie zostało odnalezione")
+                .setPositiveButton("Ponów",
+                        (dialog, whichButton) -> {
+                            dialog.dismiss();
+                            startScanning();
+                        }
+                )
+                .setNegativeButton("Pomiń",
+                        (dialog, whichButton) -> {
+                            dialog.dismiss();
+                            startMainActivity();
+                        }
+
+                )
+                .create();
+        deviceNotFoundDialog.show();
     }
 
     private void startScanning() {
         Timber.tag(TAG).e("startScanning");
 
-        this.mDeviceFound = false;
-
+        this.deviceFound = false;
         BluetoothLeScanner bluetoothLeScanner = this.mBluetoothAdapter.getBluetoothLeScanner();
         bluetoothLeScanner.startScan(this.mScanCallback);
         this.displayScanDialog();
@@ -152,9 +174,9 @@ public class ScanActivity extends BaseActivity implements Runnable {
             super.onScanResult(callbackType, result);
             String address = result.getDevice().getAddress();
             Timber.tag(TAG).e("Device found address: %s", address);
-            if (address.equals(GameSettings.getInstance().getMacAddress()) && !mDeviceFound) {
+            if (address.equals(GameSettings.getInstance().getMacAddress()) && !deviceFound) {
                 mHandler.postDelayed(ScanActivity.this, 3000);
-                mDeviceFound = true;
+                deviceFound = true;
                 stopScanning();
                 Toast.makeText(ScanActivity.this, "Urządzenie zostało odnalezione",
                         Toast.LENGTH_LONG).show();
@@ -165,7 +187,10 @@ public class ScanActivity extends BaseActivity implements Runnable {
     @Override
     protected void onPause() {
         super.onPause();
-        this.mScanningHandler.removeCallbacksAndMessages(null);
+        if (deviceNotFoundDialog != null) {
+            this.deviceNotFoundDialog.dismiss();
+        }
+        this.scanningHandler.removeCallbacksAndMessages(null);
         this.mHandler.removeCallbacksAndMessages(null);
         this.stopScanning();
     }
