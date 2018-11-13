@@ -10,6 +10,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.SeekBar;
 
+import com.makeramen.roundedimageview.RoundedImageView;
+
 import org.json.JSONObject;
 
 import java.util.Objects;
@@ -41,17 +43,16 @@ public class GameSettingsLedFragment extends BaseFragment {
         view.findViewById(R.id.nextButton).setOnClickListener(v -> initLedColor());
 
         view.findViewById(R.id.previousButton).setOnClickListener(v -> Objects.requireNonNull(getActivity()).getSupportFragmentManager().popBackStack());
-        view.findViewById(R.id.redButton).setOnClickListener(v -> setColor(v, "ff0000"));
-        view.findViewById(R.id.greenButton).setOnClickListener(v -> setColor(v, "04ff00"));
-        view.findViewById(R.id.blueButton).setOnClickListener(v -> setColor(v, "0008ff"));
-        view.findViewById(R.id.whiteButton).setOnClickListener(v -> setColor(v, "f3f3f3"));
+        view.findViewById(R.id.redButton).setOnClickListener(v -> setColor("ff0000"));
+        view.findViewById(R.id.greenButton).setOnClickListener(v -> setColor("04ff00"));
+        view.findViewById(R.id.blueButton).setOnClickListener(v -> setColor("0008ff"));
+        view.findViewById(R.id.whiteButton).setOnClickListener(v -> setColor("f3f3f3"));
 
-        setColor(view.findViewById(R.id.redButton), "ff0000");
+        setColor(GameSettings.getInstance().getPlayer_01Color());
 
         AppCompatSeekBar seekBar = view.findViewById(R.id.seekBar);
         seekBar.setProgress(GameSettings.getInstance().getLedBrightness());
         seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
 
@@ -69,26 +70,11 @@ public class GameSettingsLedFragment extends BaseFragment {
         });
     }
 
-    private void setColor(View view, String color) {
+    private void setColor(String color) {
         View v = getView();
         this.mSelectedColor = color;
 
-        v.findViewById(R.id.redButton).setScaleX(1);
-        v.findViewById(R.id.redButton).setScaleY(1);
-
-        v.findViewById(R.id.greenButton).setScaleX(1);
-        v.findViewById(R.id.greenButton).setScaleY(1);
-
-        v.findViewById(R.id.blueButton).setScaleX(1);
-        v.findViewById(R.id.blueButton).setScaleY(1);
-
-        v.findViewById(R.id.whiteButton).setScaleX(1);
-        v.findViewById(R.id.whiteButton).setScaleY(1);
-
-        view.setScaleX(1.2f);
-        view.setScaleY(1.2f);
-
-        View selectedColorView = v.findViewById(R.id.selectedColorView);
+        RoundedImageView selectedColorView = v.findViewById(R.id.selectedColorView);
         selectedColorView.setBackgroundColor(Color.parseColor("#" + color));
     }
 

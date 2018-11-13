@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                xmlns:app="http://schemas.android.com/apk/res-auto"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:background="#fff"
@@ -47,33 +48,41 @@
                 android:clipToPadding="false"
                 android:padding="10dp">
 
-                <View
+                <com.makeramen.roundedimageview.RoundedImageView
                     android:id="@+id/redButton"
                     android:layout_width="50dp"
                     android:layout_height="50dp"
                     android:layout_margin="10dp"
-                    android:background="#ff0000"/>
+                    android:background="#ff0000"
+                    app:riv_corner_radius="25dp"
+                    app:riv_oval="true"/>
 
-                <View
+                <com.makeramen.roundedimageview.RoundedImageView
                     android:id="@+id/greenButton"
                     android:layout_width="50dp"
                     android:layout_height="50dp"
                     android:layout_margin="10dp"
-                    android:background="#04ff00"/>
+                    android:background="#04ff00"
+                    app:riv_corner_radius="25dp"
+                    app:riv_oval="true"/>
 
-                <View
+                <com.makeramen.roundedimageview.RoundedImageView
                     android:id="@+id/blueButton"
                     android:layout_width="50dp"
                     android:layout_height="50dp"
                     android:layout_margin="10dp"
-                    android:background="#0008ff"/>
+                    android:background="#0008ff"
+                    app:riv_corner_radius="25dp"
+                    app:riv_oval="true"/>
 
-                <View
+                <com.makeramen.roundedimageview.RoundedImageView
                     android:id="@+id/whiteButton"
                     android:layout_width="50dp"
                     android:layout_height="50dp"
                     android:layout_margin="10dp"
-                    android:background="#f3f3f3"/>
+                    android:background="#f3f3f3"
+                    app:riv_corner_radius="25dp"
+                    app:riv_oval="true"/>
             </LinearLayout>
         </RelativeLayout>
 
@@ -89,13 +98,15 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
-            <View
+            <com.makeramen.roundedimageview.RoundedImageView
                 android:id="@+id/selectedColorView"
                 android:layout_width="50dp"
                 android:layout_height="50dp"
                 android:layout_centerHorizontal="true"
                 android:layout_margin="10dp"
-                android:background="#ff0000"/>
+                app:riv_corner_radius="25dp"
+                android:background="#ff0000"
+                app:riv_oval="true"/>
         </RelativeLayout>
     </LinearLayout>
 

@@ -7,6 +7,7 @@ import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TextView;
 
 import tic.tack.toe.arduino.R;
@@ -35,10 +36,18 @@ public class DiagnosticFragment extends BaseFragment {
         super.onViewCreated(view, savedInstanceState);
         diagnosticTextView = view.findViewById(R.id.diagnosticTextView);
         TextView identifier = view.findViewById(R.id.identifier);
-        identifier.setText(String.valueOf("Identyfikator urządzenia: " + UDID.getUDID()));
+        identifier.setText(String.valueOf("Gracz: " + UDID.getUDID()));
 
         view.findViewById(R.id.close).setOnClickListener(v -> getActivity().getSupportFragmentManager().popBackStack());
-        view.findViewById(R.id.stop).setOnClickListener(v -> loggingEnabled = !loggingEnabled);
+        Button stop = view.findViewById(R.id.stop);
+        stop.setOnClickListener(v -> {
+            loggingEnabled = !loggingEnabled;
+            if (loggingEnabled) {
+                stop.setText("Wyłącz logi");
+            } else {
+                stop.setText("Włącz logi");
+            }
+        });
     }
 
     @Override

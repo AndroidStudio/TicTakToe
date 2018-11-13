@@ -52,7 +52,7 @@ public class SocketManager extends Thread {
                     while (running) {
                         try {
                             ping();
-                            Thread.sleep(2000);
+                            Thread.sleep(5000);
                         } catch (Exception e) {
                             e.printStackTrace();
                         }

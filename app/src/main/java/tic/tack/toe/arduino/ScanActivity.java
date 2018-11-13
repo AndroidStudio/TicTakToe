@@ -27,6 +27,8 @@ import static tic.tack.toe.arduino.Constants.TAG;
 public class ScanActivity extends BaseActivity implements Runnable {
 
     private static final long SCANNING_TIME = TimeUnit.SECONDS.toMillis(10);
+    private final Handler scanningHandler = new Handler();
+    private final Handler mTimerHandler = new Handler();
     private final Handler mHandler = new Handler();
 
     private BluetoothAdapter mBluetoothAdapter;
@@ -34,9 +36,9 @@ public class ScanActivity extends BaseActivity implements Runnable {
 
     private boolean deviceFound = false;
 
-    private final Handler scanningHandler = new Handler();
 
     private AlertDialog deviceNotFoundDialog;
+    private int counter = 10;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -87,17 +89,39 @@ public class ScanActivity extends BaseActivity implements Runnable {
 
         this.scanningHandler.removeCallbacksAndMessages(null);
         this.scanningHandler.postDelayed(() -> showStopScanningDialog(), SCANNING_TIME);
+        this.startTimer();
+    }
+
+    private void startTimer() {
+        this.counter = 10;
+
+        this.mTimerHandler.removeCallbacksAndMessages(null);
+        this.mTimerHandler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                if (mScanDialog != null) {
+                    mScanDialog.setMessage("Skanowanie " + counter);
+                }
+                Timber.d("%s %s %s", "Skanowanie", "counter", counter);
+                if (counter > 0) {
+                    mTimerHandler.removeCallbacksAndMessages(null);
+                    mTimerHandler.postDelayed(this, 1000);
+                }
+                counter = counter - 1;
+            }
+        }, 1000);
     }
 
     private void showStopScanningDialog() {
-        hideScanDialog();
-        stopScanning();
+        this.hideScanDialog();
+        this.stopScanning();
 
-        deviceNotFoundDialog = new AlertDialog.Builder(this)
+        this.deviceNotFoundDialog = new AlertDialog.Builder(this)
                 .setTitle("Urządzenie nie zostało odnalezione")
                 .setPositiveButton("Ponów",
                         (dialog, whichButton) -> {
                             dialog.dismiss();
+                            startTimer();
                             startScanning();
                         }
                 )
@@ -109,7 +133,7 @@ public class ScanActivity extends BaseActivity implements Runnable {
 
                 )
                 .create();
-        deviceNotFoundDialog.show();
+        this.deviceNotFoundDialog.show();
     }
 
     private void startScanning() {
@@ -148,8 +172,7 @@ public class ScanActivity extends BaseActivity implements Runnable {
         });
         this.mScanDialog.setCanceledOnTouchOutside(false);
         this.mScanDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-        this.mScanDialog.setMessage("Wyszukiwanie urządzenia MAC: " + GameSettings
-                .getInstance().getMacAddress());
+        this.mScanDialog.setMessage("Skanowanie");
         this.mScanDialog.show();
     }
 
@@ -187,6 +210,7 @@ public class ScanActivity extends BaseActivity implements Runnable {
     @Override
     protected void onPause() {
         super.onPause();
+        this.mTimerHandler.removeCallbacksAndMessages(null);
         if (deviceNotFoundDialog != null) {
             this.deviceNotFoundDialog.dismiss();
         }
