@@ -7,7 +7,6 @@ import android.bluetooth.le.BluetoothLeScanner;
 import android.bluetooth.le.ScanCallback;
 import android.bluetooth.le.ScanResult;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
@@ -24,12 +23,15 @@ import static tic.tack.toe.arduino.Constants.TAG;
 
 public class ScanActivity extends BaseActivity implements Runnable {
 
+    private static final long SCANNING_TIME = 20000;
     private final Handler mHandler = new Handler();
 
     private BluetoothAdapter mBluetoothAdapter;
     private ProgressDialog mScanDialog;
 
     private boolean mDeviceFound = false;
+
+    private final Handler mScanningHandler = new Handler();
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -40,11 +42,11 @@ public class ScanActivity extends BaseActivity implements Runnable {
             return;
         }
 
-        BluetoothManager bluetoothManager = (BluetoothManager)
-                getSystemService(Context.BLUETOOTH_SERVICE);
+        BluetoothManager bluetoothManager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
         if (bluetoothManager != null) {
             this.mBluetoothAdapter = bluetoothManager.getAdapter();
         }
+
     }
 
     private void startMainActivity() {
@@ -77,6 +79,14 @@ public class ScanActivity extends BaseActivity implements Runnable {
         }
 
         this.startScanning();
+
+        mScanningHandler.removeCallbacksAndMessages(null);
+        mScanningHandler.postDelayed(() -> {
+            stopScanning();
+            Toast.makeText(ScanActivity.this, "Urządzenie nie zostało odnalezione",
+                    Toast.LENGTH_LONG).show();
+            startMainActivity();
+        }, SCANNING_TIME);
     }
 
     private void startScanning() {
@@ -107,15 +117,12 @@ public class ScanActivity extends BaseActivity implements Runnable {
         }
 
         this.mScanDialog = new ProgressDialog(this);
-        this.mScanDialog.setOnKeyListener(new DialogInterface.OnKeyListener() {
-            @Override
-            public boolean onKey(DialogInterface dialog, int keyCode, KeyEvent event) {
-                if (keyCode == KeyEvent.KEYCODE_BACK) {
-                    finish();
-                    System.exit(0);
-                }
-                return true;
+        this.mScanDialog.setOnKeyListener((dialog, keyCode, event) -> {
+            if (keyCode == KeyEvent.KEYCODE_BACK) {
+                finish();
+                System.exit(0);
             }
+            return true;
         });
         this.mScanDialog.setCanceledOnTouchOutside(false);
         this.mScanDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
@@ -125,12 +132,9 @@ public class ScanActivity extends BaseActivity implements Runnable {
     }
 
     public void hideScanDialog() {
-        this.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                if (mScanDialog != null && mScanDialog.isShowing()) {
-                    mScanDialog.dismiss();
-                }
+        this.runOnUiThread(() -> {
+            if (mScanDialog != null && mScanDialog.isShowing()) {
+                mScanDialog.dismiss();
             }
         });
     }
@@ -161,6 +165,7 @@ public class ScanActivity extends BaseActivity implements Runnable {
     @Override
     protected void onPause() {
         super.onPause();
+        this.mScanningHandler.removeCallbacksAndMessages(null);
         this.mHandler.removeCallbacksAndMessages(null);
         this.stopScanning();
     }

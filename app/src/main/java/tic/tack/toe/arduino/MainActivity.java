@@ -19,6 +19,7 @@ import android.widget.TextView;
 import tic.tack.toe.arduino.bluetooth.BleManager;
 import tic.tack.toe.arduino.fragments.FragmentController;
 import tic.tack.toe.arduino.fragments.GameSymbolFragment;
+import tic.tack.toe.arduino.fragments.MenuFragment;
 import tic.tack.toe.arduino.game.GameSettings;
 import timber.log.Timber;
 
@@ -53,7 +54,8 @@ public class MainActivity extends BaseActivity {
         }
 
         this.mMacAddressTextView = findViewById(R.id.macAddressTextView);
-        this.mMacAddressTextView.setText("MAC: " + GameSettings.getInstance().getMacAddress());
+        mMacAddressTextView.setText("Bluetooth: " + GameSettings.getInstance().getMacAddress() + " disconnected");
+
     }
 
     private void reconnectClick() {
@@ -164,15 +166,23 @@ public class MainActivity extends BaseActivity {
         super.onBackPressed();
     }
 
+    public void closeMenu() {
+        DrawerLayout drawerLayout = findViewById(R.id.drawerLayout);
+        if (drawerLayout != null && drawerLayout.isDrawerOpen(GravityCompat.START)) {
+            drawerLayout.closeDrawer(GravityCompat.START);
+            return;
+        }
+    }
+
     private void updateBluetoothStatusUI(final boolean isConnected) {
         this.runOnUiThread(() -> {
             try {
                 if (isConnected) {
                     mBluetoothStatusImageView.setImageResource(R.drawable.ic_bluetooth_connected);
-                    mMacAddressTextView.setText("MAC: " + GameSettings.getInstance().getMacAddress() + " connected");
+                    mMacAddressTextView.setText("Bluetooth: " + GameSettings.getInstance().getMacAddress() + " connected");
                 } else {
                     mBluetoothStatusImageView.setImageResource(R.drawable.ic_bluetooth_disconnected);
-                    mMacAddressTextView.setText("MAC: " + GameSettings.getInstance().getMacAddress() + " disconnected");
+                    mMacAddressTextView.setText("Bluetooth: " + GameSettings.getInstance().getMacAddress() + " disconnected");
                 }
                 mProgressBar.setVisibility(View.GONE);
             } catch (Exception e) {

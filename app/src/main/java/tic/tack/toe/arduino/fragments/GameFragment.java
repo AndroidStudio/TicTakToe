@@ -1,6 +1,5 @@
 package tic.tack.toe.arduino.fragments;
 
-import android.content.DialogInterface;
 import android.graphics.Color;
 import android.graphics.PorterDuffColorFilter;
 import android.os.Bundle;
@@ -53,6 +52,7 @@ public class GameFragment extends BaseFragment implements View.OnClickListener, 
     private ImageView mPlayer_01ImageView;
     private ImageView mPlayer_02ImageView;
 
+    private AlertDialog newGameDialog;
     private AlertDialog mMessageDialog;
     private CustomGridView mGameGrid;
     private boolean mClicked = false;
@@ -88,13 +88,21 @@ public class GameFragment extends BaseFragment implements View.OnClickListener, 
         }
     }
 
-    private final View.OnClickListener mNewGameClickListener = new View.OnClickListener() {
-
-        @Override
-        public void onClick(View v) {
-            reset();
-            newGame();
-        }
+    private final View.OnClickListener mNewGameClickListener = v -> {
+        newGameDialog = new AlertDialog.Builder(getActivity())
+                .setTitle("Czy na pewno chcesz rozpocząć nową grę")
+                .setPositiveButton("Tak",
+                        (dialog, whichButton) -> {
+                            dialog.dismiss();
+                            reset();
+                            newGame();
+                        }
+                )
+                .setNegativeButton("Nie",
+                        (dialog, whichButton) -> dialog.dismiss()
+                )
+                .create();
+        newGameDialog.show();
     };
 
     private void newGame() {
@@ -368,11 +376,7 @@ public class GameFragment extends BaseFragment implements View.OnClickListener, 
         alertDialogBuilder.setTitle("Komunikat");
         alertDialogBuilder.setMessage(message)
                 .setCancelable(false)
-                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int id) {
-                        dialog.dismiss();
-                    }
-                });
+                .setPositiveButton("OK", (dialog, id) -> dialog.dismiss());
 
         this.mMessageDialog = alertDialogBuilder.create();
         this.mMessageDialog.show();
@@ -537,5 +541,13 @@ public class GameFragment extends BaseFragment implements View.OnClickListener, 
         this.mGameHandler.removeCallbacksAndMessages(null);
         this.hideMessageDialog();
         this.reset();
+
+        try {
+            if (newGameDialog != null) {
+                newGameDialog.dismiss();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }

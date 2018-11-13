@@ -14,7 +14,9 @@ import java.net.Socket;
 
 public class SocketManager extends Thread {
 
-    private static final String SERVER_ADDRESS = "192.168.0.100";
+    //private static final String SERVER_ADDRESS = "176.119.44.252";
+    private static final String SERVER_ADDRESS = "192.168.1.41";
+
     private static final String TAG = "SocketManager";
 
     private final Handler responseHandler = new Handler(Looper.getMainLooper());
@@ -145,7 +147,7 @@ public class SocketManager extends Thread {
 
     private void initSocket() throws Exception {
         Log.e(TAG, "initSocket");
-        socket = new Socket(SERVER_ADDRESS, 9700);
+        socket = new Socket(SERVER_ADDRESS, 9696);
     }
 
     public void sendMessage(String message) {

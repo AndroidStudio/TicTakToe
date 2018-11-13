@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                xmlns:custom="http://schemas.android.com/apk/res-auto"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:background="#fff"
@@ -37,15 +36,46 @@
             android:textColor="#000"
             android:textSize="14dp"/>
 
-        <tic.tack.toe.arduino.CustomColorPicker
-            android:id="@+id/colorPicker"
+        <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_gravity="center"
-            android:padding="10dp"
-            custom:hue="120"
-            custom:saturation="1.0"
-            custom:value="1.0"/>
+            android:layout_height="wrap_content">
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:clipToPadding="false"
+                android:padding="10dp">
+
+                <View
+                    android:id="@+id/redButton"
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
+                    android:layout_margin="10dp"
+                    android:background="#ff0000"/>
+
+                <View
+                    android:id="@+id/greenButton"
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
+                    android:layout_margin="10dp"
+                    android:background="#04ff00"/>
+
+                <View
+                    android:id="@+id/blueButton"
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
+                    android:layout_margin="10dp"
+                    android:background="#0008ff"/>
+
+                <View
+                    android:id="@+id/whiteButton"
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
+                    android:layout_margin="10dp"
+                    android:background="#f3f3f3"/>
+            </LinearLayout>
+        </RelativeLayout>
     </LinearLayout>
 
     <LinearLayout
@@ -53,8 +83,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:layout_marginBottom="50dp"
         android:layout_marginTop="50dp"
+        android:layout_marginBottom="50dp"
         android:orientation="horizontal"
         android:weightSum="2">
 
