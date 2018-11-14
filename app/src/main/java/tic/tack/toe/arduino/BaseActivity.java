@@ -140,9 +140,6 @@ public class BaseActivity extends AppCompatActivity implements MessageListener {
     }
 
     private void initDeviceActivity() {
-        Intent intent = new Intent(BaseActivity.this,
-                InitDeviceActivity.class);
-        startActivity(intent);
         finish();
         System.exit(0);
     }
