@@ -1,6 +1,9 @@
 package tic.tack.toe.arduino.game;
 
-import tic.tack.toe.arduino.Constants;
+import android.content.Context;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
+
 import tic.tack.toe.arduino.R;
 
 public class GameSettings {
@@ -22,8 +25,6 @@ public class GameSettings {
     private int mPlayer_02Symbol = PLAYER_02SYMBOL_DEFAULT;
 
     private int mBrightness = DEFAULT_BRIGHTNESS;
-
-    private String mMacAddress = Constants.EMPTY_STRING;
 
     public final static int NO_SYMBOL_INDEX = -1;
 
@@ -57,12 +58,14 @@ public class GameSettings {
     /*
      * Mac address bluetooth
      * */
-    public void setMacAddress(String mMacAddress) {
-        this.mMacAddress = mMacAddress;
+    public void setMacAddress(String mac, Context context) {
+        SharedPreferences preferenceManager = PreferenceManager.getDefaultSharedPreferences(context);
+        preferenceManager.edit().putString("MAC", mac).apply();
     }
 
-    public String getMacAddress() {
-        return this.mMacAddress;
+    public String getMacAddress(Context context) {
+        SharedPreferences preferenceManager = PreferenceManager.getDefaultSharedPreferences(context);
+        return preferenceManager.getString("MAC", "");
     }
 
     /*

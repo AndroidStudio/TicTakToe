@@ -2,20 +2,20 @@ package tic.tack.toe.arduino;
 
 import android.app.ProgressDialog;
 import android.content.Context;
-import android.content.DialogInterface;
+import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AlertDialog;
-import android.view.KeyEvent;
+import android.text.TextUtils;
 
 import org.json.JSONObject;
 
 import tic.tack.toe.arduino.dialog.InputMACDialog;
 import tic.tack.toe.arduino.dialog.MessageDialog;
+import tic.tack.toe.arduino.game.GameSettings;
 import tic.tack.toe.arduino.sockets.SocketConstants;
-import tic.tack.toe.arduino.sockets.UDID;
 import timber.log.Timber;
 
 public class InitDeviceActivity extends BaseActivity {
@@ -38,12 +38,9 @@ public class InitDeviceActivity extends BaseActivity {
     private void displayNoInternetDialog() {
         AlertDialog alertDialog = MessageDialog.displayDialog(this,
                 getString(R.string.no_internet_connection));
-        alertDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
-            @Override
-            public void onDismiss(DialogInterface dialog) {
-                finish();
-                System.exit(0);
-            }
+        alertDialog.setOnDismissListener(dialog -> {
+            finish();
+            System.exit(0);
         });
     }
 
@@ -73,18 +70,15 @@ public class InitDeviceActivity extends BaseActivity {
         }
 
         this.mInitDeviceProgressDialog = new ProgressDialog(this);
-        this.mInitDeviceProgressDialog.setOnKeyListener(new DialogInterface.OnKeyListener() {
-            @Override
-            public boolean onKey(DialogInterface dialog, int keyCode, KeyEvent event) {
-                try {
-                    mInitDeviceProgressDialog.dismiss();
-                    finish();
-                    System.exit(0);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-                return true;
+        this.mInitDeviceProgressDialog.setOnKeyListener((dialog, keyCode, event) -> {
+            try {
+                mInitDeviceProgressDialog.dismiss();
+                finish();
+                System.exit(0);
+            } catch (Exception e) {
+                e.printStackTrace();
             }
+            return true;
         });
         this.mInitDeviceProgressDialog.setCanceledOnTouchOutside(false);
         this.mInitDeviceProgressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
@@ -105,15 +99,32 @@ public class InitDeviceActivity extends BaseActivity {
     }
 
     private void initDeviceSuccess() {
+        GameApplication gameApplication = (GameApplication) getApplication();
+        gameApplication.startPing();
+
         try {
             mInitDeviceProgressDialog.dismiss();
         } catch (Exception e) {
             e.printStackTrace();
         }
 
+
+        if (this.mMessageDialog != null && this.mMessageDialog.isShowing()) {
+            return;
+        }
+
+        String mac = GameSettings.getInstance().getMacAddress(this);
+        if (TextUtils.isEmpty(mac)) {
+            InputMACDialog macDialog = new InputMACDialog(this);
+            macDialog.show();
+        } else {
+            GameSettings.getInstance().setMacAddress(mac, this);
+            Intent intent = new Intent(this, ScanActivity.class);
+            startActivity(intent);
+            finish();
+        }
+
         Timber.tag(TAG).e("initDeviceSuccess");
-        InputMACDialog macDialog = new InputMACDialog(this);
-        macDialog.show();
     }
 
     @SuppressWarnings("all")

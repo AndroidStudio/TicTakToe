@@ -3,6 +3,8 @@ package tic.tack.toe.arduino;
 import android.app.Application;
 import android.view.KeyEvent;
 
+import com.splunk.mint.Mint;
+
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -11,8 +13,8 @@ import java.util.List;
 
 import tic.tack.toe.arduino.sockets.MessageListener;
 import tic.tack.toe.arduino.sockets.SocketConstants;
-import tic.tack.toe.arduino.sockets.UDID;
 import tic.tack.toe.arduino.sockets.SocketManager;
+import tic.tack.toe.arduino.sockets.UDID;
 import timber.log.Timber;
 
 public class GameApplication extends Application implements MessageListener {
@@ -29,6 +31,10 @@ public class GameApplication extends Application implements MessageListener {
         Timber.tag(TAG).e("onMessage");
         this.initTimber();
         this.initUDID();
+
+        Mint.initAndStartSession(this, "4d92ba79");
+        Mint.disableNetworkMonitoring();
+        Mint.flush();
     }
 
     public void startSocket() {
@@ -178,5 +184,9 @@ public class GameApplication extends Application implements MessageListener {
         jsonObject.put(SocketConstants.TYPE, SocketConstants.NEW_GAME);
         jsonObject.put(SocketConstants.UDID, UDID.getUDID());
         onMessage(jsonObject.toString());
+    }
+
+    public void startPing() {
+        socketManager.startPing();
     }
 }

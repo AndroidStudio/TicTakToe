@@ -8,16 +8,14 @@ import android.support.v7.widget.AppCompatSeekBar;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewTreeObserver;
 import android.widget.SeekBar;
 
-import com.github.mata1.simpledroidcolorpicker.interfaces.OnColorChangedListener;
+import com.makeramen.roundedimageview.RoundedImageView;
 
 import org.json.JSONObject;
 
 import java.util.Objects;
 
-import tic.tack.toe.arduino.CustomColorPicker;
 import tic.tack.toe.arduino.R;
 import tic.tack.toe.arduino.dialog.MessageDialog;
 import tic.tack.toe.arduino.game.GameSettings;
@@ -28,9 +26,8 @@ import timber.log.Timber;
 public class GameSettingsLedFragment extends BaseFragment {
 
     private static final String TAG = "GameSettingsLedFragment";
-    private String mSelectedColor = "ff0000";
-    private CustomColorPicker mColorPicker;
     private int mBrightness = 255;
+    private String mSelectedColor = null;
 
     @Nullable
     @Override
@@ -43,37 +40,19 @@ public class GameSettingsLedFragment extends BaseFragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        view.findViewById(R.id.nextButton).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                initLedColor();
-            }
-        });
+        view.findViewById(R.id.nextButton).setOnClickListener(v -> initLedColor());
 
         view.findViewById(R.id.previousButton).setOnClickListener(v -> Objects.requireNonNull(getActivity()).getSupportFragmentManager().popBackStack());
+        view.findViewById(R.id.redButton).setOnClickListener(v -> setColor("ff0000"));
+        view.findViewById(R.id.greenButton).setOnClickListener(v -> setColor("04ff00"));
+        view.findViewById(R.id.blueButton).setOnClickListener(v -> setColor("0008ff"));
+        view.findViewById(R.id.whiteButton).setOnClickListener(v -> setColor("f3f3f3"));
 
-        this.mColorPicker = view.findViewById(R.id.colorPicker);
-        this.mColorPicker.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
-            @Override
-            public void onGlobalLayout() {
-                mColorPicker.getViewTreeObserver().removeOnGlobalLayoutListener(this);
-                mColorPicker.setColor(mColorPicker.getRandomColor());
-            }
-        });
-
-        this.mColorPicker.setOnColorChangedListener(color -> {
-            GameSettingsLedFragment.this.mSelectedColor = String.format("%02x%02x%02x",
-                    Color.red(color),
-                    Color.green(color),
-                    Color.blue(color));
-            GameSettings.getInstance().setPlayer_01Color(mSelectedColor);
-        });
-        this.mColorPicker.invalidate();
+        setColor(GameSettings.getInstance().getPlayer_01Color());
 
         AppCompatSeekBar seekBar = view.findViewById(R.id.seekBar);
         seekBar.setProgress(GameSettings.getInstance().getLedBrightness());
         seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
 
@@ -91,11 +70,21 @@ public class GameSettingsLedFragment extends BaseFragment {
         });
     }
 
+    private void setColor(String color) {
+        View v = getView();
+        this.mSelectedColor = color;
+
+        RoundedImageView selectedColorView = v.findViewById(R.id.selectedColorView);
+        selectedColorView.setBackgroundColor(Color.parseColor("#" + color));
+    }
+
     private void initLedColor() {
+        String color = this.mSelectedColor;
+        GameSettings.getInstance().setPlayer_01Color(color);
         try {
             JSONObject messageObject = new JSONObject();
             messageObject.put(SocketConstants.TYPE, SocketConstants.LED_SETTINGS);
-            messageObject.put(SocketConstants.COLOR, this.mSelectedColor);
+            messageObject.put(SocketConstants.COLOR, color);
             messageObject.put(SocketConstants.UDID, UDID.getUDID());
             messageObject.put(SocketConstants.BRIGHTNESS, this.mBrightness);
 
@@ -118,7 +107,7 @@ public class GameSettingsLedFragment extends BaseFragment {
                     if (symbolStatus.equals(SocketConstants.OK)) {
                         ledColorInitialized();
                     } else {
-                        MessageDialog.displayDialog(getActivity(), "Błąd ustawiania koloru")
+                        MessageDialog.displayDialog(getActivity(), "Kolor niedostępny")
                                 .show();
                     }
                     break;

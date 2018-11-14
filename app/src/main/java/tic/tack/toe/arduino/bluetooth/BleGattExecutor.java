@@ -17,40 +17,30 @@ import static tic.tack.toe.arduino.Constants.TAG;
 class BleGattExecutor extends BluetoothGattCallback {
 
     interface ServiceAction {
-        ServiceAction NULL = new ServiceAction() {
-            @Override
-            public boolean execute(BluetoothGatt bluetoothGatt) {
-                return true;
-            }
-        };
-
         boolean execute(BluetoothGatt bluetoothGatt);
     }
 
     private final LinkedList<ServiceAction> mQueue = new LinkedList<>();
     private volatile ServiceAction mCurrentAction;
 
-    public void write(BluetoothGattService gattService, String uuid, byte[] value) {
+    void write(BluetoothGattService gattService, String uuid, byte[] value) {
         ServiceAction action = serviceWriteAction(gattService, uuid, value);
         this.mQueue.add(action);
     }
 
     private BleGattExecutor.ServiceAction serviceWriteAction(final BluetoothGattService gattService, final String uuid, final byte[] value) {
-        return new BleGattExecutor.ServiceAction() {
-            @Override
-            public boolean execute(BluetoothGatt bluetoothGatt) {
-                Timber.tag(TAG).e("serviceWriteAction: %s", bytesToHex(value));
+        return bluetoothGatt -> {
+            Timber.tag(TAG).e("serviceWriteAction: %s", bytesToHex(value));
 
-                final UUID characteristicUuid = UUID.fromString(uuid);
-                final BluetoothGattCharacteristic characteristic = gattService.getCharacteristic(characteristicUuid);
-                if (characteristic != null) {
-                    characteristic.setValue(value);
-                    bluetoothGatt.writeCharacteristic(characteristic);
-                    return false;
-                } else {
-                    Timber.tag(TAG).e("write: characteristic not found: %s", uuid);
-                    return true;
-                }
+            final UUID characteristicUuid = UUID.fromString(uuid);
+            final BluetoothGattCharacteristic characteristic = gattService.getCharacteristic(characteristicUuid);
+            if (characteristic != null) {
+                characteristic.setValue(value);
+                bluetoothGatt.writeCharacteristic(characteristic);
+                return false;
+            } else {
+                Timber.tag(TAG).e("write: characteristic not found: %s", uuid);
+                return true;
             }
         };
     }
@@ -72,6 +62,8 @@ class BleGattExecutor extends BluetoothGattCallback {
         super.onDescriptorRead(gatt, descriptor, status);
         this.mCurrentAction = null;
         this.execute(gatt);
+
+        Timber.tag(TAG).e("onDescriptorRead: %s", bytesToHex(descriptor.getValue()));
     }
 
     @Override
@@ -79,6 +71,8 @@ class BleGattExecutor extends BluetoothGattCallback {
         super.onDescriptorWrite(gatt, descriptor, status);
         this.mCurrentAction = null;
         this.execute(gatt);
+
+        Timber.tag(TAG).e("onDescriptorWrite: %s", bytesToHex(descriptor.getValue()));
     }
 
     @Override
@@ -114,6 +108,8 @@ class BleGattExecutor extends BluetoothGattCallback {
         super.onCharacteristicRead(gatt, characteristic, status);
         this.mCurrentAction = null;
         this.execute(gatt);
+
+        Timber.tag(TAG).e("onCharacteristicRead: %s", bytesToHex(characteristic.getValue()));
     }
 
     @Override

@@ -21,7 +21,7 @@ public class BleManager implements BleGattExecutor.BleExecutorListener {
     private static final int STATE_DISCONNECTED = 0;
     private static final int STATE_CONNECTING = 1;
 
-    public static final int STATE_CONNECTED = 2;
+    private static final int STATE_CONNECTED = 2;
 
     private static BleManager INSTANCE = null;
 
@@ -33,6 +33,7 @@ public class BleManager implements BleGattExecutor.BleExecutorListener {
 
     private BleManagerListener mBleListener;
 
+    @SuppressWarnings("all")
     private int mConnectionState = STATE_DISCONNECTED;
 
     public static BleManager getInstance(Context context) {
@@ -52,22 +53,22 @@ public class BleManager implements BleGattExecutor.BleExecutorListener {
         }
 
         if (this.mAdapter == null || !mAdapter.isEnabled()) {
-            Timber.tag(TAG).e("Unable to obtain a BluetoothAdapter.");
+            Timber.tag(TAG).w("Unable to obtain a BluetoothAdapter.");
         }
     }
 
     public void connect(final Context context, String address) {
-        Timber.tag(TAG).e("start connect");
+        Timber.tag(TAG).w("start connect");
 
         if (this.mAdapter == null || address == null) {
-            Timber.tag(TAG).e("connect: BluetoothAdapter not initialized or unspecified address.");
+            Timber.tag(TAG).w("connect: BluetoothAdapter not initialized or unspecified address.");
             return;
         }
 
         try {
             this.mDevice = this.mAdapter.getRemoteDevice(address);
             if (this.mDevice == null) {
-                Timber.tag(TAG).e("Device not found. Unable to connect.");
+                Timber.tag(TAG).w("Device not found. Unable to connect.");
                 return;
             }
         } catch (Exception e) {
@@ -82,13 +83,13 @@ public class BleManager implements BleGattExecutor.BleExecutorListener {
             this.mBleListener.onConnecting();
         }
 
-        this.mGatt = this.mDevice.connectGatt(context, false, this.mExecutor);
+        this.mGatt = this.mDevice.connectGatt(context, true, this.mExecutor);
     }
 
     public void disconnect() {
         this.mDevice = null;
         if (this.mAdapter == null || mGatt == null) {
-            Timber.tag(TAG).e("disconnect: BluetoothAdapter not initialized");
+            Timber.tag(TAG).w("disconnect: BluetoothAdapter not initialized");
             return;
         }
         this.mGatt.disconnect();
@@ -102,14 +103,10 @@ public class BleManager implements BleGattExecutor.BleExecutorListener {
         }
     }
 
-    public int getCurrentState() {
-        return this.mConnectionState;
-    }
-
     public void writeService(BluetoothGattService service, String uuid, byte[] value) {
         if (service != null) {
             if (this.mAdapter == null || this.mGatt == null) {
-                Timber.tag(TAG).e("writeService: BluetoothAdapter not initialized");
+                Timber.tag(TAG).w("writeService: BluetoothAdapter not initialized");
                 return;
             }
 
@@ -153,7 +150,7 @@ public class BleManager implements BleGattExecutor.BleExecutorListener {
         if (this.mBleListener != null)
             this.mBleListener.onServicesDiscovered();
         if (status != BluetoothGatt.GATT_SUCCESS) {
-            Timber.tag(TAG).e("onServicesDiscovered status: %s", status);
+            Timber.tag(TAG).w("onServicesDiscovered status: %s", status);
         }
     }
 
@@ -164,7 +161,7 @@ public class BleManager implements BleGattExecutor.BleExecutorListener {
         }
 
         if (status != BluetoothGatt.GATT_SUCCESS) {
-            Timber.tag(TAG).e("onCharacteristicRead status: %s", status);
+            Timber.tag(TAG).w("onCharacteristicRead status: %s", status);
         }
     }
 
@@ -182,7 +179,7 @@ public class BleManager implements BleGattExecutor.BleExecutorListener {
         }
 
         if (status != BluetoothGatt.GATT_SUCCESS) {
-            Timber.tag(TAG).e("onDescriptorRead status: %s", status);
+            Timber.tag(TAG).w("onDescriptorRead status: %s", status);
         }
     }
 
@@ -193,7 +190,7 @@ public class BleManager implements BleGattExecutor.BleExecutorListener {
         }
 
         if (status != BluetoothGatt.GATT_SUCCESS) {
-            Timber.tag(TAG).e("onReadRemoteRssi status: %s", status);
+            Timber.tag(TAG).w("onReadRemoteRssi status: %s", status);
         }
     }
 

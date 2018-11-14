@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                xmlns:custom="http://schemas.android.com/apk/res-auto"
+                xmlns:app="http://schemas.android.com/apk/res-auto"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:background="#fff"
@@ -33,19 +33,81 @@
             android:layout_height="50dp"
             android:drawablePadding="20dp"
             android:gravity="center_vertical"
-            android:text="@string/led_kolor"
+            android:text="Wybierz kolor:"
             android:textColor="#000"
             android:textSize="14dp"/>
 
-        <tic.tack.toe.arduino.CustomColorPicker
-            android:id="@+id/colorPicker"
+        <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_gravity="center"
-            android:padding="10dp"
-            custom:hue="120"
-            custom:saturation="1.0"
-            custom:value="1.0"/>
+            android:layout_height="wrap_content">
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:clipToPadding="false"
+                android:padding="10dp">
+
+                <com.makeramen.roundedimageview.RoundedImageView
+                    android:id="@+id/redButton"
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
+                    android:layout_margin="10dp"
+                    android:background="#ff0000"
+                    app:riv_corner_radius="25dp"
+                    app:riv_oval="true"/>
+
+                <com.makeramen.roundedimageview.RoundedImageView
+                    android:id="@+id/greenButton"
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
+                    android:layout_margin="10dp"
+                    android:background="#04ff00"
+                    app:riv_corner_radius="25dp"
+                    app:riv_oval="true"/>
+
+                <com.makeramen.roundedimageview.RoundedImageView
+                    android:id="@+id/blueButton"
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
+                    android:layout_margin="10dp"
+                    android:background="#0008ff"
+                    app:riv_corner_radius="25dp"
+                    app:riv_oval="true"/>
+
+                <com.makeramen.roundedimageview.RoundedImageView
+                    android:id="@+id/whiteButton"
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
+                    android:layout_margin="10dp"
+                    android:background="#f3f3f3"
+                    app:riv_corner_radius="25dp"
+                    app:riv_oval="true"/>
+            </LinearLayout>
+        </RelativeLayout>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="Wybrany kolor"
+            android:textColor="#000"
+            android:textSize="14dp"/>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <com.makeramen.roundedimageview.RoundedImageView
+                android:id="@+id/selectedColorView"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_centerHorizontal="true"
+                android:layout_margin="10dp"
+                app:riv_corner_radius="25dp"
+                android:background="#ff0000"
+                app:riv_oval="true"/>
+        </RelativeLayout>
     </LinearLayout>
 
     <LinearLayout
@@ -53,8 +115,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:layout_marginBottom="50dp"
         android:layout_marginTop="50dp"
+        android:layout_marginBottom="50dp"
         android:orientation="horizontal"
         android:weightSum="2">
 

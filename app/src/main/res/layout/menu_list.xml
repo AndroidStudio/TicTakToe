@@ -9,6 +9,47 @@
     android:paddingRight="20dp">
 
     <TextView
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:drawableLeft="@drawable/ic_burger_o"
+        android:drawablePadding="20dp"
+        android:gravity="center_vertical"
+        android:text="@string/o_aplikacji"
+        android:textColor="#000"
+        android:textSize="14dp"/>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:drawableLeft="@drawable/ic_burger_lab"
+        android:drawablePadding="20dp"
+        android:gravity="center_vertical"
+        android:text="@string/o_witchcraft_lab"
+        android:textColor="#000"
+        android:textSize="14dp"/>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:drawableLeft="@drawable/ic_burger_info"
+        android:drawablePadding="20dp"
+        android:gravity="center_vertical"
+        android:text="@string/informacje"
+        android:textColor="#000"
+        android:textSize="14dp"/>
+
+    <TextView
+        android:id="@+id/serverDiagnostic"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:drawableLeft="@drawable/ic_burger_info"
+        android:drawablePadding="20dp"
+        android:gravity="center_vertical"
+        android:text="Diagnostyka serwera"
+        android:textColor="#000"
+        android:textSize="14dp"/>
+
+    <TextView
         android:id="@+id/testButton"
         android:layout_width="match_parent"
         android:layout_height="50dp"
@@ -18,5 +59,4 @@
         android:text="@string/test"
         android:textColor="#000"
         android:textSize="14dp"/>
-
 </LinearLayout>

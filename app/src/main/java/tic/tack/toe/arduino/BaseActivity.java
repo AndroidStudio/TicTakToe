@@ -3,7 +3,6 @@ package tic.tack.toe.arduino;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
@@ -22,7 +21,6 @@ import tic.tack.toe.arduino.fragments.FragmentController;
 import tic.tack.toe.arduino.fragments.GameSymbolFragment;
 import tic.tack.toe.arduino.sockets.MessageListener;
 import tic.tack.toe.arduino.sockets.SocketConstants;
-import timber.log.Timber;
 
 @SuppressLint("Registered")
 public class BaseActivity extends AppCompatActivity implements MessageListener {
@@ -31,7 +29,7 @@ public class BaseActivity extends AppCompatActivity implements MessageListener {
     protected static final int REQUEST_ENABLE_BT = 1001;
 
     protected GameApplication mGameApplication;
-    private AlertDialog mMessageDialog;
+    protected AlertDialog mMessageDialog;
 
     private boolean isPaused = true;
     private boolean newGameRequest = false;
@@ -138,16 +136,12 @@ public class BaseActivity extends AppCompatActivity implements MessageListener {
         }
 
         this.mMessageDialog = MessageDialog.displayDialog(this, "Połączenie z serwerem zostało zerwane");
-        this.mMessageDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
-            @Override
-            public void onDismiss(DialogInterface dialog) {
-                Intent intent = new Intent(BaseActivity.this,
-                        InitDeviceActivity.class);
-                startActivity(intent);
-                finish();
-                System.exit(0);
-            }
-        });
+        this.mMessageDialog.setOnDismissListener(dialog -> initDeviceActivity());
+    }
+
+    private void initDeviceActivity() {
+        finish();
+        System.exit(0);
     }
 
     @Override
@@ -171,11 +165,7 @@ public class BaseActivity extends AppCompatActivity implements MessageListener {
 
         this.mMessageDialog = MessageDialog.displayDialog(this, "Przeciwnik opuscił grę");
         this.mMessageDialog.setOnDismissListener(dialog -> {
-            Intent intent = new Intent(BaseActivity.this,
-                    InitDeviceActivity.class);
-            startActivity(intent);
-            finish();
-            System.exit(0);
+            initDeviceActivity();
         });
     }
 
