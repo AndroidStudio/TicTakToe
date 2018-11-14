@@ -17,13 +17,11 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.nio.ByteBuffer;
-import java.util.Locale;
 import java.util.Objects;
 
 import tic.tack.toe.arduino.CustomGridView;
 import tic.tack.toe.arduino.MainActivity;
 import tic.tack.toe.arduino.R;
-import tic.tack.toe.arduino.bluetooth.BleManager;
 import tic.tack.toe.arduino.game.CMD;
 import tic.tack.toe.arduino.game.FieldType;
 import tic.tack.toe.arduino.game.GameSettings;
@@ -43,8 +41,8 @@ public class GameFragment extends BaseFragment implements View.OnClickListener, 
     private final GameSettings mGameSettings = GameSettings.getInstance();
     private final FieldType[] mFieldTypeArray = new FieldType[9];
     private final Handler mGameHandler = new Handler();
+    private MainActivity mainActivity;
 
-    private int[] mFieldBluetoothIndexArray = new int[]{8, 7, 6, 3, 4, 5, 2, 1, 0};
     private FieldType mCurrentPlayer = START_PLAYER;
     private boolean mIsGameInitialized = false;
 
@@ -69,22 +67,22 @@ public class GameFragment extends BaseFragment implements View.OnClickListener, 
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         view.findViewById(R.id.newGameButton).setOnClickListener(this.mNewGameClickListener);
-
+        this.mainActivity = (MainActivity) getActivity();
         this.mPlayer_01ImageView = view.findViewById(R.id.mPlayer_01ImageView);
         this.mPlayer_02ImageView = view.findViewById(R.id.mPlayer_02ImageView);
         this.mGameGrid = view.findViewById(R.id.gridLayout);
         this.mPlayerSymbolImageView = view.findViewById(R.id.playerSymbolImageView);
         this.mGameHandler.postDelayed(this, GAME_UPDATE_DELAY);
 
-        String macAddress = mGameSettings.getMacAddress();
+        String macAddress = mGameSettings.getMacAddress(getContext());
         if (TextUtils.isEmpty(macAddress)) {
             return;
         }
 
         if (macAddress.equals("C4:2B:2D:00:FF:1D")) {
-            this.mFieldBluetoothIndexArray = new int[]{8, 7, 6, 3, 4, 5, 2, 1, 0};
+            mainActivity.mFieldBluetoothIndexArray = new int[]{8, 7, 6, 3, 4, 5, 2, 1, 0};
         } else {
-            this.mFieldBluetoothIndexArray = new int[]{6, 7, 8, 5, 4, 3, 0, 1, 2};
+            mainActivity.mFieldBluetoothIndexArray = new int[]{6, 7, 8, 5, 4, 3, 0, 1, 2};
         }
     }
 
@@ -257,7 +255,7 @@ public class GameFragment extends BaseFragment implements View.OnClickListener, 
             }
 
             if (this.mFieldTypeArray[i] == FieldType.EMPTY && value != 0) {
-                this.setPixel(i, value);
+                mainActivity.setPixel(i, value);
             }
 
             switch (value) {
@@ -274,18 +272,6 @@ public class GameFragment extends BaseFragment implements View.OnClickListener, 
             this.updateUI(i);
         }
         this.checkWin();
-    }
-
-    public void setPixel(int index, int value) {
-        Timber.tag(TAG).e("setPixelIndex %s", index);
-
-        String indexHex = String.format(Locale.getDefault(),
-                "%02d", this.mFieldBluetoothIndexArray[index]);
-        String message = CMD.PIXEL + indexHex + (value == 1
-                ? this.mGameSettings.getPlayer_01Color()
-                : this.mGameSettings.getPlayer_02Color());
-        Timber.tag(TAG).e("message %s", message);
-        this.writeMessage(hexStringToByteArray(message));
     }
 
     @Override
@@ -316,43 +302,16 @@ public class GameFragment extends BaseFragment implements View.OnClickListener, 
         }
     }
 
-    private BleManager getBleManager() {
-        return ((MainActivity) Objects.requireNonNull(getActivity())).mBleManager;
-    }
-
     public void setBrightness(int brightness) {
         ByteBuffer byteBuffer = ByteBuffer.allocate(4);
         byteBuffer.putInt(brightness);
-        String brightnessHexValue = toHexString(byteBuffer.array());
+        String brightnessHexValue = mainActivity.toHexString(byteBuffer.array());
 
         brightnessHexValue = brightnessHexValue.substring(brightnessHexValue.length() - 2,
                 brightnessHexValue.length());
 
         String message = CMD.BRIGHTNESS + brightnessHexValue;
-        this.writeMessage(hexStringToByteArray(message));
-    }
-
-    private byte[] hexStringToByteArray(String value) {
-        int length = value.length();
-        byte[] data = new byte[length / 2];
-        for (int i = 0; i < length; i += 2) {
-            data[i / 2] = (byte) ((Character.digit(value.charAt(i), 16) << 4)
-                    + Character.digit(value.charAt(i + 1), 16));
-        }
-        return data;
-    }
-
-    private String toHexString(byte[] bytes) {
-        StringBuilder stringBuilder = new StringBuilder();
-        for (byte b : bytes) stringBuilder.append(String.format("%x", b));
-        return stringBuilder.toString();
-    }
-
-    private void writeMessage(byte[] message) {
-        BleManager bleManager = this.getBleManager();
-        bleManager.writeService(bleManager.getGattService(
-                "6E400001-B5A3-F393-E0A9-E50E24DCCA9E"),
-                "6E400002-B5A3-F393-E0A9-E50E24DCCA9E", message);
+        mainActivity.writeMessage(mainActivity.hexStringToByteArray(message));
     }
 
     private void win(FieldType fieldType) {
@@ -410,7 +369,7 @@ public class GameFragment extends BaseFragment implements View.OnClickListener, 
                     Color.parseColor("#" + this.mGameSettings.getPlayer_02Color()), SRC_IN));
         }
 
-        this.writeMessage(hexStringToByteArray(CMD.RESET));
+        mainActivity.writeMessage(mainActivity.hexStringToByteArray(CMD.RESET));
     }
 
     private void updateUI(int index) {

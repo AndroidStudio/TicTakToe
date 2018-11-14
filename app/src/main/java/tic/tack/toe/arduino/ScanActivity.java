@@ -17,28 +17,18 @@ import android.text.TextUtils;
 import android.view.KeyEvent;
 import android.widget.Toast;
 
-import java.util.concurrent.TimeUnit;
-
 import tic.tack.toe.arduino.game.GameSettings;
 import timber.log.Timber;
 
 import static tic.tack.toe.arduino.Constants.TAG;
 
 public class ScanActivity extends BaseActivity implements Runnable {
-
-    private static final long SCANNING_TIME = TimeUnit.SECONDS.toMillis(10);
     private final Handler scanningHandler = new Handler();
-    private final Handler mTimerHandler = new Handler();
-    private final Handler mHandler = new Handler();
+    private final Handler handler = new Handler();
 
     private BluetoothAdapter mBluetoothAdapter;
-    private ProgressDialog mScanDialog;
-
-    private boolean deviceFound = false;
-
-
     private AlertDialog deviceNotFoundDialog;
-    private int counter = 10;
+    private ProgressDialog mScanDialog;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -53,10 +43,13 @@ public class ScanActivity extends BaseActivity implements Runnable {
         if (bluetoothManager != null) {
             this.mBluetoothAdapter = bluetoothManager.getAdapter();
         }
-
     }
 
     private void startMainActivity() {
+        if (this.mMessageDialog != null && this.mMessageDialog.isShowing()) {
+            return;
+        }
+
         Intent intent = new Intent(this, MainActivity.class);
         this.startActivity(intent);
         this.finish();
@@ -80,73 +73,30 @@ public class ScanActivity extends BaseActivity implements Runnable {
             return;
         }
 
-        if (TextUtils.isEmpty(GameSettings.getInstance().getMacAddress())) {
+        if (TextUtils.isEmpty(GameSettings.getInstance().getMacAddress(this))) {
             this.startMainActivity();
             return;
         }
 
         this.startScanning();
-
-        this.scanningHandler.removeCallbacksAndMessages(null);
-        this.scanningHandler.postDelayed(() -> showStopScanningDialog(), SCANNING_TIME);
-        this.startTimer();
-    }
-
-    private void startTimer() {
-        this.counter = 10;
-
-        this.mTimerHandler.removeCallbacksAndMessages(null);
-        this.mTimerHandler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                if (mScanDialog != null) {
-                    mScanDialog.setMessage("Skanowanie " + counter);
-                }
-                Timber.d("%s %s %s", "Skanowanie", "counter", counter);
-                if (counter > 0) {
-                    mTimerHandler.removeCallbacksAndMessages(null);
-                    mTimerHandler.postDelayed(this, 1000);
-                }
-                counter = counter - 1;
-            }
-        }, 1000);
-    }
-
-    private void showStopScanningDialog() {
-        this.hideScanDialog();
-        this.stopScanning();
-
-        this.deviceNotFoundDialog = new AlertDialog.Builder(this)
-                .setTitle("Urządzenie nie zostało odnalezione")
-                .setPositiveButton("Ponów",
-                        (dialog, whichButton) -> {
-                            dialog.dismiss();
-                            startTimer();
-                            startScanning();
-                        }
-                )
-                .setNegativeButton("Pomiń",
-                        (dialog, whichButton) -> {
-                            dialog.dismiss();
-                            startMainActivity();
-                        }
-
-                )
-                .create();
-        this.deviceNotFoundDialog.show();
     }
 
     private void startScanning() {
         Timber.tag(TAG).e("startScanning");
-
-        this.deviceFound = false;
         BluetoothLeScanner bluetoothLeScanner = this.mBluetoothAdapter.getBluetoothLeScanner();
         bluetoothLeScanner.startScan(this.mScanCallback);
-        this.displayScanDialog();
+        displayScanDialog();
+
+        scanningHandler.removeCallbacksAndMessages(null);
+        scanningHandler.postDelayed(() -> {
+            hideScanDialog();
+            startMainActivity();
+        }, 10000);
     }
 
     private void stopScanning() {
         Timber.tag(TAG).e("stopScanning");
+        scanningHandler.removeCallbacksAndMessages(null);
 
         if (this.mBluetoothAdapter != null) {
             BluetoothLeScanner bluetoothLeScanner = this.mBluetoothAdapter.getBluetoothLeScanner();
@@ -197,9 +147,8 @@ public class ScanActivity extends BaseActivity implements Runnable {
             super.onScanResult(callbackType, result);
             String address = result.getDevice().getAddress();
             Timber.tag(TAG).e("Device found address: %s", address);
-            if (address.equals(GameSettings.getInstance().getMacAddress()) && !deviceFound) {
-                mHandler.postDelayed(ScanActivity.this, 3000);
-                deviceFound = true;
+            if (address.equals(GameSettings.getInstance().getMacAddress(ScanActivity.this))) {
+                handler.postDelayed(ScanActivity.this, 3000);
                 stopScanning();
                 Toast.makeText(ScanActivity.this, "Urządzenie zostało odnalezione",
                         Toast.LENGTH_LONG).show();
@@ -210,12 +159,11 @@ public class ScanActivity extends BaseActivity implements Runnable {
     @Override
     protected void onPause() {
         super.onPause();
-        this.mTimerHandler.removeCallbacksAndMessages(null);
         if (deviceNotFoundDialog != null) {
-            this.deviceNotFoundDialog.dismiss();
+            deviceNotFoundDialog.dismiss();
         }
         this.scanningHandler.removeCallbacksAndMessages(null);
-        this.mHandler.removeCallbacksAndMessages(null);
+        this.handler.removeCallbacksAndMessages(null);
         this.stopScanning();
     }
 

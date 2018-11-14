@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              xmlns:grid="http://schemas.android.com/apk/res-auto"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:background="#fff"
+              android:clickable="true"
+              android:orientation="vertical"
+              android:padding="10dp">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="50dp"
+            android:gravity="center_vertical"
+            android:text="Diagnostyka LED"
+            android:textColor="#000"/>
+
+        <Button
+            android:id="@+id/close"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:text="Zamknij"/>
+    </RelativeLayout>
+
+    <tic.tack.toe.arduino.CustomGridView
+        android:id="@+id/gridLayout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_centerInParent="true"
+        android:layout_margin="20dp"
+        android:background="@drawable/ic_plansza"
+        grid:columnCount="3"
+        grid:rowCount="3">
+
+        <ImageView
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:padding="20dp"
+            android:scaleType="fitCenter"
+            grid:layout_columnWeight="1"
+            grid:layout_rowWeight="1"/>
+
+        <ImageView
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:padding="20dp"
+            android:scaleType="fitCenter"
+            grid:layout_columnWeight="1"
+            grid:layout_rowWeight="1"/>
+
+        <ImageView
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:padding="20dp"
+            android:scaleType="fitCenter"
+            grid:layout_columnWeight="1"
+            grid:layout_rowWeight="1"/>
+
+        <ImageView
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:padding="20dp"
+            android:scaleType="fitCenter"
+            grid:layout_columnWeight="1"
+            grid:layout_rowWeight="1"/>
+
+        <ImageView
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:padding="20dp"
+            android:scaleType="fitCenter"
+            grid:layout_columnWeight="1"
+            grid:layout_rowWeight="1"/>
+
+        <ImageView
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:padding="20dp"
+            android:scaleType="fitCenter"
+            grid:layout_columnWeight="1"
+            grid:layout_rowWeight="1"/>
+
+        <ImageView
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:padding="20dp"
+            android:scaleType="fitCenter"
+            grid:layout_columnWeight="1"
+            grid:layout_rowWeight="1"/>
+
+        <ImageView
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:padding="20dp"
+            android:scaleType="fitCenter"
+            grid:layout_columnWeight="1"
+            grid:layout_rowWeight="1"/>
+
+        <ImageView
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:padding="20dp"
+            android:scaleType="fitCenter"
+            grid:layout_columnWeight="1"
+            grid:layout_rowWeight="1"/>
+
+    </tic.tack.toe.arduino.CustomGridView>
+
+</LinearLayout>

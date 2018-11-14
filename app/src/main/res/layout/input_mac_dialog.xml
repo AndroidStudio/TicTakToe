@@ -9,7 +9,7 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Adres MAC:"/>
+        android:text="Wybierz koszulkę:"/>
 
     <RadioGroup
         android:id="@+id/radio_group"
@@ -22,13 +22,13 @@
             android:id="@+id/radio_01"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="C4:2B:2D:00:FF:1D"/>
+            android:text="KOSZULKA A (C4:2B:2D:00:FF:1D)"/>
 
         <RadioButton
             android:id="@+id/radio_02"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="D7:90:F4:FE:A4:55"/>
+            android:text="KOSZULKA B (D7:90:F4:FE:A4:55)"/>
     </RadioGroup>
 
     <Button

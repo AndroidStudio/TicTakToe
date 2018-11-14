@@ -14,8 +14,8 @@ import java.net.Socket;
 
 public class SocketManager extends Thread {
 
-    //private static final String SERVER_ADDRESS = "176.119.44.252";
-    private static final String SERVER_ADDRESS = "192.168.1.41";
+    //private static final String SERVER_ADDRESS = "40.118.44.196";//prod paweł
+    private static final String SERVER_ADDRESS = "192.168.1.41";//lokal witch
 
     private static final String TAG = "SocketManager";
 
@@ -25,6 +25,9 @@ public class SocketManager extends Thread {
     private MessageListener mMessageListener = null;
 
     private Socket socket;
+
+    private boolean running = true;
+    private boolean ping = false;
 
     public SocketManager() {
         HandlerThread handlerThread = new HandlerThread("HandlerThread");
@@ -41,8 +44,6 @@ public class SocketManager extends Thread {
         connectSocketServer();
     }
 
-    private boolean running = true;
-
     private void connectSocketServer() {
         try {
             initSocket();
@@ -51,8 +52,9 @@ public class SocketManager extends Thread {
                 public void run() {
                     while (running) {
                         try {
-                            ping();
-                            Thread.sleep(5000);
+                            if (ping)
+                                ping();
+                            Thread.sleep(3000);
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
@@ -110,16 +112,13 @@ public class SocketManager extends Thread {
     }
 
     private void writeMessage(final String message) {
-        sendMessageHandler.post(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    Log.e(TAG, "writeMessage: " + message);
-                    PrintWriter printWriter = new PrintWriter(socket.getOutputStream(), true);
-                    printWriter.println(message);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
+        sendMessageHandler.post(() -> {
+            try {
+                Log.e(TAG, "writeMessage: " + message);
+                PrintWriter printWriter = new PrintWriter(socket.getOutputStream(), true);
+                printWriter.println(message);
+            } catch (Exception e) {
+                e.printStackTrace();
             }
         });
     }
@@ -132,14 +131,11 @@ public class SocketManager extends Thread {
         if (message == null) {
             throw new Exception("Błąd połączenia");
         }
-        Log.e(TAG, "readMessage: " + message);
 
-        responseHandler.post(new Runnable() {
-            @Override
-            public void run() {
-                if (mMessageListener != null) {
-                    mMessageListener.onMessage(message);
-                }
+        Log.e(TAG, "readMessage: " + message);
+        responseHandler.post(() -> {
+            if (mMessageListener != null) {
+                mMessageListener.onMessage(message);
             }
         });
 
@@ -152,6 +148,10 @@ public class SocketManager extends Thread {
 
     public void sendMessage(String message) {
         writeMessage(message);
+    }
+
+    public void startPing() {
+        ping = true;
     }
 }
 

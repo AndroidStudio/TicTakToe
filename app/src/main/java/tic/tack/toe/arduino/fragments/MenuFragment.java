@@ -1,6 +1,7 @@
 package tic.tack.toe.arduino.fragments;
 
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
@@ -8,8 +9,6 @@ import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-
-import org.json.JSONObject;
 
 import java.util.Locale;
 import java.util.Objects;
@@ -19,8 +18,6 @@ import tic.tack.toe.arduino.R;
 import tic.tack.toe.arduino.bluetooth.BleManager;
 import tic.tack.toe.arduino.game.CMD;
 import tic.tack.toe.arduino.game.GameSettings;
-import tic.tack.toe.arduino.sockets.SocketConstants;
-import tic.tack.toe.arduino.sockets.UDID;
 import timber.log.Timber;
 
 public class MenuFragment extends BaseFragment {
@@ -35,6 +32,11 @@ public class MenuFragment extends BaseFragment {
 
     private AlertDialog closeGameDialog;
 
+    private boolean canLedTest = true;
+
+
+    private final Handler ledTestHandler = new Handler();
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
@@ -43,14 +45,21 @@ public class MenuFragment extends BaseFragment {
     }
 
     @Override
+    public void onResume() {
+        super.onResume();
+        canLedTest = true;
+    }
+
+    @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        MainActivity mainActivity = (MainActivity) getActivity();
         view.findViewById(R.id.finishButton).setOnClickListener(v -> {
-            closeGameDialog = new AlertDialog.Builder(getActivity())
+            closeGameDialog = new AlertDialog.Builder(mainActivity)
                     .setTitle("Czy na pewno chcesz zakończyć grę")
                     .setPositiveButton("Tak",
                             (dialog, whichButton) -> {
-                                disconnectClient();
+                                mainActivity.disconnectClient();
                                 writeMessage(hexStringToByteArray(CMD.RESET));
                                 ActivityCompat.finishAffinity(Objects.requireNonNull(getActivity()));
                                 System.exit(0);
@@ -64,16 +73,31 @@ public class MenuFragment extends BaseFragment {
         });
 
         view.findViewById(R.id.testButton).setOnClickListener(v -> {
-            setPixel(0, 1);
-            setPixel(1, 1);
-            setPixel(2, 1);
-            setPixel(3, 1);
-            setPixel(4, 1);
-            setPixel(5, 1);
-            setPixel(6, 1);
-            setPixel(7, 1);
-            setPixel(8, 1);
-            writeMessage(hexStringToByteArray(CMD.RESET));
+            if (canLedTest) {
+                setPixel(0, 1);
+                setPixel(1, 1);
+                setPixel(2, 1);
+                setPixel(3, 1);
+                setPixel(4, 1);
+                setPixel(5, 1);
+                setPixel(6, 1);
+                setPixel(7, 1);
+                setPixel(8, 1);
+                writeMessage(hexStringToByteArray(CMD.RESET));
+                canLedTest = false;
+
+                ledTestHandler.removeCallbacksAndMessages(null);
+                ledTestHandler.postDelayed(() -> canLedTest = true, 2000);
+
+                MainActivity activity = (MainActivity) getActivity();
+                activity.closeMenu();
+
+                getActivity().getSupportFragmentManager()
+                        .beginTransaction()
+                        .addToBackStack(null)
+                        .add(R.id.contentLayout, new LedTest(), null)
+                        .commit();
+            }
         });
 
         view.findViewById(R.id.serverDiagnostic).setOnClickListener(v -> {
@@ -86,8 +110,6 @@ public class MenuFragment extends BaseFragment {
                     .add(R.id.contentLayout, new DiagnosticFragment(), null)
                     .commit();
         });
-
-
     }
 
     @Override
@@ -97,7 +119,7 @@ public class MenuFragment extends BaseFragment {
     }
 
     private BleManager getBleManager() {
-        return ((MainActivity) Objects.requireNonNull(getActivity())).mBleManager;
+        return ((MainActivity) Objects.requireNonNull(getActivity())).bleManager;
     }
 
     public void setPixel(int index, int value) {
@@ -127,18 +149,5 @@ public class MenuFragment extends BaseFragment {
         bleManager.writeService(bleManager.getGattService(
                 "6E400001-B5A3-F393-E0A9-E50E24DCCA9E"),
                 "6E400002-B5A3-F393-E0A9-E50E24DCCA9E", message);
-    }
-
-    public void disconnectClient() {
-        Timber.tag(TAG).e("disconnectClient");
-
-        try {
-            JSONObject object = new JSONObject();
-            object.put(SocketConstants.TYPE, SocketConstants.EXIT_GAME);
-            object.put(SocketConstants.UDID, UDID.getUDID());
-            setMessage(object);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
     }
 }

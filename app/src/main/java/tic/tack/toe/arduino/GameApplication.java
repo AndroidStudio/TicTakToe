@@ -185,4 +185,8 @@ public class GameApplication extends Application implements MessageListener {
         jsonObject.put(SocketConstants.UDID, UDID.getUDID());
         onMessage(jsonObject.toString());
     }
+
+    public void startPing() {
+        socketManager.startPing();
+    }
 }

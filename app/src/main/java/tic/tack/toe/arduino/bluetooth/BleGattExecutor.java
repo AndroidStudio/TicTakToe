@@ -62,6 +62,8 @@ class BleGattExecutor extends BluetoothGattCallback {
         super.onDescriptorRead(gatt, descriptor, status);
         this.mCurrentAction = null;
         this.execute(gatt);
+
+        Timber.tag(TAG).e("onDescriptorRead: %s", bytesToHex(descriptor.getValue()));
     }
 
     @Override
@@ -69,6 +71,8 @@ class BleGattExecutor extends BluetoothGattCallback {
         super.onDescriptorWrite(gatt, descriptor, status);
         this.mCurrentAction = null;
         this.execute(gatt);
+
+        Timber.tag(TAG).e("onDescriptorWrite: %s", bytesToHex(descriptor.getValue()));
     }
 
     @Override
@@ -104,6 +108,8 @@ class BleGattExecutor extends BluetoothGattCallback {
         super.onCharacteristicRead(gatt, characteristic, status);
         this.mCurrentAction = null;
         this.execute(gatt);
+
+        Timber.tag(TAG).e("onCharacteristicRead: %s", bytesToHex(characteristic.getValue()));
     }
 
     @Override
