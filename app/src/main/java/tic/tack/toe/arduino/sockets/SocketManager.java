@@ -15,7 +15,10 @@ import java.net.Socket;
 public class SocketManager extends Thread {
 
     //private static final String SERVER_ADDRESS = "40.118.44.196";//prod paweł
-    private static final String SERVER_ADDRESS = "192.168.1.41";//lokal witch
+    //private static final String SERVER_ADDRESS = "176.119.44.252";//paweł
+    //private static final String SERVER_ADDRESS = "192.168.1.41";//lokal witch
+    private static final String SERVER_ADDRESS = "176.119.40.186";//paweł 15-11-2018 // prod
+
 
     private static final String TAG = "SocketManager";
 
@@ -47,6 +50,7 @@ public class SocketManager extends Thread {
     private void connectSocketServer() {
         try {
             initSocket();
+            sendUdid();
             Thread thread = new Thread() {
                 @Override
                 public void run() {
@@ -62,7 +66,6 @@ public class SocketManager extends Thread {
                 }
             };
             thread.start();
-            initGame();
             while (running) {
                 readMessage();
             }
@@ -74,6 +77,18 @@ public class SocketManager extends Thread {
                     mMessageListener.onConnectionError();
                 }
             });
+        }
+    }
+
+    private void sendUdid() {
+        try {
+            String udid = UDID.getUDID();
+            JSONObject jsonObject = new JSONObject();
+            jsonObject.put("udid", "udid");
+            jsonObject.put("udid", udid);
+            writeMessage(jsonObject.toString());
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
@@ -142,7 +157,7 @@ public class SocketManager extends Thread {
     }
 
     private void initSocket() throws Exception {
-        Log.e(TAG, "initSocket");
+        Log.e(TAG, "initSocket: " + SERVER_ADDRESS);
         socket = new Socket(SERVER_ADDRESS, 9696);
     }
 

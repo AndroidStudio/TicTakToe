@@ -27,12 +27,17 @@ public class LedTest extends BaseFragment {
                 getActivity().getSupportFragmentManager().popBackStack());
         MainActivity mainActivity = (MainActivity) getActivity();
         ViewGroup gridLayout = view.findViewById(R.id.gridLayout);
-        for (int i = 0; i < gridLayout.getChildCount(); i++) {
-            int index = i;
-            gridLayout.getChildAt(i).setOnClickListener(v -> {
+
+        for (int i = 0; i < 9; i++) {
+            View childAt = gridLayout.getChildAt(i);
+            childAt.setTag(i);
+            childAt.setOnClickListener(v -> {
+                int index = (Integer) v.getTag();
                 mainActivity.setPixel(index, 1);
-                mainActivity.writeMessage(mainActivity.hexStringToByteArray(CMD.RESET));
             });
         }
+
+        view.findViewById(R.id.reset).setOnClickListener(v ->
+                mainActivity.writeMessage(mainActivity.hexStringToByteArray(CMD.RESET)));
     }
 }

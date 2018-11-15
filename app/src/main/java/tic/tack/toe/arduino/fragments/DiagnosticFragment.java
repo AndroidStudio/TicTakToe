@@ -17,7 +17,6 @@ public class DiagnosticFragment extends BaseFragment {
 
     private TextView diagnosticTextView;
 
-
     boolean loggingEnabled = true;
 
     @Override
@@ -27,7 +26,8 @@ public class DiagnosticFragment extends BaseFragment {
 
     @Nullable
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
+                             @Nullable Bundle savedInstanceState) {
         return inflater.inflate(R.layout.diagnostic_layout, container, false);
     }
 
@@ -38,7 +38,8 @@ public class DiagnosticFragment extends BaseFragment {
         TextView identifier = view.findViewById(R.id.identifier);
         identifier.setText(String.valueOf("Gracz: " + UDID.getUDID()));
 
-        view.findViewById(R.id.close).setOnClickListener(v -> getActivity().getSupportFragmentManager().popBackStack());
+        view.findViewById(R.id.close).setOnClickListener(v -> getActivity()
+                .getSupportFragmentManager().popBackStack());
         Button stop = view.findViewById(R.id.stop);
         stop.setOnClickListener(v -> {
             loggingEnabled = !loggingEnabled;
