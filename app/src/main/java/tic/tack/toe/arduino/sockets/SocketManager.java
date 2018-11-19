@@ -1,8 +1,11 @@
 package tic.tack.toe.arduino.sockets;
 
+import android.content.Context;
+import android.net.wifi.WifiManager;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
+import android.os.PowerManager;
 import android.util.Log;
 
 import org.json.JSONObject;
@@ -11,6 +14,8 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
+
+import tic.tack.toe.arduino.GameApplication;
 
 public class SocketManager extends Thread {
 
@@ -32,10 +37,19 @@ public class SocketManager extends Thread {
     private boolean running = true;
     private boolean ping = false;
 
-    public SocketManager() {
+    private WifiManager.WifiLock wifiLock;
+    private PowerManager.WakeLock wakeLock;
+
+    public SocketManager(GameApplication context) {
         HandlerThread handlerThread = new HandlerThread("HandlerThread");
         handlerThread.start();
         sendMessageHandler = new Handler(handlerThread.getLooper());
+
+        WifiManager wMgr = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
+        wifiLock = wMgr.createWifiLock(WifiManager.WIFI_MODE_FULL, "MyWifiLock");
+
+        PowerManager pMgr = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
+        wakeLock = pMgr.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "TAG::MyWakeLock");
     }
 
     public void setMessageListener(MessageListener messageListener) {
@@ -56,9 +70,14 @@ public class SocketManager extends Thread {
                 public void run() {
                     while (running) {
                         try {
+                            wifiLock.acquire();
+                            wakeLock.acquire();
                             if (ping)
                                 ping();
                             Thread.sleep(3000);
+
+                            wifiLock.release();
+                            wakeLock.release();
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
@@ -144,6 +163,7 @@ public class SocketManager extends Thread {
         final String message = bufferedReader.readLine();
 
         if (message == null) {
+            Log.e(TAG, "readMessage: " + null);
             throw new Exception("Błąd połączenia");
         }
 
@@ -159,6 +179,8 @@ public class SocketManager extends Thread {
     private void initSocket() throws Exception {
         Log.e(TAG, "initSocket: " + SERVER_ADDRESS);
         socket = new Socket(SERVER_ADDRESS, 9696);
+        socket.setKeepAlive(true);
+        socket.setTcpNoDelay(false);
     }
 
     public void sendMessage(String message) {
