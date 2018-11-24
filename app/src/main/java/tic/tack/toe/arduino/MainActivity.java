@@ -62,8 +62,9 @@ public class MainActivity extends BaseActivity {
 
         this.bleManager = BleManager.getInstance(this);
         this.bleManager.setBleListener(this.bleCallbacks);
-        this.bleManager.connect(MainActivity.this,
-                GameSettings.getInstance().getMacAddress(this));
+
+        String macAddress = GameSettings.getInstance().getMacAddress(this);
+        this.bleManager.connect(MainActivity.this, macAddress);
 
         if (savedInstanceState == null) {
             this.setupMenuFragment();
@@ -74,6 +75,12 @@ public class MainActivity extends BaseActivity {
         this.mMacAddressTextView.setText("Bluetooth: "
                 + GameSettings.getInstance().getMacAddress(this) + "\n" + getShirtName()
                 + " (disconnected)");
+
+        if (macAddress.equals("C4:2B:2D:00:FF:1D")) {
+            mFieldBluetoothIndexArray = new int[]{8, 7, 6, 3, 4, 5, 2, 1, 0};
+        } else {
+            mFieldBluetoothIndexArray = new int[]{6, 7, 8, 5, 4, 3, 0, 1, 2};
+        }
     }
 
     private String getShirtName() {

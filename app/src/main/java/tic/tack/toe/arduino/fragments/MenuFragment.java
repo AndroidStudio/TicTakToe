@@ -10,25 +10,14 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import java.util.Locale;
 import java.util.Objects;
 
 import tic.tack.toe.arduino.MainActivity;
 import tic.tack.toe.arduino.R;
 import tic.tack.toe.arduino.bluetooth.BleManager;
 import tic.tack.toe.arduino.game.CMD;
-import tic.tack.toe.arduino.game.GameSettings;
-import timber.log.Timber;
 
 public class MenuFragment extends BaseFragment {
-
-    private static final String TAG = "MenuFragment";
-
-    private final GameSettings mGameSettings = GameSettings.getInstance();
-
-    private final int[] mFieldBluetoothIndexArray = new int[]{
-            6, 7, 8, 5, 4, 3, 0, 1, 2
-    };
 
     private AlertDialog closeGameDialog;
 
@@ -74,15 +63,6 @@ public class MenuFragment extends BaseFragment {
 
         view.findViewById(R.id.testButton).setOnClickListener(v -> {
             if (canLedTest) {
-                setPixel(0, 1);
-                setPixel(1, 1);
-                setPixel(2, 1);
-                setPixel(3, 1);
-                setPixel(4, 1);
-                setPixel(5, 1);
-                setPixel(6, 1);
-                setPixel(7, 1);
-                setPixel(8, 1);
                 writeMessage(hexStringToByteArray(CMD.RESET));
                 canLedTest = false;
 
@@ -115,23 +95,13 @@ public class MenuFragment extends BaseFragment {
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        closeGameDialog.dismiss();
+        if (closeGameDialog != null) {
+            closeGameDialog.dismiss();
+        }
     }
 
     private BleManager getBleManager() {
         return ((MainActivity) Objects.requireNonNull(getActivity())).bleManager;
-    }
-
-    public void setPixel(int index, int value) {
-        Timber.tag(TAG).e("setPixelIndex %s", index);
-
-        String indexHex = String.format(Locale.getDefault(),
-                "%02d", this.mFieldBluetoothIndexArray[index]);
-        String message = CMD.PIXEL + indexHex + (value == 1
-                ? this.mGameSettings.getPlayer_01Color()
-                : this.mGameSettings.getPlayer_02Color());
-        Timber.tag(TAG).e("message %s", message);
-        this.writeMessage(hexStringToByteArray(message));
     }
 
     private byte[] hexStringToByteArray(String value) {

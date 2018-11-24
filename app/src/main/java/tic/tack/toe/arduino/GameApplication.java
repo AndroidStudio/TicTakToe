@@ -1,6 +1,8 @@
 package tic.tack.toe.arduino;
 
 import android.app.Application;
+import android.content.Intent;
+import android.os.Build;
 import android.view.KeyEvent;
 
 import com.splunk.mint.Mint;
@@ -11,6 +13,7 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 
+import tic.tack.toe.arduino.sockets.ForegroundService;
 import tic.tack.toe.arduino.sockets.MessageListener;
 import tic.tack.toe.arduino.sockets.SocketConstants;
 import tic.tack.toe.arduino.sockets.SocketManager;
@@ -19,7 +22,7 @@ import timber.log.Timber;
 
 public class GameApplication extends Application implements MessageListener {
 
-    private final SocketManager socketManager = new SocketManager();
+    private SocketManager socketManager;
 
     private List<MessageListener> mMessageListenerList = new ArrayList<>();
 
@@ -28,6 +31,8 @@ public class GameApplication extends Application implements MessageListener {
     @Override
     public void onCreate() {
         super.onCreate();
+        socketManager = new SocketManager(this);
+
         Timber.tag(TAG).e("onMessage");
         this.initTimber();
         this.initUDID();
@@ -35,6 +40,14 @@ public class GameApplication extends Application implements MessageListener {
         Mint.initAndStartSession(this, "4d92ba79");
         Mint.disableNetworkMonitoring();
         Mint.flush();
+
+        Intent intent = new Intent(this, ForegroundService.class);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            startForegroundService(intent);
+        } else {
+            startService(intent);
+        }
     }
 
     public void startSocket() {
