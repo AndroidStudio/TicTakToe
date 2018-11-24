@@ -12,14 +12,19 @@ import tic.tack.toe.arduino.R;
 import tic.tack.toe.arduino.ScanActivity;
 import tic.tack.toe.arduino.game.GameSettings;
 
+import static tic.tack.toe.arduino.InitDeviceActivity.LED_DIAGNOSTICS;
+
 public class InputMACDialog extends Dialog {
 
     private final Activity context;
+    private boolean forceInit;
 
-    public InputMACDialog(Activity context) {
+    public InputMACDialog(Activity context,boolean forceInit) {
         super(context, R.style.DialogStyle);
         this.context = context;
+        this.forceInit = forceInit;
     }
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,6 +52,7 @@ public class InputMACDialog extends Dialog {
 
             GameSettings.getInstance().setMacAddress(mac, context);
             Intent intent = new Intent(context, ScanActivity.class);
+            intent.putExtra(LED_DIAGNOSTICS,forceInit );
             context.startActivity(intent);
             context.finish();
         });

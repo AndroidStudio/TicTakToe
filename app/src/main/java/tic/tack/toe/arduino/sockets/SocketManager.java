@@ -18,11 +18,12 @@ import java.net.Socket;
 import tic.tack.toe.arduino.GameApplication;
 
 public class SocketManager extends Thread {
+    //private static final String SERVER_ADDRESS = "192.168.0.100";//lokal witch
 
     //private static final String SERVER_ADDRESS = "40.118.44.196";//prod paweł
     //private static final String SERVER_ADDRESS = "176.119.44.252";//paweł
     //private static final String SERVER_ADDRESS = "192.168.1.41";//lokal witch
-    private static final String SERVER_ADDRESS = "176.119.40.186";//paweł 15-11-2018 // prod
+    private static final String SERVER_ADDRESS = "176.119.40.186";//paweł 15-11-2018 // prod**
 
 
     private static final String TAG = "SocketManager";

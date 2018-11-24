@@ -27,6 +27,7 @@ import java.util.Objects;
 import tic.tack.toe.arduino.bluetooth.BleManager;
 import tic.tack.toe.arduino.fragments.FragmentController;
 import tic.tack.toe.arduino.fragments.GameSymbolFragment;
+import tic.tack.toe.arduino.fragments.LedTest;
 import tic.tack.toe.arduino.fragments.MenuFragment;
 import tic.tack.toe.arduino.game.CMD;
 import tic.tack.toe.arduino.game.GameSettings;
@@ -69,6 +70,14 @@ public class MainActivity extends BaseActivity {
         if (savedInstanceState == null) {
             this.setupMenuFragment();
             FragmentController.setCurrentFragment(this, new GameSymbolFragment(), false);
+
+            if (getIntent().getBooleanExtra(InitDeviceActivity.LED_DIAGNOSTICS, false)) {
+                getSupportFragmentManager()
+                        .beginTransaction()
+                        .addToBackStack(null)
+                        .add(R.id.contentLayout, new LedTest(), null)
+                        .commit();
+            }
         }
 
         this.mMacAddressTextView = findViewById(R.id.macAddressTextView);

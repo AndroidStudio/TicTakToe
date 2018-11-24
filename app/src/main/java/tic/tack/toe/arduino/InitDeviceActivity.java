@@ -21,6 +21,7 @@ import timber.log.Timber;
 public class InitDeviceActivity extends BaseActivity {
 
     private static final String TAG = "InitDeviceActivity";
+    public static final String LED_DIAGNOSTICS = "led_diagnostics";
 
     private ProgressDialog mInitDeviceProgressDialog;
 
@@ -28,11 +29,17 @@ public class InitDeviceActivity extends BaseActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         this.setContentView(R.layout.splash_activity);
-        if (!this.isInternetConnection()) {
-            this.displayNoInternetDialog();
-            return;
-        }
-        this.initDevice();
+
+        findViewById(R.id.ledDiagnostics).setOnClickListener(v -> initDeviceSuccess(true));
+
+        findViewById(R.id.startGame).setOnClickListener(v -> {
+            if (!isInternetConnection()) {
+                displayNoInternetDialog();
+                return;
+            }
+            initDevice();
+        });
+
     }
 
     private void displayNoInternetDialog() {
@@ -56,7 +63,7 @@ public class InitDeviceActivity extends BaseActivity {
             JSONObject messageObject = new JSONObject(message);
             switch (messageObject.getString(SocketConstants.TYPE)) {
                 case SocketConstants.INIT_GAME:
-                    this.initDeviceSuccess();
+                    this.initDeviceSuccess(false);
                     break;
             }
         } catch (Exception e) {
@@ -98,7 +105,7 @@ public class InitDeviceActivity extends BaseActivity {
         }
     }
 
-    private void initDeviceSuccess() {
+    private void initDeviceSuccess(boolean ledDiagnostics) {
         GameApplication gameApplication = (GameApplication) getApplication();
         gameApplication.startPing();
 
@@ -115,11 +122,12 @@ public class InitDeviceActivity extends BaseActivity {
 
         String mac = GameSettings.getInstance().getMacAddress(this);
         if (TextUtils.isEmpty(mac)) {
-            InputMACDialog macDialog = new InputMACDialog(this);
+            InputMACDialog macDialog = new InputMACDialog(this,ledDiagnostics);
             macDialog.show();
         } else {
             GameSettings.getInstance().setMacAddress(mac, this);
             Intent intent = new Intent(this, ScanActivity.class);
+            intent.putExtra(LED_DIAGNOSTICS, ledDiagnostics);
             startActivity(intent);
             finish();
         }

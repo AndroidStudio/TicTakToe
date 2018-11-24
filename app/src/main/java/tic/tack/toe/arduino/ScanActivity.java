@@ -51,6 +51,8 @@ public class ScanActivity extends BaseActivity implements Runnable {
         }
 
         Intent intent = new Intent(this, MainActivity.class);
+        intent.putExtra(InitDeviceActivity.LED_DIAGNOSTICS,
+                getIntent().getBooleanExtra(InitDeviceActivity.LED_DIAGNOSTICS, false));
         this.startActivity(intent);
         this.finish();
     }
