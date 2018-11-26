@@ -369,7 +369,7 @@ public class GameFragment extends BaseFragment implements View.OnClickListener, 
                     Color.parseColor("#" + this.mGameSettings.getPlayer_02Color()), SRC_IN));
         }
 
-        mainActivity.writeMessage(mainActivity.hexStringToByteArray(CMD.RESET));
+        mainActivity.writeMessage(mainActivity.hexStringToByteArray(CMD.RESET_ALL));
     }
 
     private void updateUI(int index) {

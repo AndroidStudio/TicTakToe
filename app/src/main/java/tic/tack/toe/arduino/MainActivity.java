@@ -72,10 +72,16 @@ public class MainActivity extends BaseActivity {
             FragmentController.setCurrentFragment(this, new GameSymbolFragment(), false);
 
             if (getIntent().getBooleanExtra(InitDeviceActivity.LED_DIAGNOSTICS, false)) {
+
+                LedTest ledTest = new LedTest();
+                Bundle bundle = new Bundle();
+                bundle.putBoolean(InitDeviceActivity.LED_DIAGNOSTICS, true);
+                ledTest.setArguments(bundle);
+
                 getSupportFragmentManager()
                         .beginTransaction()
                         .addToBackStack(null)
-                        .add(R.id.contentLayout, new LedTest(), null)
+                        .add(R.id.contentLayout, ledTest, null)
                         .commit();
             }
         }
@@ -139,7 +145,7 @@ public class MainActivity extends BaseActivity {
         public void onConnected() {
             Timber.tag(TAG).e("onConnected");
             updateBluetoothStatusUI(true);
-            handler.postDelayed(() -> writeMessage(hexStringToByteArray(CMD.RESET)), 1000);
+            handler.postDelayed(() -> writeMessage(hexStringToByteArray(CMD.RESET_ALL)), 1000);
         }
 
         @Override
@@ -222,7 +228,7 @@ public class MainActivity extends BaseActivity {
                 .setPositiveButton("Tak",
                         (dialog, whichButton) -> {
                             disconnectClient();
-                            writeMessage(hexStringToByteArray(CMD.RESET));
+                            writeMessage(hexStringToByteArray(CMD.RESET_ALL));
                             ActivityCompat.finishAffinity(Objects.requireNonNull(this));
                             System.exit(0);
                         }
@@ -280,12 +286,22 @@ public class MainActivity extends BaseActivity {
 
         String indexHex = String.format(Locale.getDefault(),
                 "%02d", this.mFieldBluetoothIndexArray[index]);
-        String message = CMD.PIXEL + indexHex + (value == 1
+        String message = CMD.SET_PIXEL + indexHex + (value == 1
                 ? this.mGameSettings.getPlayer_01Color()
                 : this.mGameSettings.getPlayer_02Color());
         Timber.tag(TAG).e("message %s", message);
         this.writeMessage(hexStringToByteArray(message));
     }
+
+    public void resetPixel(int index) {
+        Timber.tag(TAG).e("resetPixel %s", index);
+        String indexHex = String.format(Locale.getDefault(),
+                "%02d", this.mFieldBluetoothIndexArray[index]);
+        String message = CMD.RESET_PIXEL + indexHex;
+        Timber.tag(TAG).e("message %s", message);
+        this.writeMessage(hexStringToByteArray(message));
+    }
+
 
     public byte[] hexStringToByteArray(String value) {
         int length = value.length();

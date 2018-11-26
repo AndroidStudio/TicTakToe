@@ -12,13 +12,13 @@
         android:src="@drawable/ic_splash" />
 
     <LinearLayout
-        android:clipToPadding="false"
-        android:paddingBottom="100dp"
-        android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:clipToPadding="false"
+        android:orientation="vertical"
+        android:paddingBottom="100dp">
 
         <Button
             android:id="@+id/ledDiagnostics"
@@ -27,11 +27,10 @@
             android:text="Diagnostyka LED" />
 
         <Button
-            android:layout_marginTop="20dp"
             android:id="@+id/startGame"
             android:layout_width="250dp"
             android:layout_height="50dp"
-            android:text="Start" />
-
+            android:layout_marginTop="20dp"
+            android:text="Nowa gra" />
     </LinearLayout>
 </RelativeLayout>

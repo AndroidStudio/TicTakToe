@@ -12,7 +12,6 @@ import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.Nullable;
-import android.support.v7.app.AlertDialog;
 import android.text.TextUtils;
 import android.view.KeyEvent;
 import android.widget.Toast;
@@ -27,13 +26,12 @@ public class ScanActivity extends BaseActivity implements Runnable {
     private final Handler handler = new Handler();
 
     private BluetoothAdapter mBluetoothAdapter;
-    private AlertDialog deviceNotFoundDialog;
     private ProgressDialog mScanDialog;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        this.setContentView(R.layout.splash_activity);
+        this.setContentView(R.layout.scan_activity);
         if (!getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
             this.startMainActivity();
             return;
@@ -161,9 +159,6 @@ public class ScanActivity extends BaseActivity implements Runnable {
     @Override
     protected void onPause() {
         super.onPause();
-        if (deviceNotFoundDialog != null) {
-            deviceNotFoundDialog.dismiss();
-        }
         this.scanningHandler.removeCallbacksAndMessages(null);
         this.handler.removeCallbacksAndMessages(null);
         this.stopScanning();

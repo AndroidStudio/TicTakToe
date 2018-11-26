@@ -10,6 +10,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
+import tic.tack.toe.arduino.InitDeviceActivity;
 import tic.tack.toe.arduino.MainActivity;
 import tic.tack.toe.arduino.R;
 import tic.tack.toe.arduino.game.CMD;
@@ -33,8 +34,18 @@ public class LedTest extends BaseFragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        view.findViewById(R.id.close).setOnClickListener(v ->
-                getActivity().getSupportFragmentManager().popBackStack());
+        boolean diagnostic = getActivity()
+                .getIntent()
+                .getBooleanExtra(InitDeviceActivity.LED_DIAGNOSTICS, false);
+        view.findViewById(R.id.close).setOnClickListener(v -> {
+                    if (diagnostic) {
+                        getActivity().finish();
+                        System.exit(0);
+                    } else {
+                        getActivity().getSupportFragmentManager().popBackStack();
+                    }
+                }
+        );
         MainActivity mainActivity = (MainActivity) getActivity();
         gridLayout = view.findViewById(R.id.gridLayout);
 
@@ -43,19 +54,25 @@ public class LedTest extends BaseFragment {
             childAt.setTag(i);
             childAt.setOnClickListener(v -> {
                 int index = (Integer) v.getTag();
-                mFieldTypeArray[index] = FieldType.PLAYER_01;
-                mainActivity.setPixel(index, 1);
+
+                FieldType fieldType = mFieldTypeArray[index];
+                if (fieldType == FieldType.PLAYER_01) {
+                    mFieldTypeArray[index] = FieldType.EMPTY;
+                    mainActivity.resetPixel(index);
+                } else {
+                    mFieldTypeArray[index] = FieldType.PLAYER_01;
+                    mainActivity.setPixel(index, 1);
+                }
                 updateUI(index);
             });
         }
-
 
         view.findViewById(R.id.reset).setOnClickListener(v -> {
             for (int i = 0; i < 9; i++) {
                 mFieldTypeArray[i] = FieldType.EMPTY;
                 updateUI(i);
             }
-            mainActivity.writeMessage(mainActivity.hexStringToByteArray(CMD.RESET));
+            mainActivity.writeMessage(mainActivity.hexStringToByteArray(CMD.RESET_ALL));
         });
     }
 

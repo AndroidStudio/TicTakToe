@@ -49,7 +49,7 @@ public class MenuFragment extends BaseFragment {
                     .setPositiveButton("Tak",
                             (dialog, whichButton) -> {
                                 mainActivity.disconnectClient();
-                                writeMessage(hexStringToByteArray(CMD.RESET));
+                                writeMessage(hexStringToByteArray(CMD.RESET_ALL));
                                 ActivityCompat.finishAffinity(Objects.requireNonNull(getActivity()));
                                 System.exit(0);
                             }
@@ -63,7 +63,7 @@ public class MenuFragment extends BaseFragment {
 
         view.findViewById(R.id.testButton).setOnClickListener(v -> {
             if (canLedTest) {
-                writeMessage(hexStringToByteArray(CMD.RESET));
+                writeMessage(hexStringToByteArray(CMD.RESET_ALL));
                 canLedTest = false;
 
                 ledTestHandler.removeCallbacksAndMessages(null);
